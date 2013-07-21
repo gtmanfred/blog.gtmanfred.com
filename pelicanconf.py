@@ -6,9 +6,10 @@ AUTHOR = 'Daniel Wallace'
 SITENAME = 'GTmanfred'
 SITEURL = ''
 
-TIMEZONE = 'Europe/Paris'
+TIMEZONE = 'America/Chicago'
 
 DEFAULT_LANG = 'en'
+LOCALE = 'en_US.utf8'
 
 THEME = "/home/pelican/pelican-themes/bootstrap2"
 
@@ -18,9 +19,8 @@ CATEGORY_FEED_ATOM = None
 TRANSLATION_FEED_ATOM = None
 
 # Blogroll
-LINKS =  (('Pelican', 'http://getpelican.com/'),
-          ('Python.org', 'http://python.org/'),
-          ('Jinja2', 'http://jinja.pocoo.org/'),
+LINKS =  (('Git Repositories', 'http://code.gtmanfred.com/'),
+          ('Feeds', '/feeds/'),
           )
 
 DEFAULT_PAGINATION = 10
