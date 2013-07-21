@@ -11,4 +11,5 @@ git reset --hard added
 chmod again
 try pull
 add remote
+and again
 GIT_WORK_TREE
