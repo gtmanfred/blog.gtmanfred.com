@@ -6,5 +6,6 @@ Slug: my-super-post-3
 Author: Daniel Wallace
 Summary:  why won't it work...
 
+#Getting markdown and get to work in Pelican
 Try again
 once again
