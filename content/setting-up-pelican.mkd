@@ -35,6 +35,7 @@ just make the virtual environment and install pelican.
 >pip install -e git://github.com/getpelican/pelican.git#egg=pelican
 
 I prefer to use the git repository for pelican, feel free to use the version from pypi.  A
-nice tip, since we are only 
+nice tip, since we are only going to ever use this user for that virtual environment is to
+just add source ~/blogenv/bin/activate in your .bash_profile for when you login.
 
 Next we need to setup our blog environment.  This one is really simple, just run p
