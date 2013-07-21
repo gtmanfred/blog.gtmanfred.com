@@ -68,9 +68,11 @@ files and don't have to worry about the rest of the pelican files if we don't wa
 
 Start out with making your blog git repository on your localmachine and initialize it.
 
-    mkdir ~/gitrepos/blogposts
-    cd !$
-    git init
+```
+mkdir ~/gitrepos/blogposts
+cd ~/gitrepos/blogposts
+git init
+```
 
 After this you will want to go ahead and copy over your pelicanconf.py from the ~/blog
 directory on the remote device to your local git repository.  Now git add it.
@@ -82,20 +84,25 @@ Now we need to go back to the pelican user on your remote machine with the pelic
 subdirectory.  I personally kept with the blog directory naming theme and initialized a bare
 repo for my blog.
 
-    mkdir ~pelican/bloggit
-    cd !$
-    git init --bare
+```
+mkdir ~pelican/bloggit
+cd ~pelican/bloggit
+git init --bare
+```
 
 Now we can go ahead and setup out githook that is going to do all the work for us.  Copy the
 following into ~/bloggit/hooks/post-update.
 
-    #!/usr/bin/env bash
-    source ~/blogenv/bin/activate
-    GIT_WORK_TREE=/home/pelican/blog git checkout -f
-    pushd ~/blog
-    make html
-    make publish
-    popd
+```bash
+#!/usr/bin/env bash
+source ~/blogenv/bin/activate
+GIT_WORK_TREE=/home/pelican/blog git checkout -f
+pushd ~/blog
+make html
+make publish
+popd
+```
+
 
 I know what you are thinking! Why do we have to source bin/activate in the git hook if we are
 already sourcing it in .bash_profile? Well, this script won't read .bash_profile.  There are
@@ -107,6 +114,7 @@ your git repository, make a contents directory and write a blog post.  Here is a
 you don't want to spend the time right now.
 
 [From the pelican documentation](https://github.com/getpelican/pelican/blob/master/docs/getting_started.rst#file-metadata)
+
     Title: My super title
     Date: 2010-12-03 10:20
     Category: Python
@@ -120,9 +128,11 @@ you don't want to spend the time right now.
 Place this in a file ending with .md for your git repository.  We now need to setup the remote
 git repository and push to it.
 
-    git remote add website pelican@blog.gtmanfred.com:bloggit
-    git remote update
-    git push -u website master
+```
+git remote add website pelican@blog.gtmanfred.com:bloggit
+git remote update
+git push -u website master
+```
 
 This should generate the blog posts and you should be able to use the same nginx.conf server
 from above.
@@ -132,11 +142,13 @@ Now when I was writing this post I removed a few bits and pieces from my actual 
 beacuse I am peculiar.  The Makefile for pelican recognizes the environment variable OUTPUTDIR
 for where you want output set to... so I set it to /srv/http/blog.gtmanfred.com.
 
-    #!/usr/bin/env bash
-    source ~/blogenv/bin/activate
-    GIT_WORK_TREE=/home/pelican/blog git checkout -f
-    make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ html
-    make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ publish
+```bash
+#!/usr/bin/env bash
+source ~/blogenv/bin/activate
+GIT_WORK_TREE=/home/pelican/blog git checkout -f
+make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ html
+make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ publish
+```
 
 I also wanted to use [vim-markdown](https://github.com/plasticboy/vim-markdown), and I use
 pathogen, so I just cloned the git repo into ~/.config/vim/bundle (yes .config ... it is a
