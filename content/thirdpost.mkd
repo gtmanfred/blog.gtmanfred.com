@@ -8,8 +8,6 @@ Summary:  why won't it work...
 
 #Getting markdown and get to work in Pelican
 
->[get pelican](https://github.com/getpelican/pelican-themes)
+[get pelican](https://github.com/getpelican/pelican-themes)
 
-Try again
-
-once again
+Ok! so this was a fun experiment.  I wanted to be able to run 
