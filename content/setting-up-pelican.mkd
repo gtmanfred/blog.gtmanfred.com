@@ -56,6 +56,9 @@ server.
         server_name blog.gtmanfred.com blag.gtmanfred.com;
         root /home/pelican/blog/output;
         index index.html;
+        location ~ ^/feeds {
+            autoindex on
+        }
     }
 
 ###Setting up git
@@ -91,6 +94,7 @@ following into ~/bloggit/hooks/post-update.
     GIT_WORK_TREE=/home/pelican/blog git checkout -f
     pushd ~/blog
     make html
+    make publish
     popd
 
 I know what you are thinking! Why do we have to source bin/activate in the git hook if we are
@@ -132,6 +136,7 @@ for where you want output set to... so I set it to /srv/http/blog.gtmanfred.com.
     source ~/blogenv/bin/activate
     GIT_WORK_TREE=/home/pelican/blog git checkout -f
     make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ html
+    make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ publish
 
 I also wanted to use [vim-markdown](https://github.com/plasticboy/vim-markdown), and I use
 pathogen, so I just cloned the git repo into ~/.config/vim/bundle (yes .config ... it is a
