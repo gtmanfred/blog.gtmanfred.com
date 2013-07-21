@@ -25,6 +25,7 @@ To keep everything clean on my server and also to prevent me from having to inst
 shitton of extra python packages, I am just using a virtualenv and managing everything from a
 seperate user.  In my pelican users home directory, there are 3 extra directories.
 
+##Blog Virtual Environment
 First off is ~/blogenv/. In this directory we have our virtual environment.  Because I am
 using Arch Linux, and we default to python3, I was very happy to see pelican is compatible
 with python3.  Once you have whatever python-virtualenv package your distribution comes with,
@@ -39,5 +40,8 @@ nice tip, since we are only going to ever use this user for that virtual environ
 just add source ~/blogenv/bin/activate in your ~/.bashrc so that we always get the environment
 when using bash.
 
-Next we need to setup our blog environment.  This one is really simple, just run p
+##Start blog
+Next we need to setup our blog environment.  This one is really simple, just run the
+pelican-quickstart command and answer all the questions that it asks.
+
 
