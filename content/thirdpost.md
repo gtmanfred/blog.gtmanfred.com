@@ -7,5 +7,6 @@ Author: Daniel Wallace
 Summary:  why won't it work...
 
 #Getting markdown and get to work in Pelican
+>[get pelican](https://github.com/getpelican/pelican-themes)
 Try again
 once again
