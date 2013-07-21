@@ -10,3 +10,4 @@ CONTENT content yay md
 git reset --hard added
 chmod again
 try pull
+add remote
