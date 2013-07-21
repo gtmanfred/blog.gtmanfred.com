@@ -1,4 +1,4 @@
-Title: How I setup pelican and git
+Title: How I setup Pelican and Git
 Date: 2013-07-20 20:09
 Category: Pelican
 Tags: pelican, git, publishing
@@ -6,7 +6,7 @@ Slug: setting-up-pelican-and-git
 Author: Daniel Wallace
 Summary:  why won't it work...
 
-#Getting markdown and get to work in Pelican
+#Getting Markdown and Git to work in Pelican
 
 [get pelican](https://github.com/getpelican/pelican-themes)
 
