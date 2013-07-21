@@ -22,9 +22,14 @@ TRANSLATION_FEED_ATOM = None
 LINKS =  (('Git Repositories', 'http://code.gtmanfred.com/'),
           ('Feeds', '/feeds/'),
           )
+EXTRA_PATH_METADATA={ 'extra/robots.txt': {'path': 'robots.txt'},}
+STATIC_PATHS = [
+            'pictures',
+                'extra/robots.txt',
+                    ]
 
 DEFAULT_PAGINATION = 10
 MARKUP = ('mkd', )
 
 # Uncomment following line if you want document-relative URLs when developing
-RELATIVE_URLS = True
+#RELATIVE_URLS = True

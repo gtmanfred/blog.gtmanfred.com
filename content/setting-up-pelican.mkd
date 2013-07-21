@@ -68,11 +68,9 @@ files and don't have to worry about the rest of the pelican files if we don't wa
 
 Start out with making your blog git repository on your localmachine and initialize it.
 
-```
-mkdir ~/gitrepos/blogposts
-cd ~/gitrepos/blogposts
-git init
-```
+    mkdir ~/gitrepos/blogposts
+    cd ~/gitrepos/blogposts
+    git init
 
 After this you will want to go ahead and copy over your pelicanconf.py from the ~/blog
 directory on the remote device to your local git repository.  Now git add it.
