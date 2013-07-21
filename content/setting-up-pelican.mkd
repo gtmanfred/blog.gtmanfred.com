@@ -19,7 +19,7 @@ default to using .mkd files. Silly vim-markdown not recognizing the .md suffix.
 
 __OK here is where I got everything working correctly(and I broke it)__
 
-##Setting up the pelican user!
+###Setting up the pelican user!
 
 To keep everything clean on my server and also to prevent me from having to install a whole
 shitton of extra python packages, I am just using a virtualenv and managing everything from a
@@ -57,3 +57,92 @@ server.
         root /home/pelican/blog/output;
         index index.html;
     }
+
+###Setting up git
+If you are like me, you like it when things are automated.  This is where git comes in to keep
+track of your blog posts and files.  This way we only have to keep track of a small number of
+files and don't have to worry about the rest of the pelican files if we don't want.
+
+Start out with making your blog git repository on your localmachine and initialize it.
+
+    mkdir ~/gitrepos/blogposts
+    cd !$
+    git init
+
+After this you will want to go ahead and copy over your pelicanconf.py from the ~/blog
+directory on the remote device to your local git repository.  Now git add it.
+
+    git add pelicanconf.py
+    git commit -m "First Commit -> Starting new blog!"
+
+Now we need to go back to the pelican user on your remote machine with the pelican
+subdirectory.  I personally kept with the blog directory naming theme and initialized a bare
+repo for my blog.
+
+    mkdir ~pelican/bloggit
+    cd !$
+    git init --bare
+
+Now we can go ahead and setup out githook that is going to do all the work for us.  Copy the
+following into ~/bloggit/hooks/post-update.
+
+    #!/usr/bin/env bash
+    source ~/blogenv/bin/activate
+    GIT_WORK_TREE=/home/pelican/blog git checkout -f
+    pushd ~/blog
+    make html
+    popd
+
+I know what you are thinking! Why do we have to source bin/activate in the git hook if we are
+already sourcing it in .bash_profile? Well, this script won't read .bash_profile.  There are
+ways to make it read that file, such as adding --login after the bash call, but this is rather
+messy and and one extra line isn't a big deal.
+
+Now, back on your local machine, lets make a markdown file to publish our first blogpost.  In
+your git repository, make a contents directory and write a blog post.  Here is an example if
+you don't want to spend the time right now.
+
+[From the pelican documentation](https://github.com/getpelican/pelican/blob/master/docs/getting_started.rst#file-metadata)
+    Title: My super title
+    Date: 2010-12-03 10:20
+    Category: Python
+    Tags: pelican, publishing
+    Slug: my-super-post
+    Author: Alexis Metaireau
+    Summary: Short version for index and feeds
+    
+    This is the content of my super blog post.
+
+Place this in a file ending with .md for your git repository.  We now need to setup the remote
+git repository and push to it.
+
+    git remote add website pelican@blog.gtmanfred.com:bloggit
+    git remote update
+    git push -u website master
+
+This should generate the blog posts and you should be able to use the same nginx.conf server
+from above.
+
+###I am a bit weird about my nginx configurations and /home
+Now when I was writing this post I removed a few bits and pieces from my actual setup, just
+beacuse I am peculiar.  The Makefile for pelican recognizes the environment variable OUTPUTDIR
+for where you want output set to... so I set it to /srv/http/blog.gtmanfred.com.
+
+    #!/usr/bin/env bash
+    source ~/blogenv/bin/activate
+    GIT_WORK_TREE=/home/pelican/blog git checkout -f
+    make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ html
+
+I also wanted to use [vim-markdown](https://github.com/plasticboy/vim-markdown), and I use
+pathogen, so I just cloned the git repo into ~/.config/vim/bundle (yes .config ... it is a
+long story).  Because [vim-markdown](https://github.com/plasticboy/vim-markdown) only uses
+.mkd suffix, I had to add the following to pelicanconf.py.
+
+    MARKUP = ("mkd",)
+
+Don't forget the , because python is expecting a list.
+
+###Summary
+
+I Hope to be doing a lot more of these blog posts now that I can remove the vim blogit plugin
+because Wordpress truely sucks.
