@@ -17,7 +17,7 @@ While I am posting this first blog post I am still testing out some kinks and ge
 everything to work correctly.  And as I say that... everything works... except pelican doesn't
 default to using .mkd files. Silly vim-markdown not recognizing the .md suffix.
 
-__OK here is where I got everything working correctly__
+__OK here is where I got everything working correctly(and I broke it)__
 
 #Setting up a virtualenv
 
