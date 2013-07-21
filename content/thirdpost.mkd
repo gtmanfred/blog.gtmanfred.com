@@ -10,4 +10,7 @@ Summary:  why won't it work...
 
 [get pelican](https://github.com/getpelican/pelican-themes)
 
-Ok! so this was a fun experiment.  I wanted to be able to run 
+Ok! so this was a fun experiment.  I wanted to be able to run git push and have
+everything be published automagically to the website.
+
+Tag
