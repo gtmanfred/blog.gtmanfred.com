@@ -1,0 +1,18 @@
+Title: About
+Date: 2013-07-21 03:21
+Category: About
+Slug: about
+Summary:  A quick summary of me
+#Daniel Wallace
+I began using Linux 3 years ago.  I had ubuntu 10.10 installed for about 4
+hours before removing it in favor of Arch Linux and its packaging structure.
+After a year and a half of using archlinux, I decided I wanted to be a
+Trusted User, and began working towards that goal.  I began adopting any
+interesting package I could find in the AUR and updating it.
+
+I maintain 59 packages in the aur, 86 packages in community and
+multilib, and have submitted several patches to pacman.  I also
+maintain my own repository made up mostly of the new VCS PKGBUILD formats.
+
+On IRC I go by gtmanfred.  I can also be contacted at email.
+
