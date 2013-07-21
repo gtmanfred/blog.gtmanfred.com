@@ -2,7 +2,7 @@ Title: How I setup pelican and git
 Date: 2013-07-20 20:09
 Category: Pelican
 Tags: pelican, git, publishing
-Slug: my-super-post
+Slug: setting-up-pelican-and-git
 Author: Daniel Wallace
 Summary:  why won't it work...
 
@@ -16,3 +16,11 @@ published automagically to the website.
 While I am posting this first blog post I am still testing out some kinks and getting
 everything to work correctly.  And as I say that... everything works... except pelican doesn't
 default to using .mkd files. Silly vim-markdown not recognizing the .md suffix.
+
+__OK here is where I got everything working correctly__
+
+#Setting up a virtualenv
+
+To keep everything clean on my server and also to prevent me from having to install a whole
+shitton of extra python packages, I am just using a virtualenv and managing everything from a
+seperate user.
