@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 AUTHOR = 'Daniel Wallace'
 SITENAME = 'GTmanfred'
-SITEURL = ''
+SITEURL = 'http://blog.gtmanfred.com'
 
 TIMEZONE = 'America/Chicago'
 
@@ -21,7 +21,6 @@ TRANSLATION_FEED_ATOM = None
 # Blogroll
 LINKS =  (('Git Repositories', 'http://code.gtmanfred.com/'),
           ('Feeds', '/feeds/'),
-          ('About', '/about.html'),
           ('KaiSforza\'s Blag', 'http://kaictl.net'),
           )
 EXTRA_PATH_METADATA={ 'extra/robots.txt': {'path': 'robots.txt'},}
