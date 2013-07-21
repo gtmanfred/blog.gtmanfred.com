@@ -14,3 +14,4 @@ add remote
 and again
 GIT_WORK_TREE
 add to home
+all works 
