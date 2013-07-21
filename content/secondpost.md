@@ -15,4 +15,4 @@ and again
 GIT_WORK_TREE
 add to home
 all works 
-... almost
+... almost done
