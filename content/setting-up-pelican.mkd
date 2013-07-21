@@ -19,29 +19,41 @@ default to using .mkd files. Silly vim-markdown not recognizing the .md suffix.
 
 __OK here is where I got everything working correctly(and I broke it)__
 
-#Setting up the pelican user!
+##Setting up the pelican user!
 
 To keep everything clean on my server and also to prevent me from having to install a whole
 shitton of extra python packages, I am just using a virtualenv and managing everything from a
 seperate user.  In my pelican users home directory, there are 3 extra directories.
 
-##Blog Virtual Environment
+###Blog Virtual Environment
 First off is ~/blogenv/. In this directory we have our virtual environment.  Because I am
 using Arch Linux, and we default to python3, I was very happy to see pelican is compatible
 with python3.  Once you have whatever python-virtualenv package your distribution comes with,
 just make the virtual environment and install pelican.
 
->virtualenv ~/blogenv
->source ~/blogenv/bin/activate
->pip install -e git://github.com/getpelican/pelican.git#egg=pelican
+    virtualenv ~/blogenv
+    source ~/blogenv/bin/activate
+    pip install -e git://github.com/getpelican/pelican.git#egg=pelican
 
 I prefer to use the git repository for pelican, feel free to use the version from pypi.  A
 nice tip, since we are only going to ever use this user for that virtual environment is to
 just add source ~/blogenv/bin/activate in your ~/.bashrc so that we always get the environment
 when using bash.
 
-##Start blog
+###Start blog
 Next we need to setup our blog environment.  This one is really simple, just run the
 pelican-quickstart command and answer all the questions that it asks.
 
+    pelican-quickstart -p ~/blog
 
+If you really wanted, you could stop here.  You just write your blog posts in the content
+directory under ~/blog.  Once you have written something, run make in ~/blog and your html
+files will be put in ~/blog/output.  Then just host the blog with nginx or an equivalent HTTP
+server.
+
+    server {
+        listen 80;
+        server_name blog.gtmanfred.com blag.gtmanfred.com;
+        root /home/pelican/blog/output;
+        index index.html;
+    }
