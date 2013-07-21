@@ -8,3 +8,4 @@ Summary: I wanna know if this works
 
 CONTENT content yay md
 git reset --hard added
+chmod again
