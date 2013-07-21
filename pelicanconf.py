@@ -10,7 +10,7 @@ TIMEZONE = 'Europe/Paris'
 
 DEFAULT_LANG = 'en'
 
-THEME = "/home/flask/pelican-themes/bootstrap2"
+THEME = "/home/pelican/pelican-themes/bootstrap2"
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
