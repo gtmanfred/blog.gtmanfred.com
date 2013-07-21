@@ -1,8 +1,8 @@
-Title: My super title part 3
+Title: How I setup pelican and git
 Date: 2013-07-20 20:09
-Category: Python
-Tags: pelican, publishing
-Slug: my-super-post-3
+Category: Pelican
+Tags: pelican, git, publishing
+Slug: my-super-post
 Author: Daniel Wallace
 Summary:  why won't it work...
 
