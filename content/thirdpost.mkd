@@ -14,4 +14,5 @@ Ok! so this was a fun experiment.  I wanted to be able to run git push and have 
 published automagically to the website.
 
 While I am posting this first blog post I am still testing out some kinks and getting
-everything to work correctly.
+everything to work correctly.  And as I say that... everything works... except pelican doesn't
+default to using .mkd files. Silly vim-markdown not recognizing the .md suffix.
