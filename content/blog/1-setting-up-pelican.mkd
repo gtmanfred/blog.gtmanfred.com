@@ -35,6 +35,10 @@ just make the virtual environment and install pelican.
     source ~/blogenv/bin/activate
     pip install -e git://github.com/getpelican/pelican.git#egg=pelican
 
+If you are wanting to use markdown, you will need to pip install it as well.
+
+    pip install Markdown
+
 I prefer to use the git repository for pelican, feel free to use the version from pypi.  A
 nice tip, since we are only going to ever use this user for that virtual environment is to
 just add source ~/blogenv/bin/activate in your ~/.bashrc so that we always get the environment
@@ -99,6 +103,7 @@ make publish
 popd
 ```
 
+Be sure to `chmod +x` the file as well.
 
 I know what you are thinking! Why do we have to source bin/activate in the git hook if we are
 already sourcing it in .bash_profile? Well, this script won't read .bash_profile.  There are
