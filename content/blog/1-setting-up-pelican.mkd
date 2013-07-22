@@ -98,8 +98,7 @@ following into ~/bloggit/hooks/post-update.
 source ~/blogenv/bin/activate
 GIT_WORK_TREE=/home/pelican/blog git checkout -f
 pushd ~/blog
-make html
-make publish
+make html publish
 popd
 ```
 
@@ -145,9 +144,10 @@ for where you want output set to... so I set it to /srv/http/blog.gtmanfred.com.
 #!/usr/bin/env bash
 source ~/blogenv/bin/activate
 GIT_WORK_TREE=/home/pelican/blog git checkout -f
-make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ html
-make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ publish
+make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ html publish
 ```
+
+Again, be sure to `chmod +x` the hook.
 
 I also wanted to use [vim-markdown](https://github.com/plasticboy/vim-markdown), and I use
 pathogen, so I just cloned the git repo into ~/.config/vim/bundle (yes .config ... it is a
