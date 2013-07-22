@@ -12,6 +12,7 @@ DEFAULT_LANG = 'en'
 LOCALE = 'en_US.utf8'
 
 THEME = "/home/pelican/pelican-themes/bootstrap2"
+DISQUS_SITENAME="gtmanfred"
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
