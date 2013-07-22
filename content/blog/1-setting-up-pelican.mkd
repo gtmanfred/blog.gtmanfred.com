@@ -98,7 +98,7 @@ following into ~/bloggit/hooks/post-update.
 source ~/blogenv/bin/activate
 GIT_WORK_TREE=/home/pelican/blog git checkout -f
 pushd ~/blog
-make html publish
+make publish
 popd
 ```
 
@@ -144,7 +144,7 @@ for where you want output set to... so I set it to /srv/http/blog.gtmanfred.com.
 #!/usr/bin/env bash
 source ~/blogenv/bin/activate
 GIT_WORK_TREE=/home/pelican/blog git checkout -f
-make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ html publish
+make -C ~/blog OUTPUTDIR=/srv/http/blog.gtmanfred.com/ publish
 ```
 
 Again, be sure to `chmod +x` the hook.
