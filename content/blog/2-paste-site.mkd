@@ -1,0 +1,233 @@
+Title: Why the hell would I want my own paste site? ¯\(°_o)/¯
+Date: 2013-08-12 21:00
+Category: Pelican
+Tags: pelican, git, publishing
+Slug: paste-site
+Author: Daniel Wallace
+Summary:  Probley because KaiSforza was bitching about it.
+
+#Where to get everything
+
+[Filebin](http://git.server-speed.net/users/flo/filebin/) is pretty simple, all you need to do
+is git clone it into your document root.
+
+    git clone git://git.server-speed.net/users/flo/filebin/ /srv/http/paste.gtmanfred.com
+
+Anything else need to be said? Oh right, I had problems with the cpan dependencies and what
+not for HTML::FromANSI.  I ended up just installing them into my users ~/.cpan directory, then
+just moving them to /usr/share/parl5/site_perl instead of packaging them because I didn't see
+them in the Arch Linux repositories.
+
+    perl-text-markdown
+    php-memcache
+    qrencode
+    python2-pygments
+
+And then a database, I chose to use mariadb because I have been using MySQL so much at work, i
+want some practice with it outside of work as well.
+
+#Setting up the config files
+So I just followed the instructions in
+[INSTALl](http://git.server-speed.net/users/flo/filebin/tree/INSTALL) for the most part.
+
+    cd /srv/http/paste.gtmanfred.com
+    cp -av application/config/example/* application/config
+    cp -av data/local/examples/contact-info.php data/local/
+
+Next you need to setup the databases for mariadb or w/e databse you are going to use.
+
+    mysql -u root
+    MariaDB [(none)]> create database pastes;
+    Query OK, 1 row affected (0.02 sec)
+    
+    MariaDB [(none)]> create user 'pastes'@'localhost' identified by '<password>';
+    Query OK, 0 rows affected (0.10 sec)
+    
+    MariaDB [(none)]> Grant all privileges on pastes.* to 'pastes'@'localhost';
+    Query OK, 0 rows affected (0.04 sec)
+
+After this point, I started setting up the config-local.php like was described in
+[INSTALL](http://git.server-speed.net/users/flo/filebin/tree/INSTALL)
+
+    ╘═😸 tail -c +0 config-local.php database.php
+    ==> config-local.php <==
+    <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+    /*
+     * Use this file to override any settings from config.php
+     */
+
+    // set this to a 32char random string
+    $config['encryption_key'] = '<insert any random string>';
+
+    // shouldn't be served by the webserver
+    $config['upload_path'] = FCPATH.'data/uploads';
+
+    // don't show index.php in the url
+    $config['index_page'] = '';
+
+
+    ==> database.php <==
+    <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+    /*
+    | -------------------------------------------------------------------
+    | DATABASE CONNECTIVITY SETTINGS
+    | -------------------------------------------------------------------
+    | This file will contain the settings needed to access your database.
+    |
+    | For complete instructions please consult the 'Database Connection'
+    | page of the User Guide.
+    |
+    | -------------------------------------------------------------------
+    | EXPLANATION OF VARIABLES
+    | -------------------------------------------------------------------
+    |
+    |	['hostname'] The hostname of your database server.
+    |	['username'] The username used to connect to the database
+    |	['password'] The password used to connect to the database
+    |	['database'] The name of the database you want to connect to
+    |	['dbdriver'] The database type. ie: mysql.  Currently supported:
+                     mysql, mysqli, postgre, odbc, mssql, sqlite, oci8
+    |	['dbprefix'] You can add an optional prefix, which will be added
+    |				 to the table name when using the  Active Record class
+    |	['pconnect'] TRUE/FALSE - Whether to use a persistent connection
+    |	['db_debug'] TRUE/FALSE - Whether database errors should be displayed.
+    |	['cache_on'] TRUE/FALSE - Enables/disables query caching
+    |	['cachedir'] The path to the folder where cache files should be stored
+    |	['char_set'] The character set used in communicating with the database
+    |	['dbcollat'] The character collation used in communicating with the database
+    |				 NOTE: For MySQL and MySQLi databases, this setting is only used
+    | 				 as a backup if your server is running PHP < 5.2.3 or MySQL < 5.0.7
+    |				 (and in table creation queries made with DB Forge).
+    | 				 There is an incompatibility in PHP with mysql_real_escape_string() which
+    | 				 can make your site vulnerable to SQL injection if you are using a
+    | 				 multi-byte character set and are running versions lower than these.
+    | 				 Sites using Latin-1 or UTF-8 database character set and collation are unaffected.
+    |	['swap_pre'] A default table prefix that should be swapped with the dbprefix
+    |	['autoinit'] Whether or not to automatically initialize the database.
+    |	['stricton'] TRUE/FALSE - forces 'Strict Mode' connections
+    |							- good for ensuring strict SQL while developing
+    |
+    | The $active_group variable lets you choose which connection group to
+    | make active.  By default there is only one group (the 'default' group).
+    |
+    | The $active_record variables lets you determine whether or not to load
+    | the active record class
+    */
+
+    $active_group = 'default';
+    $active_record = TRUE;
+
+    $db['default']['hostname'] = "localhost";
+    $db['default']['username'] = "pastes";
+    $db['default']['password'] = "<password>";
+    $db['default']['database'] = "pastes";
+    $db['default']['dbdriver'] = "mysqli";
+    $db['default']['dbprefix'] = "";
+    $db['default']['pconnect'] = TRUE;
+    $db['default']['db_debug'] = TRUE;
+    $db['default']['cache_on'] = FALSE;
+    $db['default']['cachedir'] = "";
+    $db['default']['char_set'] = "utf8";
+    $db['default']['dbcollat'] = "utf8_bin";
+    $db['default']['swap_pre'] = '';
+    $db['default']['autoinit'] = TRUE;
+    $db['default']['stricton'] = FALSE;
+
+
+    /* End of file database.php */
+    /* Location: ./application/config/database.php */
+
+#Creating your first user
+Go to http://<domain>/user/hash_password and you can create a password hash for your first
+user. Then just add them to the mysql database, at this point your tables should have been
+generated.
+
+    insert into users (username,password,email,referer) values ('username', 'above hash password', 'email', 0);
+
+You should now have everything you need to login, but only on the website. I was unable to get
+nginx to pass on the HTTP_AUTHORIZATION header to uwsgi.  Then apikeys were implemented this
+same weekend, so I no longer care about them!  [APIKEYS](http://paste.gtmanfred.com/user/apikeys)
+
+#Setting up nginx and uwsgi
+
+I struggled with this part because I didn't actually read all of the config.php.  Turns out if
+you want to get rid of the index.php from the url, you need to make sure to set
+`$config['index_page'] = ''` and then you can be on your merry way. Below are my nginx and
+uwsgi config files.  Remember I am using Uwsgi, but you should be able to mimic this easily
+with fcgiwrap.  Also, I am using the uwsgi@.service and uwsgi@.socket from the Arch Linux
+package.
+
+    └─╼ tail -c +0 /etc/nginx/conf/paste.gtmanfred.com.conf /etc/uwsgi/paste.ini
+    ==> /etc/nginx/conf/paste.gtmanfred.com.conf <==
+    server {
+        listen fd:3;
+        server_name paste.gtmanfred.com;
+        root /srv/http/paste.gtmanfred.com;
+        index index.php;
+        error_log /var/log/nginx/paste.gtmanfred.com-error_log;
+        rewrite_log on;
+        location / {
+            try_files $uri $uri/ @ee;
+        }
+
+        location @ee {
+            rewrite ^(.*) /index.php?$1 last;
+        }
+
+        location ~ \.php$ {
+            include uwsgi_params;
+            uwsgi_modifier1 14;
+            uwsgi_pass localhost:8090;
+            uwsgi_pass_request_headers on;
+            uwsgi_pass_header HTTP_AUTHENTICATION;
+        }
+
+    }
+
+    ==> /etc/uwsgi/paste.ini <==
+
+    [uwsgi]
+    ; load plugins
+    plugins = php
+
+    gid=users
+    uid=git
+
+
+    ; our working dir
+    project_dir = /srv/http/paste.gtmanfred.com
+
+    ; chdir to it (just for fun)
+    chdir = %(project_dir)
+        
+
+    ; reload whenever this config file changes
+    ; %p is the full path of the current config file
+    touch-reload = %p
+
+    ; run with at least 2 processes but increase upto 8 when needed
+    master = true
+    processes = 8
+    cheaper = 2
+
+    logto = /var/log/filebin/php
+    ;rotate logs when filesize is higher than 20 megs
+    log-maxsize = 20971520
+
+    ; map php modifier as the default
+    static-skip-ext = .php
+    php-allowed-ext = .php
+    php-allowed-ext = .inc
+    php-index = index.php
+
+    ; show config tree on startup, just to see
+    ; how cool is 1.1 config logic
+    show-config = true
+
+Then I just have to enable and start uwsgi@paste.socket and reload nginx.
+
+#fb-client
+
+For fbclient, just add `pastebin=<yourdomain>` to ~/.config/fb-client/config and put your
+apikey in ~/.config/fb-client/apikey.  And thats it!
