@@ -1,12 +1,44 @@
-Title: Why the hell would I want my own paste site? ¯\(°_o)/¯
+Title: Why the hell would I want my own paste site? ¯\(°_o)/¯ 
 Date: 2013-08-12 21:00
 Category: Pelican
-Tags: pelican, git, publishing
+Tags: pastebin
 Slug: paste-site
 Author: Daniel Wallace
 Summary:  Probley because KaiSforza was bitching about it.
 
 #Where to get everything
+
+###Edit: perl-cpanplus-dist-arch
+
+I now have the perl modules installed using cpanplus
+    
+    pacman -Syu perl-cpanplus-dist-arch
+    setupdistarch
+    cpanp i HTML::FromANSI
+
+This will package them so that they are owned and maintained by pacman.
+
+    └─╼ pacman -Si perl-html-fromansi                                        
+    Repository     : gtmanfred
+    Name           : perl-html-fromansi
+    Version        : 2.03-1
+    Description    : converts ANSI text sequences to corresponding HTML codes
+    Architecture   : any
+    URL            : http://search.cpan.org/~NUFFIN/HTML-FromANSI-2.03/
+    Licenses       : GPL  PerlArtistic
+    Groups         : None
+    Provides       : None
+    Depends On     : perl>=5.10.0
+    Optional Deps  : None
+    Conflicts With : None
+    Replaces       : None
+    Download Size  :  12.35 KiB
+    Installed Size :  63.00 KiB
+    Packager       : Daniel Wallace <danielwallace at gtmanfred dot com>
+    Build Date     : Fri 09 Aug 2013 09:24:04 PM CDT
+    Validated By   : MD5 Sum  SHA256 Sum  Signature
+
+
 
 [Filebin](http://git.server-speed.net/users/flo/filebin/) is pretty simple, all you need to do
 is git clone it into your document root.
@@ -231,3 +263,5 @@ Then I just have to enable and start uwsgi@paste.socket and reload nginx.
 
 For fbclient, just add `pastebin=<yourdomain>` to ~/.config/fb-client/config and put your
 apikey in ~/.config/fb-client/apikey.  And thats it!
+
+![Otter Cups](http://24.media.tumblr.com/96650b63d82b941132ef103b3e9b9581/tumblr_mhym5ps8zn1rikt3no1_400.gif)
