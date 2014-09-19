@@ -1,7 +1,7 @@
 Title: Managing rackspace products in SaltStack
 Date: 2014-09-19 18:33
 Category: Salt
-Tags: salt rackspace pyrax
+Tags: salt, rackspace, pyrax
 Slug: pyrax-rackspace
 Author: Daniel Wallace
 Summary: How rackspace products should be organized in the SaltStack infrastructure.
