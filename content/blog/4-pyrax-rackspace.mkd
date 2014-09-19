@@ -1,0 +1,70 @@
+Title: Managing rackspace products in SaltStack
+Date: 2014-09-19 18:33
+Category: Salt
+Tags: salt rackspace pyrax
+Slug: pyrax-rackspace
+Author: Daniel Wallace
+Summary: How rackspace products should be organized in the SaltStack infrastructure.
+
+# How everything is setup now.
+
+Currently we have been keeping all the individual drivers seperate, controlling 
+all the behavior so that you get the same experience no matter which provider 
+you use. I would like to keep doing this even though we are adding stuff that is
+more specific.
+
+The goal will be to continue to only use the CloudClient interface, and just run
+everything through that so that we can write the code once, and have it 
+available to all of the different cloud modules/runner/state/salt-cloud.
+
+
+# Getting Started
+
+I want to start this one cleanly and not run into the problems that happened 
+with the novaclient driver.  Starting with salt.utils.openstack.pyrax, 
+__init__.py should look something like this
+
+## salt/utils/openstack/pyrax/__init__.py
+```python
+    from __future__ import print_function, with_statement, generators
+
+    try:
+        import pyrax
+
+        # import pyrax classes
+        from salt.utils.openstack.pyrax.authentication import Auth
+
+        __all__ = [ 'Auth' ]
+        HAS_PYRAX = True
+    except ImportError as err:
+        HAS_PYRAX = False
+```
+
+This will keep everything imported when we just import
+salt.utils.openstack.pyrax but if pyrax is not installed, it doesn't try to 
+import it a bunch more times on all the other files.  
+
+Once this has begun, there will be the main class, that gets authenticated and 
+does the _get_conn just like all the other drivers do, but then, we can just 
+pass the authenticated object to all the new classes, instead of authenticating 
+on each new one.
+
+After these have gotten started, everything needs to then be referenced in salt.
+cloud.clouds.pyrax, and that just uses the classes from the utils directory.  
+This is the code I am writing right now, and once it is finished, it will make 
+it really easy for anyone to just add another class in another file and then 
+hook it into the salt-cloud pyrax driver.
+
+# What is next?
+
+I have to write the authentication and servers class, since those are what 
+everything revolves around.  Once those are done, we can start expanding and 
+have everyone come in and start adding Cloud Things!
+
+From the point that it is up, everything should be easy enough to run through 
+the cloud.action module.  Using the cloud.action module, I want to make one 
+pyrax state that does all the things.
+
+I am definitely going to get the first pyrax authentication class and stuff done
+this weekend, and am going to start with it in my gtmanfred/salt repo in the 
+pyrax branch.  Look for that on Saturday or Sunday this weekend.
