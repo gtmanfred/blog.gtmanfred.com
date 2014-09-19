@@ -22,9 +22,9 @@ available to all of the different cloud modules/runner/state/salt-cloud.
 
 I want to start this one cleanly and not run into the problems that happened 
 with the novaclient driver.  Starting with salt.utils.openstack.pyrax, 
-__init__.py should look something like this
+\_\_init\_\_.py should look something like this
 
-## salt/utils/openstack/pyrax/__init__.py
+## salt/utils/openstack/pyrax/\_\_init\_\_.py
 ```python
     from __future__ import print_function, with_statement, generators
 
@@ -45,7 +45,7 @@ salt.utils.openstack.pyrax but if pyrax is not installed, it doesn't try to
 import it a bunch more times on all the other files.  
 
 Once this has begun, there will be the main class, that gets authenticated and 
-does the _get_conn just like all the other drivers do, but then, we can just 
+does the \_get\_conn just like all the other drivers do, but then, we can just 
 pass the authenticated object to all the new classes, instead of authenticating 
 on each new one.
 
