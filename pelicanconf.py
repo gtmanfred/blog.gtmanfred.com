@@ -30,3 +30,6 @@ MARKUP = ('mkd', )
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
+
+DISQUS_SITENAME = "gtmanfred"
+GOOGLE_ANALYTICS = "UA-42514099-1"
