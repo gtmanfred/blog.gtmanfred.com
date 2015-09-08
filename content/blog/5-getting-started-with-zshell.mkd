@@ -1,0 +1,420 @@
+Title: Getting Started with Zshell
+Date: 2015-09-08 12:51
+Category: Zsh
+Tags: zsh, shell
+Slug: intro-zsh
+Author: Daniel Wallace
+Summary: An introduction to getting started with Zshell
+
+# Getting Started
+
+The first thing I will say about zsh is that all the extra tools to put more
+information in your prompt for your every day use, aren't needed with zshell.
+It can handle all of that fancyness for you.
+
+<script type="text/javascript" src="https://asciinema.org/a/4jv45lf9cxv8miuov2fq80z8o.js" id="asciicast-4jv45lf9cxv8miuov2fq80z8o" async></script>
+
+All of that is done only in zsh code [here][1].  I don't have much written in
+there to do anything, it is mostly just configuring using zstyle.
+
+## Parameter Expansion
+
+[ZSHwiki](http://zshwiki.org/home/)
+
+[ZSH Parameter expansion flags](http://zshwiki.org/home/scripting/paramflags)
+
+[Parameter Expansion documentation](http://zsh.sourceforge.net/Doc/Release/Expansion.html#Parameter-Expansion)
+
+These are probably the links I still use the most.  The first one is just to the
+zsh wiki, there is a ton of good information to get started in there.  The
+second link is what I use the most, because I never remember what all the
+parameter expamsion stuff does.
+
+The one I use the most is probably `(f)`, which will split output of a parameter
+on newlines. The below takes the output from `ls -l` and then splits it on
+newline, and then grabs the 4th line from the output.
+
+```shell
+└─╼ echo ${"${(f)"$(ls -l)"}"[4]}
+-rw-r--r--  1 daniel daniel   1770341 Jun  2  2014 2014-06-02-182425_1918x1079_scrot.png
+```
+
+You can also do matching. The below uses the `(M)` to tell the expansion to only
+show lines that start with 'drwx'.
+
+```shell
+┌─ daniel at hailey in ~
+└─╼ print -l -- ${(M)${(f)"$(ls -l)"}:#drwx*}
+drwxr-xr-x 18 daniel daniel      4096 Aug 24 00:06 aurinstall
+drwxr-xr-x  2 daniel daniel      4096 Nov  8  2014 bin
+drwxr-xr-x  3 daniel daniel      4096 Mar 10 22:17 Colossal Order
+drwxr-xr-x  2 daniel daniel      4096 Apr 26 09:44 Desktop
+drwxr-xr-x  2 daniel daniel      4096 Apr  1  2014 Documents
+drwxr-xr-x  5 daniel daniel      4096 Jul 14 17:34 Downloads
+drwxr-xr-x 41 daniel users       4096 Jul 20 18:49 github
+drwxr-xr-x  2 daniel daniel      4096 Apr  1  2014 Music
+drwxr-xr-x  4 daniel daniel      4096 Sep  8 14:12 Pictures
+drwxr-xr-x  2 daniel daniel      4096 Apr  1  2014 Public
+drwxr-xr-x  6 daniel daniel      4096 Jul 30 11:04 python-systemd
+drwxr-xr-x  2 daniel daniel      4096 Apr  1  2014 Videos
+```
+
+Things to remember about zsh parameter expansion, like bash `#` means from the
+beginning of the line, and `%` means from the end of the line.  But, you can
+chain them together on one line, unlike in bash.  The below is a somewhat
+contrived example.  First we use `#` and `%` to do replacement on each line of
+the array to find out what groups are available, then we assign the array to the
+`names` variable, and use `${array1:|array2}` to get all variables in array1
+that aren't in array2.
+
+```shell
+└─╼ print -l ${${${(M)${(f)"$(ls -l)"}:#drwx*}#* * * }%% *}
+daniel
+daniel
+daniel
+daniel
+daniel
+daniel
+users
+daniel
+daniel
+daniel
+daniel
+daniel
+┌─ daniel at hailey in ~
+└─╼ names=(${${${(M)${(f)"$(ls -l)"}:#drwx*}#* * * }%% *})
+┌─ daniel at hailey in ~
+└─╼ groups=(daniel)
+┌─ daniel at hailey in ~
+└─╼ echo ${names:|groups}
+users
+```
+
+## Globbing
+
+[Filename Expansion](http://zsh.sourceforge.net/Doc/Release/Expansion.html#Filename-Generation)
+
+Just like with parameter expansion, zshell has a bunch of extra flags to expand
+filenames.  One of my favorite examples is to just find filenames that are only
+directories.  Which can also be expanded using the information from before to
+find all files that aren't directories.
+
+```shell
+┌─ daniel at hailey in ~/example
+└─╼ tree
+.
+├── dir1
+├── dir2
+│   └── file1
+├── dir3
+├── file1
+├── file2
+└── file3
+3 directories, 4 files
+┌─ daniel at hailey in ~/example
+└─╼ print -- *(/)
+dir1 dir2 dir3
+┌─ daniel at hailey in ~/example
+└─╼ print -- *(/F) # expand to only Full directories...
+dir2
+┌─ daniel at hailey in ~/example
+└─╼ dirs=(*(/))
+┌─ daniel at hailey in ~/example
+└─╼ everything=(*)
+┌─ daniel at hailey in ~/example
+└─╼ print ${everything:|dirs}
+file1 file2 file3
+└─╼ print *(.)      # or just match plain files
+file1 file2 file3
+```
+
+Another nice one is being able to recursively glob for files.
+
+```
+┌─ daniel at hailey in ~/example
+└─╼ tree
+.
+├── dir1
+│   ├── dir1
+│   │   └── file3
+│   ├── dir2
+│   │   ├── dir1
+│   │   ├── dir2
+│   │   └── dir3
+│   │       ├── file1
+│   │       └── file2
+│   └── dir3
+├── dir2
+├── dir3
+├── file1
+├── file2
+└── file3
+
+9 directories, 6 files
+─ daniel at hailey in ~/example
+└─╼ for file in **/*(.); do mv $file{,.sh}; done
+┌─ daniel at hailey in ~/example
+└─╼ tree
+.
+├── dir1
+│   ├── dir1
+│   │   └── file3.sh
+│   ├── dir2
+│   │   ├── dir1
+│   │   ├── dir2
+│   │   └── dir3
+│   │       ├── file1.sh
+│   │       └── file2.sh
+│   └── dir3
+├── dir2
+├── dir3
+├── file1.sh
+├── file2.sh
+└── file3.sh
+
+9 directories, 6 files
+```
+
+and maybe you want to remove suffixes from each file that is found in the glob
+```shell
+┌─ daniel at hailey in ~/example
+└─╼ print -- **/file*.sh(:r)
+dir1/dir1/file3 dir1/dir2/dir3/file1 dir1/dir2/dir3/file2 file1 file2 file3
+```
+
+or maybe you only want to show the files, with the removed path, like using
+basename.
+
+```shell
+┌─ daniel at hailey in ~/example
+└─╼ rename .sh .zip *.sh
+┌─ daniel at hailey in ~/example
+└─╼ ls
+dir1  dir2  dir3  file1.zip  file2.zip  file3.zip
+┌─ daniel at hailey in ~/example
+└─╼ tree
+.
+├── dir1
+│   ├── dir1
+│   │   └── file3.sh
+│   ├── dir2
+│   │   ├── dir1
+│   │   ├── dir2
+│   │   └── dir3
+│   │       ├── file1.sh
+│   │       └── file2.sh
+│   └── dir3
+├── dir2
+├── dir3
+├── file1.zip
+├── file2.zip
+└── file3.zip
+┌─ daniel at hailey in ~/example
+└─╼ print -- **/*(.:t)
+file1.sh file1.zip file2.sh file2.zip file3.sh file3.zip
+┌─ daniel at hailey in ~/example
+└─╼ print -- **/*(.:h)      # or head
+. . . dir1/dir1 dir1/dir2/dir3 dir1/dir2/dir3
+```
+
+The `:h` modifier is great for moving into directories with files you just
+opened or referenced on the commandline. (`!$` works just like in bash, it grabs
+the last argument of the previous line)
+
+```shell
+┌─ daniel at hailey in ~/example
+└─╼ ls dir1/dir2/dir3/file2.sh -l
+-rw-r--r-- 1 daniel daniel 0 Sep  8 14:56 dir1/dir2/dir3/file2.sh
+┌─ daniel at hailey in ~/example
+└─╼ cd !:1:h        # index 1 of the previous line array, grab the head
+cd dir1/dir2/dir3
+┌─ daniel at hailey in ~/example/dir1/dir2/dir3
+└─╼ pwd
+/home/daniel/example/dir1/dir2/dir3
+```
+
+You can do the above with `!:1` in bash, but you would need to put it in a
+subshell and run it through `dirname` first... `cd $(dirname !:1)`
+
+And there are a ton more things you can do with this that I haven't even
+covered.
+
+## Aliases!
+
+Alaises in zsh are for the most part similar to bash.  You have your regular
+command replacement, but you also have extra stuff like global aliases.
+
+```shell
+┌─ daniel at hailey in ~
+└─╼ alias -g AWK="|awk"
+┌─ daniel at hailey in ~
+└─╼ ip a AWK '/^\w/'
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+```
+
+This comes in handy from time to time when you want to do something like
+
+```shell
+alias -g NULL="2>&1 >/dev/null"
+```
+
+and redirect everything to dev null just by appending the word `NULL` to the end
+of the line.
+
+## Commands and fpath!
+
+Anyone that has ever done bash scripting before has to have run into doing this.
+
+```shell
+if ! which git 2>&1 >/dev/null; then
+    yum install -y git
+fi
+```
+
+In zsh, you get an array with all of the commands in it.
+
+```shell
+┌─ daniel at hailey in ~
+└─╼ echo ${commands[pacman]}
+/usr/bin/pacman
+f [[ -n ${commands[pacman]} ]]; then echo yes; else echo no; fi
+yes
+```
+
+You also have a new variable `$path` that is an array for your `$PATH` variable,
+so that you can manage it using +=.
+
+```shell
+┌─ daniel at hailey in ~
+└─╼ echo $path[@]
+/home/daniel/bin /usr/local/sbin /usr/local/bin /usr/bin
+```
+
+And a new variable called `$fpath` which is the location of all the zsh function
+stuff.  The first thing that is really in the function path is your completion
+files, and it defines the inheritance.
+
+```shell
+┌─ daniel at hailey in ~
+└─╼ print -l -- ${^fpath}/**/_pacman(N)
+/home/daniel/.config/zsh/completion/_pacman
+/usr/share/zsh/site-functions/_pacman
+```
+
+You can use this to maintain your own completion files outside of the system
+locations, but have them automatically loaded.  To enable completion, you have
+to load the compinit module in zsh, so you don't have to source stuff like you
+do in bash.  That is another one of the big differences.
+
+`autoload -U` is used to load files as functions.  I have this function [here][2]
+that I use to manage `dtach` sessions, since the only thing I used to use of
+tmux or screen was the dtach feature and I use a tiling window manager, and tach
+will put the socket files in my `$XDG_RUNTIME_DIR`.  Then it is just loaded as a
+function as if it was defined like `tach() {...;}` in a zsh script.
+
+```shell
+┌─ daniel at hailey in ~
+└─╼ which tach
+tach () {
+        # undefined
+            builtin autoload -X
+}
+```
+
+To load and enable completion, you do basically the same thing, load the
+compinit function, and run it.
+
+```shell
+autoload -U compinit && compinit
+```
+
+And zsh will look for compdef options at the top of files in your fpath to
+specify tab completions.
+
+The other big things that are specified in `fpath` are the different prompts.
+First you have to autoload them, then you can choose from one of the default
+prompts, or preview them.
+
+```shell
+hailey% autoload compinit promptinit && compinit && promptinit
+hailey% prompt
+Usage: prompt <options>
+Options:
+    -c              Show currently selected theme and parameters
+    -l              List currently available prompt themes
+    -p [<themes>]   Preview given themes (defaults to all)
+    -h [<theme>]    Display help (for given theme)
+    -s <theme>      Set and save theme
+    <theme>         Switch to new theme immediately (changes not saved)
+
+Use prompt -h <theme> for help on specific themes.
+hailey% prompt redhat
+[daniel@hailey ~]$ prompt zefram
+[2/5.0.8]daniel@hailey:~> prompt adam1
+daniel@hailey ~ % prompt -l
+Currently available prompt themes:
+adam1 adam2 bart bigfade clint elite2 elite fade fire off oliver pws redhat suse walters zefram
+```
+
+This makes it easy for other people to share the same setup too, if that is what
+you want to do, and you can just set up different prompts and switch between
+them.
+
+I have my 2 prompts stored in `~/.config/zsh/themes/prompt_<name>_setup` and can
+switch back and forth between them. (I try to put stuff in `~/.config` when
+possible, if you specify ZDOTDIR to ~/.config/zsh in your zprofile, or on linux
+in your .pam_environment, which could be moved as well, then you should be all
+set to go.)
+
+[Prompt docs here](http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Prompt-Themes)
+
+## Zstyle
+
+This is where zsh gets fun.  Instead of having a bunch of variables to configure
+in your environment, zsh uses zstyles to configure things. The best example I
+have is in my prompt.
+
+```
+zstyle ':vcs_info:*' enable bzr git hg svn                      # enable different source control plugins
+zstyle ':vcs_info:*' check-for-changes true                     # check for changes when in a vcs directory
+zstyle ':vcs_info:*' stagedstr '%F{g}●%f'                       # if we have an staged, uncommitted file, put a green dot
+zstyle ':vcs_info:*' unstagedstr '%F{y}!%f'                     # if there are unstaged files, that are tracked, put a yellow !
+zstyle ':vcs_info:*' formats 'on %F{m}%b%c%u%m%F{n}'            # display the branch and bold it in magento
+zstyle ':vcs_info:*' actionformats "%b%c%u|%F{c}%a%f"           # display the branch/commit during an action (bisect, etc)
+zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b|%F{c}%r%f'   # different branch information for svn and bzr
+zstyle ':vcs_info:git*+set-message:*' hooks git-status          # I do not remember
+```
+
+Also for this to work, you have to include the `vcs_info` function as part of
+your zsh precmd.
+
+```
+# Example 1
+autoload -Uz vcs_info
+precmd(){ vcs_info }
+
+# Example 2
+prompt_gtmanfred_precmd(){
+    vcs_info
+}
+autoload -Uz add-zsh-hook vcs_info
+add-zsh-hook precmd prompt_gtmanfred_precmd
+```
+
+Then you just need to put your vcs_info variables into your prompt `${vcs_info_msg_0_}`
+
+More info about vcs_info can be found [here][3]
+
+The other big one that I configure is zsh completion, with some documentation
+[here][4] with my configuration [here][5]
+
+## Extra links
+
+[setting up bindkeys and zle](http://zsh.sourceforge.net/Guide/zshguide04.html)
+
+[1]: https://github.com/gtmanfred/dotfiles/blob/work/zsh/themes/prompt_gtmanfred_setup
+[2]: https://github.com/gtmanfred/dotfiles/blob/work/zsh/functions/tach
+[3]: http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Version-Control-Information
+[4]: http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Standard-Styles
+[5]: https://github.com/gtmanfred/dotfiles/blob/work/zsh/08zstyles.zsh
