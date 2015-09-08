@@ -424,6 +424,7 @@ one, is the fork that was made off of it, and then basically made independent,
 [prezto][6] is really solid, if you need help beginning with plugins.
 
 Happy Hacking :)!
+
 Daniel
 
 ## Extra links
