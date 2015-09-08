@@ -409,6 +409,23 @@ More info about vcs_info can be found [here][3]
 The other big one that I configure is zsh completion, with some documentation
 [here][4] with my configuration [here][5]
 
+## Closing
+
+I would really strongly encourage anyone wanting to get started with zshell to
+dive into the docs.  I really started diving in when I wanted to write some
+zshell completion for different stuff I was using.  You will get more out of it
+if you spend time actually learning the different ins and outs of how other
+people are configuring plugins instead of just using stuff already out there.
+
+If you do want to get a jumpstart, I really don't like oh-my-zsh, back when I
+would hangout in the `#zsh` irc channel on freenode, the majority of the
+problems that came in there were caused by something weird with omz.  The better
+one, is the fork that was made off of it, and then basically made independent,
+[prezto][6] is really solid, if you need help beginning with plugins.
+
+Happy Hacking :)!
+Daniel
+
 ## Extra links
 
 [setting up bindkeys and zle](http://zsh.sourceforge.net/Guide/zshguide04.html)
@@ -418,3 +435,4 @@ The other big one that I configure is zsh completion, with some documentation
 [3]: http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Version-Control-Information
 [4]: http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Standard-Styles
 [5]: https://github.com/gtmanfred/dotfiles/blob/work/zsh/08zstyles.zsh
+[6]: https://github.com/sorin-ionescu/prezto
