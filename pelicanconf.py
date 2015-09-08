@@ -19,7 +19,7 @@ CATEGORY_FEED_ATOM = 'feeds/%s.atom.xml'
 TRANSLATION_FEED_ATOM = None
 
 # Blogroll
-LINKS =  (('Git Repositories', 'http://code.gtmanfred.com/'),
+LINKS =  (('Git Repositories', 'https://github.com/gtmanfred/'),
           ('Feeds', '/feeds/'),
           ('KaiSforza\'s Blag', 'http://kaictl.net'),
           )
