@@ -6,6 +6,9 @@ AUTHOR = 'Daniel Wallace'
 SITENAME = 'GTmanfred'
 SITEURL = 'http://blog.gtmanfred.com'
 
+PATH = 'content'
+STATIC_PATHS = ['images']
+
 TIMEZONE = 'America/Chicago'
 
 DEFAULT_LANG = 'en'

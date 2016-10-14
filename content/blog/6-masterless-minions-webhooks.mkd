@@ -1,0 +1,101 @@
+Title: Using webhooks and the reactor with masterless minions
+Date: 2016-10-14 17:17
+Category: Salt
+Tags: salt, masterless, webhooks, github 
+Slug: masterless-reactor
+Author: Daniel Wallace
+Summary: Discussing new capabilities in salt for using webhooks with masterless minions
+
+# Getting Started
+
+This requires at least the Carbon release of saltstack, so you will need to setup the release candidate repositories for now.
+
+http://repo.saltstack.com/salt_rc/
+
+I am going to be using CentOS 7.2, so here is my repo file.
+
+```
+[salt]
+name=SaltStack RC Release Channel for RHEL/Centos $releasever
+baseurl=https://repo.saltstack.com/salt_rc/yum/redhat/$releasever/$basearch
+failovermethod=priority
+enabled=1
+gpgcheck=1
+gpgkey=http://repo.saltstack.com/salt_rc/yum/redhat/7Server/x86_64/SALTSTACK-GPG-KEY.pub
+```
+
+Then just `yum install -y salt-minion`
+
+# Modules from Nitrogen
+
+You will also need a few new modules and a new engine that will be in the Nitrogen release.
+
+In `/srv/salt/_modules` you will need the following two modules: [new hashutil module](https://github.com/gtmanfred/salt/blob/hashutil/salt/modules/hashutil.py) and [new event module](https://github.com/gtmanfred/salt/blob/event_send/salt/modules/event.py)
+
+And the thing that makes it all possible the new webhook engine needs to be put in `/srv/salt/_engines`: [Webhook engine](https://github.com/gtmanfred/salt/blob/webhook/salt/engines/webhook.py)
+
+Once these are all in place, run `salt-call saltutil.sync_all` to make sure they get put in the extmods directory and are usable.
+
+# Configuration
+
+My configurations are located [here](https://github.com/gtmanfred/blog-sls) but I will highlight some of the specifics here.
+
+First, we want to make the minion a masterless minion, and to never query the master for anything.  So to `/etc/salt/minion.d/local.conf` add
+
+```
+local: True
+file_client: local
+master_type: disable
+```
+
+Any one of the settings could be used, I like to use all three just to make certain.
+
+Second, we need to setup the ssl keys so that we can have a secure connection.  To do this, you can run the following command to create a generic ssl certificate, if you want to have verification in there, you can make a nice one for the domain and everything, but we just want to have the traffice encrypted, so use `salt-call --local tls.create_self_signed_cert`.  Now that we have an ssl certificate pair, we can setup the webhook engine.  I put the following in `/etc/salt/minion.d/engines.conf`.
+
+```
+engines:
+  - webhook:
+      address: None
+      port: 5000
+      ssl_crt: /etc/pki/tls/certs/localhost.crt
+      ssl_key: /etc/pki/tls/certs/localhost.key
+  - reactor: {}
+
+reactor:
+  - 'salt/engines/hook/update/blog/gtmanfred.com':
+    - salt://reactor/blog.gtmanfred.com.sls
+```
+
+This will enable the webhook on all ips on port 5000 with the listed ssl certificate.  It will also enable the reactor to be able to act upon the one tag in the event stream, which we will get to later.
+
+Now we need to setup the github webhook so we can see the events in the event stream.  Go to your blog's github repository, and go to the settings.  Then select webhooks, and create a new one.
+
+![Configure Github]({filename}/images/blog.png)
+
+For the "Payload URL" you are going to set https and then the ip address/domain and port to access, followed by the uri which should match what your are going to trigger on for the reactor.  As you can see in the picture above, I have `/update/blog/gtmanfred.com` as my URI, and this matches what follows the prefix `salt/engines/hook` in the reactor config above.  Be sure to add a secret! And don't forget it! We will be verifying that in a later step.  Then customize which events you would like to trigger on and save. I am going to rebuild the blog on each push, so I am only sending push events.
+
+BE SURE TO DISABLE SSL VERIFICATION IF YOU DON'T USE A SIGNED KEY!
+
+Before you forget that secret key, we should save it somewhere.  I use sdb in salt so that I can save my states and reactors in public github, but hide the secret key in sdb.  Create `/etc/salt/minion.d/sdb.conf` with the following.
+
+```
+secrets:
+  driver: sqlite3
+  database: /var/lib/sdb.sqlite
+  table: sdb
+  create_table: True
+```
+
+Now run `salt-call --local sdb.set sdb://secrets/github_secret <secretkey>` to save the key.
+
+Now the last step, creating the reactor file in the salt fileserver.  Mine is in /srv/salt/reactor/blog.gtmanfred.com.sls, so I just have to reference it with salt://reactor/blog.gtmanfred.com.sls (and can also use the reactor files from gitfs).
+
+```
+{%- if salt.hashutil.github_signature(data['body'], salt.sdb.get('sdb://secrets/github_secret'), data['headers']['X-Hub-Signature']) %}
+highstate_run:
+  caller.state.apply:
+    - args: []
+{%- endif %}
+```
+
+Lets walk through this.  We are going to take the `data['body']` from the github post, and our secret, and the `X-Hub-Signature` and run it through the github_signature function to verify if the signature is the result of signing the body with your secret key.  If True comes back, we can be sure this came from github, and then our minion runs a highstate on itself.  If it is False, nothing is rendered and no event is run.
