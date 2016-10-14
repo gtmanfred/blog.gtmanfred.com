@@ -16,3 +16,7 @@ maintain my own repository made up mostly of the new VCS PKGBUILD formats.
 
 On IRC I go by gtmanfred.  I can also be contacted at email.
 
+Update:
+
+I now work for Salt Stack INC as a Software Engineer.
+
