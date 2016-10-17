@@ -4,7 +4,7 @@ Category: Pelican
 Tags: pastebin
 Slug: paste-site
 Author: Daniel Wallace
-Summary:  Probley because KaiSforza was bitching about it.
+Summary:  Probley because KaiSforza was complaining about it.
 
 #Where to get everything
 
