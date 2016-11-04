@@ -1,0 +1,410 @@
+Title: Contributing shouldn't be scary
+Date: 2016-11-03T23:02:14.786Z
+Category: Salt
+Tags: salt
+Slug: contributing-to-salt-part-1
+Author: Daniel Wallace
+Summary: A summary of thing things that I have learned since I began contributing to SaltStack.
+
+# How I came to work on SaltStack
+
+I was working at Rackspace doing Linux support in the Hybrid segment.  I did a lot of work with supporting Rackconnect v2/v3 and Rackspace Public cloud as well as the dedicated part of the house.  I started down the road to server automation and orchestration the way I think a lot of people do.  At some point, I started to think... there has to be a better way.
+
+I began with learning chef.  Rackspace's devops offering had just begun and there was a lot of people using chef and poo pooing puppet in places that I was looking.  I had never used ruby before, so I did some ruby practice on [codecademy](https://www.codecademy.com/learn/ruby) and I learned the basics of different blocks in ruby.  I then setup [wordpress](https://github.com/gtmanfred/chef-repo).  As can be seen from that repository, it has been a very long time since I did chef.  I played with chef for about 6 months, and then I decided to try using Ansible and see what that was all about.  I liked the idea of pushing instead of pulling and the easy deployment method was nice.  But after about a month of using Ansible, [Joseph Hall](https://twitter.com/techhat) came to Rackspace right after the first SaltConf in 2014 and gave a 3 day class on salt.  And I was in love.  I loved the extensibility of salt, the reactor, the api, salt-cloud being built in.  It was all just perfect for me.  And by the end of the second day of the class, I had submitted my [first pull request to saltstack](https://github.com/saltstack/salt/pull/10184).
+
+My favorite thing I think about contributing to salt is how open it is to the community and how hard we all try to be welcoming to anyone new.  We kind of have a [No Jerks Allowed Rule](https://en.wikipedia.org/wiki/The_No_Asshole_Rule), and try to be as polite and welcoming as possible.
+
+Anyway, lets get started.  This is going to be just as much as I can think of on how to go about contributing to salt.
+
+# Getting setup
+
+I probably run my testing setup a little different than everyone else.  Anyway you can get salt running to do testing is good.  If it works for you, do it.
+
+I create a server in VMWare Fusion using CentOS.  Then I install `epel-release` and then `python-pip` and I do a `pip install -e git://github.com/gtmanfred/salt.git@<branch>#egg=salt`.  This will give me everything I need to install to get salt running.  Since it is also `-e` the git install is editable, so the changes take effect immediately and I can edit right there in ./src/salt.  From here for all my changes, I can just commit right there to save for later.
+
+Recently I have been trying to switch to using [atom](https://atom.io) as my editor.  I really like it.  What I have been using is the [remote ftp plugin](https://atom.io/packages/remote-ftp).  This allows for the remote directory to be setup to ~/src/salt, and then I just have that in the .ftpconfig and once connected, there is a second project window that shows the remote ftp location with all the files, and I can treat it as if it was the local file.  Then once all the files are done, I can sync from the remote down to the local and make my pull request.
+
+Either way, get a working environment going.
+
+Here is the salt document on [getting started with the development](https://docs.saltstack.com/en/latest/topics/development/hacking.html).  You can ignore parts in there about M2Crypto and swig.  There are no currently supported salt versions that use M2Crypto.
+
+Another thing you could do if you were so inclined, would be to copy the module you are going to be modifying to `/srv/salt/_modules` or whatever [dynamic directory](https://docs.saltstack.com/en/latest/ref/file_server/dynamic-modules.html) where it belongs.  You will then need to run `salt-call saltutil.sync_all` to sync modules to the minion or `salt-run saltutil.sync_all` for the master.
+
+# Writing a ... template
+
+The first thing that I do any time I make a new file for a salt module is to add the following template.
+
+```python
+# -*- coding: utf-8 -*-
+"""
+:depends: none
+"""
+from __future__ import absolute_import
+
+# Import python libraries
+
+# Import Salt libraries
+
+
+def __virtual__():
+    return True
+```
+
+Here are the things that are going on above.
+
+1. We require the `# -*- coding: utf-8 -*-` at the top of all files.
+- Each file requires a docstring at the to to list any depends and then basic configuration for usage such as s3 credentials.  It is also good to use the `:depends:` key if there are any required packages that need to be installed for the module to be used.
+- I pretty much always import absolute_import.  This is just useful to have and will cause less weird issues later.  Plus it is the default behavior in python3, so there is nothing bad that could come from it.
+- Then We have the two import options.  Anything that gets import from salt, like `salt.utils` gets put under the Import Salt libraries, and all other imports get put under python libraries.
+- Then we have the `__virtual__` functions which we will go over later when we talk about the anatomy of a module.
+
+# Execution Modules
+
+Now lets move to [writing a module](https://docs.saltstack.com/en/latest/ref/modules/).  I am going to demo with a contrived example of a redis module, and then go over every line.
+
+Here is a simplified `salt/modules/redismod.py` file.
+
+```python
+# -*- coding: utf-8 -*-
+"""
+Redis module for interactive with basic redis commands.
+
+.. versionadded:: Nitrogen
+
+:depends: redis
+
+Example configuration
+
+.. code-block:: yaml
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      password: None
+"""
+
+from __future__ import absolute_import
+
+# Import python libraries
+try:
+    import redis
+    HAS_REDIS = True
+except ImportError:
+    HAS_REDIS = False
+
+__virtualname__ = 'redis'
+
+
+def __virtual__():
+    """
+    Only load this module if redis python module is installed
+    """
+    if HAS_REDIS:
+        return __virtualname__
+    return (False, 'The redis execution module failed to load: redis python module is not available')
+
+
+def _connect(host=None, port=None, database=None, password=None):
+    """
+    Return redis client instance
+    """
+    if not host:
+        host = __salt__['config.option']('redis.host')
+    if not port:
+        port = __salt__['config.option']('redis.port')
+    if not database:
+        database = __salt__['config.option']('redis.database')
+    if not password:
+        password = __salt__['config.option']('redis.password')
+    name = '_'.join([host, port, database, password])
+    if name not in __context__:
+        __context__[name] = redis.StrictRedis(host, port, database, password)
+    return __context__[name]
+
+
+def get(key, host=None, port=None, database=None, password=None):
+    """
+    Get Redis key value
+
+    CLI Example:
+
+    .. code-block:: bash
+
+        salt '*' redis.get foo
+        salt '*' redis.get bar host=127.0.0.1 port=21345 database=1
+    """
+    server = _connect(host, port, database, password)
+    return server.get(key)
+
+
+def set(key, value, host=None, port=None, database=None, password=None):
+    """
+    Set Redis key value
+
+    CLI Example:
+
+    .. code-block:: bash
+
+        salt '*' redis.set foo bar
+        salt '*' redis.set spam eggs host=127.0.0.1 port=21345 database=1
+    """
+    server = _connect(host, port, database, password)
+    return server.set(key, value)
+
+
+def delete(key, host=None, port=None, database=None, password=None):
+    """
+    Delete Redis key value
+
+    CLI Example:
+
+    .. code-block:: bash
+
+        salt '*' redis.delete foo bar
+        salt '*' redis.delete spam host=127.0.0.1 port=21345 database=1
+    """
+    server = _connect(host, port, database, password)
+    return server.delete(key, value)
+```
+
+There, that is a moderately simple example where we can talk about every thing going on.
+
+1. You will notice the coding line at the top like in the template
+- Next we have the docstring.
+    - There is a brief description
+    - a versionadded string.  Please include these if you make new modules, so that when referencing back we can see when the module was added.  Also, if it is an untagged release, use the codename, otherwise use the point release where it was added.  We update the code names on all versonadded added and versionchanged strings when we tag them with a release date.
+    - A depends string, to let the user know that the redis python module is required.
+    - An example configuration if you one is possible to be used.
+- Then we have the imports.  We catch the import error on redis, and set HAS_REDIS as False if it can't be imported so that we can reference it in the `__virtual__` function and know if the module should be available or not.
+- `__virtualname__` is used to change the name the module should be loaded under.  If `__virtualname__` isn't set and returned by the `__virtual__` function then the module would be called using `redismod.set`.
+- The `__virtual__` function is used to decide if the module can be used or not.
+    - If it can be used and it has a `__virtualname__` variable, return that variable.  Otherwise if it is to be named after the name of the file, just return `True`.
+    - If this function can't be used, return a two entry tuple where the first index is `False` and the second is a string with the reason it could not be loaded so that the user does not have to go code diving.
+- Now the connect function.
+    - If you include something like this, please be sure to also include the ability to connect to the module by passing arguments from the command-line and not only having to modify configuration files.
+    - It is important to note, while python allows for any "private" functions to be importable and used, salt does not.  The `_connect` function is not usable from the command-line, or from the `__salt__` dictionary
+    - There are a lot of includes that salt provides into different portions of salt.  These are usually called [dunder dictionaries](https://docs.saltstack.com/en/latest/topics/development/dunder_dictionaries.html).
+    - Using `config.get` lets the configuration be put in the minion config, grains, or pillars.  There is a [heirarchy](https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.config.html#salt.modules.config.get).
+    - The lastly we have `__context__`.  This is a really usefull for connections, because you only have to setup the connection one time, and then you can continually just return it and use it every time the module is used, instead of having to reinitialize the connection.
+- Lastly we have the functions that are available.
+    - You want a doc string that has a description, then a code example.  The code example is required.  This is the doc string that gets showed when you run `salt-call sys.doc <module.function>`
+    - Then just all the logic.
+    - If you have stuff that is being used a lot in multiple functions.  Maybe split it out into another function for everything else to use, and if that function shouldn't be used from the command-line, be sure to prefix it with an underscore.
+
+And that is your basic anatomy of a salt execution module.
+
+# State Modules
+
+Now lets move on to [writing state modules](https://docs.saltstack.com/en/latest/ref/states/writing.html).  State modules are where all the idempotence, configuration, and statefullness comes in.  I am going to use the above module in order to make sure that certain keys are present or absent in the redis server.
+
+Here is my simplified `salt/states/redismod.py`
+
+```python
+# -*- coding: utf-8 -*-
+"""
+Management of  Redis servers
+============================
+
+.. versionadded:: Nitrogen
+
+:depends: redis
+:configuration: see :py:mod:`salt.modules.redis` for setup instructions
+
+Example States
+
+.. code-block:: yaml
+
+    set redis key:
+      redis.present:
+        - name: key
+        - value: value
+
+    set redis key with host args:
+      redis.absent:
+        - name: key
+        - host: 127.0.0.1
+        - port: 1234
+        - database: 3
+        - password: somepass
+"""
+
+from __future__ import absolute_import
+
+__virtualname__ = 'redis'
+
+
+def __virtual__():
+    if 'redis.set' in __salt__:
+        return __virtualname__
+    return (False, 'The redis execution module failed to load: redis python module is not available')
+
+
+def present(name, value, host=None, port=None, database=None, password=None):
+    """
+    Ensure key and value pair exists
+
+    name
+        Key to ensure it exists
+
+    value
+        Value the key should be set to
+
+    host
+        Host to use for connection
+
+    port
+        Port to use for connection
+
+    database
+        Database key should be in
+
+    password
+        Password to use for connection
+    """
+    ret = {'name': name,
+           'changes': {},
+           'result': False,
+           'comment': 'Failed to set key {key} to value {value}'.format(key=name, value=value)}
+
+    connection = {'host': host, 'port': port, 'database': database, 'password': password}
+    current = __salt__['salt.get'](name, **connection)
+    if current == value:
+        ret['result'] = True
+        ret['comment'] = 'Key {key} is already value correct'.format(key=name)
+        return ret
+
+    if __opts__['test'] is True:
+        ret['result'] = None
+        ret['changes'] = {
+            'old': {name: current},
+            'new': {name: value},
+        }
+        ret['pchanges'] = ret['changes']
+        ret['comment'] = 'Key {key} will be updated.'.format(key=name)
+        return ret
+
+    __salt__['redis.set'](name, value, **connection)
+
+    current, old = __salt__['salt.get'](name, **connection), current
+
+    if current == value:
+        ret['result'] = True
+        ret['comment'] = 'Key {key} was updated.'.format(key=name)
+        ret['changes'] = {
+            'old': {name: old},
+            'new': {name: current},
+        }
+        return ret
+
+    return ret
+
+
+def absent(name, host=None, port=None, database=None, password=None):
+    """
+    Ensure key is not set.
+
+    name
+        Key to ensure it does not exist
+
+    host
+        Host to use for connection
+
+    port
+        Port to use for connection
+
+    database
+        Database key should be in
+
+    password
+        Password to use for connection
+    """
+    ret = {'name': name,
+           'changes': {},
+           'result': False,
+           'comment': 'Failed to delete key {key}'.format(key=name, value=value)}
+
+    connection = {'host': host, 'port': port, 'database': database, 'password': password}
+    current = __salt__['salt.get'](name, **connection)
+    if current is None:
+        ret['result'] = True
+        ret['comment'] = 'Key {key} is already absent'.format(key=name)
+        return ret
+
+    if __opts__['test'] is True:
+        ret['result'] = None
+        ret['changes'] = {
+            'old': {name: current},
+            'new': {name: None},
+        }
+        ret['pchanges'] = ret['changes']
+        ret['comment'] = 'Key {key} will be deleted.'.format(key=name)
+        return ret
+
+    __salt__['redis.delete'](name, value, **connection)
+
+    current, old = __salt__['salt.get'](name, **connection), current
+
+    if current is None:
+        ret['result'] = True
+        ret['comment'] = 'Key {key} was deleted.'.format(key=name)
+        ret['changes'] = {
+            'old': {name: old},
+            'new': {name: current},
+        }
+        return ret
+
+    return ret
+```
+
+And lets review, this will mostly be the same as the execution module with one major difference that we use the execution module in the state.
+
+1. Same coding line
+- Include depends and configuration information.  If the configuration is stored with the module, you can link to the module using py mod link like i did above.
+- Include any complex information about the state in the top doc string.  It is important to also include an example state up here.  But if you have more complicated states, it would be good to include examples in each function to show how they should be used.
+- Changes to see if the `redis.set_key` module is loaded in the `__salt__` dunder.  If it is not loaded, we know we can't do any work in this state, and we should return `False`.
+- Now we get to [writing a state](https://docs.saltstack.com/en/latest/ref/states/writing.html)
+    - We have a [return dictionary](https://docs.saltstack.com/en/latest/ref/states/writing.html#return-data) and it always includes the following:
+        - name: the string name of the state
+        - changes: a dictionary of things that were or could be changed
+        - pchanges: a dictionary of potential changes that is used if `test=True` is passed
+        - result: True, False, None
+        - comment: a string describing what happened in the state.
+    - I always start with a default `ret` variable that describes what happens when the state fails, so I can just return it on failure at the end.
+    - Then the first thing to do is check if the state is already as it should be.  In the case of `present` we check if the key is already set to the desired value.  For `absent` we check if the key is set to `None` which indicates that it is a `null` value which is what redis considers deleted.  If it is already set, we set results to True, and set the comment to reflect that it is True, and return the dictionary.
+    - There is also a [testing run portion of the state](https://docs.saltstack.com/en/latest/ref/states/writing.html#test-state) we should check if `__opts__['test'] is True` which would signify that `test=True` was passed on the command-line.  Then we should only set changes to reflect what is going to change, and return with `result` set to `None` to signify that it should be a successful change, but changes are required.
+    - Last, we make the change, then check if the change took affect.  If it did, result should be True, and we return with the correct stuff in changes and an updated comment.
+    - Otherwise we return with our False dictionary we setup at the beginning.
+
+One other thing to remember about is the mod_init and mod_watch functions.  These can be used to change the way the module behaves when initially called.  The `mod_watch` is the part that is actually called when you `watch` or `listen` to a state in your [requisites](https://docs.saltstack.com/en/latest/ref/states/requisites.html).
+
+# Running pylint on your changes
+
+We run pylint on every change, so it is a good thing to know about because you can start adjusting yourself to write more inline with what pylint wants.  The only big thing that I will say you should know is that our line limit is actually 119 instead of 80.
+
+Now, to run pylint, you are going to need a few things.  You should install all the dependencies for salt, and you should install the stuff for dev_python27.txt.  But then you also need to update to the newest version of SaltPylint and SaltTesting.
+
+```bash
+pip install -r requirements/dev_python27.txt -r requirements/raet.txt -r requirements/zeromq.txt
+pip install --upgrade SaltPyLint SaltTesting
+```
+
+And then you can run pylint on your code before submitting a PR.
+
+```bash
+pylint --rcfile=.testing.pylintrc --disable=W1307,E1322 salt/
+```
+
+# Creating a pull request
+
+We love pull requests.  Just look at the [github repository](https://github.com/saltstack/salt/pulls), there have been 23,296 pull request, almost all of which I would bet are accepted, and almost none have been closed with saying we can't accept that.  There have been [1642 contributors](https://github.com/saltstack/salt/graphs/contributors) as of this writing!
+
+Here are things to remember when opening a pull request.
+
+- If it is a new feature, add it to develop.  We include a very easy way to take the changes and import them into a running system, we don't want to break other peoples deploys by adding new features into point releases.
+- If it is a bug fix, go back to the latest supported release, and add it there.  Right now, unless it is a CVE change, the oldest supported release for commits is [2016.3](https://saltstack.com/product-support-lifecycle/), everything else is in phase 3 or extended life support. (We are working very hard to get Carbon out the door right now.)
+- Please fill out the form!  As much of the form in the pull request that makes sense, provide us with as much information about the change you are making.  I am bad about it to, sometimes I just think [Mike Place](https://twitter.com/cachedout) or [Nicole Thomas](https://twitter.com/rallytime_nt) are mind readers and can just get what I mean, but the definitely can't.  So let them know in detail what you are actually changing.
+- I will cover this in a later part, but please! provide unittests if at all possible! (though not required)
+
+# End of Part 1
+
+This was a lot longer than I thought it was going to be.  I am going to try and continue next week and talk about beacons and engines and some specifics to look for there.
