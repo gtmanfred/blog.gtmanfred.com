@@ -1,4 +1,4 @@
-Title: Contributing shouldn't be scary
+Title: What do I need to know if I want to start contributing to SaltStack?
 Date: 2016-11-03T23:02:14.786Z
 Category: Salt
 Tags: salt
