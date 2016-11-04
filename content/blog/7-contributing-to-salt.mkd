@@ -394,6 +394,34 @@ And then you can run pylint on your code before submitting a PR.
 pylint --rcfile=.testing.pylintrc --disable=W1307,E1322 salt/
 ```
 
+# Getting the docs working
+
+Unfortunately, if you write a new module, sphinx is unable to discover than and just import the docstrings for you, so we will need to create a few files to reference the ones above.
+
+First, we autoload the docstrings for the actual doc file.
+
+`doc/ref/modules/all/salt.modules.redismod.rst`
+```
+==================
+salt.modules.redis
+==================
+
+.. automodule:: salt.modules.redismod
+    :members:%
+```
+
+`doc/ref/states/all/salt.states.redismod.rst`
+```
+==================
+salt.states.redis
+==================
+
+.. automodule:: salt.states.redismod
+    :members:%
+```
+
+Then they will get compiled, then we have to add the following references to the correct index files and just add `redis` to `doc/ref/modules/all/index.rst` and `doc/ref/states/all/index.rst` so that they will be visible in the index pages for all execution modules and all state modules.
+
 # Creating a pull request
 
 We love pull requests.  Just look at the [github repository](https://github.com/saltstack/salt/pulls), there have been 23,296 pull request, almost all of which I would bet are accepted, and almost none have been closed with saying we can't accept that.  There have been [1642 contributors](https://github.com/saltstack/salt/graphs/contributors) as of this writing!
@@ -407,4 +435,6 @@ Here are things to remember when opening a pull request.
 
 # End of Part 1
 
-This was a lot longer than I thought it was going to be.  I am going to try and continue next week and talk about beacons and engines and some specifics to look for there.
+This was a lot longer than I thought it was going to be.  I am going to try and continue next week and talk about beacons and engines and some specifics to look for there.  Hopefully this will be helpful for some reason.  It basically just became a link dump to a lot of useful information in our documentation since it can be sometimes hard to find.
+
+Leave any comments if you have any thing that you would like to be covered
