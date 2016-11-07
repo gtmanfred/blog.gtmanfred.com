@@ -267,7 +267,7 @@ def present(name, value, host=None, port=None, database=None, password=None):
            'comment': 'Failed to set key {key} to value {value}'.format(key=name, value=value)}
 
     connection = {'host': host, 'port': port, 'database': database, 'password': password}
-    current = __salt__['salt.get'](name, **connection)
+    current = __salt__['redis.get'](name, **connection)
     if current == value:
         ret['result'] = True
         ret['comment'] = 'Key {key} is already value correct'.format(key=name)
@@ -285,7 +285,7 @@ def present(name, value, host=None, port=None, database=None, password=None):
 
     __salt__['redis.set'](name, value, **connection)
 
-    current, old = __salt__['salt.get'](name, **connection), current
+    current, old = __salt__['redis.get'](name, **connection), current
 
     if current == value:
         ret['result'] = True
@@ -324,7 +324,7 @@ def absent(name, host=None, port=None, database=None, password=None):
            'comment': 'Failed to delete key {key}'.format(key=name, value=value)}
 
     connection = {'host': host, 'port': port, 'database': database, 'password': password}
-    current = __salt__['salt.get'](name, **connection)
+    current = __salt__['redis.get'](name, **connection)
     if current is None:
         ret['result'] = True
         ret['comment'] = 'Key {key} is already absent'.format(key=name)
@@ -342,7 +342,7 @@ def absent(name, host=None, port=None, database=None, password=None):
 
     __salt__['redis.delete'](name, value, **connection)
 
-    current, old = __salt__['salt.get'](name, **connection), current
+    current, old = __salt__['redis.get'](name, **connection), current
 
     if current is None:
         ret['result'] = True
