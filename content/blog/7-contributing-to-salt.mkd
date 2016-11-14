@@ -36,9 +36,9 @@ The first thing that I do any time I make a new file for a salt module is to add
 
 ```python
 # -*- coding: utf-8 -*-
-"""
+'''
 :depends: none
-"""
+'''
 from __future__ import absolute_import
 
 # Import python libraries
@@ -66,7 +66,7 @@ Here is a simplified `salt/modules/redismod.py` file.
 
 ```python
 # -*- coding: utf-8 -*-
-"""
+'''
 Redis module for interactive with basic redis commands.
 
 .. versionadded:: Nitrogen
@@ -81,7 +81,7 @@ Example configuration
       port: 6379
       database: 0
       password: None
-"""
+'''
 
 from __future__ import absolute_import
 
@@ -96,18 +96,18 @@ __virtualname__ = 'redis'
 
 
 def __virtual__():
-    """
+    '''
     Only load this module if redis python module is installed
-    """
+    '''
     if HAS_REDIS:
         return __virtualname__
     return (False, 'The redis execution module failed to load: redis python module is not available')
 
 
 def _connect(host=None, port=None, database=None, password=None):
-    """
+    '''
     Return redis client instance
-    """
+    '''
     if not host:
         host = __salt__['config.option']('redis.host')
     if not port:
@@ -123,7 +123,7 @@ def _connect(host=None, port=None, database=None, password=None):
 
 
 def get(key, host=None, port=None, database=None, password=None):
-    """
+    '''
     Get Redis key value
 
     CLI Example:
@@ -132,13 +132,13 @@ def get(key, host=None, port=None, database=None, password=None):
 
         salt '*' redis.get foo
         salt '*' redis.get bar host=127.0.0.1 port=21345 database=1
-    """
+    '''
     server = _connect(host, port, database, password)
     return server.get(key)
 
 
 def set(key, value, host=None, port=None, database=None, password=None):
-    """
+    '''
     Set Redis key value
 
     CLI Example:
@@ -147,13 +147,13 @@ def set(key, value, host=None, port=None, database=None, password=None):
 
         salt '*' redis.set foo bar
         salt '*' redis.set spam eggs host=127.0.0.1 port=21345 database=1
-    """
+    '''
     server = _connect(host, port, database, password)
     return server.set(key, value)
 
 
 def delete(key, host=None, port=None, database=None, password=None):
-    """
+    '''
     Delete Redis key value
 
     CLI Example:
@@ -162,7 +162,7 @@ def delete(key, host=None, port=None, database=None, password=None):
 
         salt '*' redis.delete foo bar
         salt '*' redis.delete spam host=127.0.0.1 port=21345 database=1
-    """
+    '''
     server = _connect(host, port, database, password)
     return server.delete(key, value)
 ```
@@ -201,7 +201,7 @@ Here is my simplified `salt/states/redismod.py`
 
 ```python
 # -*- coding: utf-8 -*-
-"""
+'''
 Management of  Redis servers
 ============================
 
@@ -226,7 +226,7 @@ Example States
         - port: 1234
         - database: 3
         - password: somepass
-"""
+'''
 
 from __future__ import absolute_import
 
@@ -240,7 +240,7 @@ def __virtual__():
 
 
 def present(name, value, host=None, port=None, database=None, password=None):
-    """
+    '''
     Ensure key and value pair exists
 
     name
@@ -260,7 +260,7 @@ def present(name, value, host=None, port=None, database=None, password=None):
 
     password
         Password to use for connection
-    """
+    '''
     ret = {'name': name,
            'changes': {},
            'result': False,
@@ -300,7 +300,7 @@ def present(name, value, host=None, port=None, database=None, password=None):
 
 
 def absent(name, host=None, port=None, database=None, password=None):
-    """
+    '''
     Ensure key is not set.
 
     name
@@ -317,7 +317,7 @@ def absent(name, host=None, port=None, database=None, password=None):
 
     password
         Password to use for connection
-    """
+    '''
     ret = {'name': name,
            'changes': {},
            'result': False,
