@@ -8,21 +8,9 @@ Summary: Discussing new capabilities in salt for using webhooks with masterless 
 
 # Getting Started
 
-This requires at least the Carbon release of saltstack, so you will need to setup the release candidate repositories for now.
+This requires at least the 2016.11.0 release of saltstack.
 
-http://repo.saltstack.com/salt_rc/
-
-I am going to be using CentOS 7.2, so here is my repo file.
-
-```
-[salt]
-name=SaltStack RC Release Channel for RHEL/Centos $releasever
-baseurl=https://repo.saltstack.com/salt_rc/yum/redhat/$releasever/$basearch
-failovermethod=priority
-enabled=1
-gpgcheck=1
-gpgkey=http://repo.saltstack.com/salt_rc/yum/redhat/7Server/x86_64/SALTSTACK-GPG-KEY.pub
-```
+http://repo.saltstack.com/
 
 Then just `yum install -y salt-minion`
 
