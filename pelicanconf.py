@@ -15,6 +15,9 @@ DEFAULT_LANG = 'en'
 LOCALE = 'en_US.utf8'
 
 THEME = "themes/pelican-bootstrap3"
+JINJA_ENVIRONMENT = {'extensions': ['jinja2.ext.i18n']}
+PLUGIN_PATHS = ['plugins']
+PLUGINS = ['i18n_subsites']
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = 'feeds/all.atom.xml'
