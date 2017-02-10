@@ -407,7 +407,7 @@ salt.modules.redis
 ==================
 
 .. automodule:: salt.modules.redismod
-    :members:%
+    :members:
 ```
 
 `doc/ref/states/all/salt.states.redismod.rst`
@@ -417,7 +417,7 @@ salt.states.redis
 ==================
 
 .. automodule:: salt.states.redismod
-    :members:%
+    :members:
 ```
 
 Then they will get compiled, then we have to add the following references to the correct index files and just add `redis` to `doc/ref/modules/all/index.rst` and `doc/ref/states/all/index.rst` so that they will be visible in the index pages for all execution modules and all state modules.
