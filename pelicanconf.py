@@ -27,7 +27,6 @@ TRANSLATION_FEED_ATOM = None
 # Blogroll
 LINKS =  (('Git Repositories', 'https://github.com/gtmanfred/'),
           ('Feeds', '/feeds/'),
-          ('Wedding', '/wedding/'),
           )
 EXTRA_PATH_METADATA={ 'extra/robots.txt': {'path': 'robots.txt'},}
 
