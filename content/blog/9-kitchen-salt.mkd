@@ -12,7 +12,7 @@ TestKitchen was originally written as a way to test chef cookbooks.  But the pro
 
 # Example formula
 
-This article will be using my [wordpress-formula](https://github.com/gtmanfred/wordpress-formula) to demo the major ussage points of `kitchen-salt`.
+This article will be using my [wordpress-formula](https://github.com/gtmanfred/wordpress-formula) to demo the major usage points of `kitchen-salt`.
 
 # Installing Kitchen
 
@@ -80,13 +80,13 @@ Commands:
 ```
 
 The kitchen commands I use the most are:
-  - list: show the current state of each configured environment
-  - create: create the test environment with ssh or winrm.
-  - converge: run the provision command, in this case, salt_solo and the specified states
-  - verify: run the verifier.
-  - login: login to created environment
-  - destroy: remove the created environment
-  - test: run create, converge, verify, and then destroy if it all succeeds
+  - **list**: show the current state of each configured environment
+  - **create**: create the test environment with ssh or winrm.
+  - **converge**: run the provision command, in this case, salt_solo and the specified states
+  - **verify**: run the verifier.
+  - **login**: login to created environment
+  - **destroy**: remove the created environment
+  - **test**: run create, converge, verify, and then destroy if it all succeeds
 
 
 For triaging github issues, I regularly use `bundle exec kitchen create <setup>` and then salt bootstrap to install the salt version we are testing.
@@ -97,12 +97,12 @@ Then for running tests, to setup the environment I want to run the tests in I ru
 
 There are 6 major parts of the test-kitchen configuration file.
 
-- driver:  This specifies the configuration of how the driver requirements.  Drivers are how the virtual machine is created.  https://docs.chef.io/kitchen.html#drivers (I prefer docker)
-- verifier: The command to run for tests to check that the converge ran successfully.
-- platforms: The different platforms/distributions to run on
-- transport: The transport layer to use to talk to the vm.  This defaults to ssh, but winrm is also available.
-- suites: sets of different test runs.
-- provisioner: The plugin for provisioning the vm for the verifier to run against.  This is where kitchen-salt comes in.
+- **driver**:  This specifies the configuration of how the driver requirements.  Drivers are how the virtual machine is created.  https://docs.chef.io/kitchen.html#drivers (I prefer docker)
+- **verifier**: The command to run for tests to check that the converge ran successfully.
+- **platforms**: The different platforms/distributions to run on
+- **transport**: The transport layer to use to talk to the vm.  This defaults to ssh, but winrm is also available.
+- **suites**: sets of different test runs.
+- **provisioner**: The plugin for provisioning the vm for the verifier to run against.  This is where kitchen-salt comes in.
 
 For the driver on the wordpress-fomula, the following is set:
 
@@ -255,19 +255,19 @@ provisioner:
           url: http://blog.manfred.io
 ```
 
-- name: The name of the provisioner is `salt_solo`
-- salt_install: This defaults to `bootstrap` which installs using the salt bootstrap.  Other options are `apt` and `yum` which use the repo.saltstack.com repository.  `ppa` allows for specifying a ppa from which to install salt.  And `distrib` which just uses whatever version of salt is provided by the distribution repositories.
-- salt_bootstrap_options: These are the bootstrap options that are passed to the bootstrap script.  `-X` can be passed here to not start the salt services, because salt_solo runs salt-call and doesn't use the salt-minion process.
-- is_file_root: This is used to say just copy everything from the current directory to the tmp fileserver in the kitchen container.  If there were not a custom module and state for this formula, kitchen could be set to have `formula: wordpress` to copy the wordpress-formula to the kitchen environment.
-- salt_copy_filter: This is a list of files to not copy to the kitchen environment.
-- dependencies: This is the fun part.  If the formula depends on other formulas, they can be configured here.  The following types are supported:
+- **name**: The name of the provisioner is `salt_solo`
+- **salt_install**: This defaults to `bootstrap` which installs using the salt bootstrap.  Other options are `apt` and `yum` which use the repo.saltstack.com repository.  `ppa` allows for specifying a ppa from which to install salt.  And `distrib` which just uses whatever version of salt is provided by the distribution repositories.
+- **salt_bootstrap_options**: These are the bootstrap options that are passed to the bootstrap script.  `-X` can be passed here to not start the salt services, because salt_solo runs salt-call and doesn't use the salt-minion process.
+- **is_file_root**: This is used to say just copy everything from the current directory to the tmp fileserver in the kitchen container.  If there were not a custom module and state for this formula, kitchen could be set to have `formula: wordpress` to copy the wordpress-formula to the kitchen environment.
+- **salt_copy_filter**: This is a list of files to not copy to the kitchen environment.
+- **dependencies**: This is the fun part.  If the formula depends on other formulas, they can be configured here.  The following types are supported:
     * path - use a local path
     * git - clone a git repository
     * apt - install an apt package
     * yum - install a yum package
     * spm - install a [spm](https://docs.saltstack.com/en/latest/topics/spm/) package
-- state_top: This is the top file that will be used to run at the end of the provisioner
-- pillars: This is a set of custom pillars for configuring the instance.  There are a couple other ways to provide pillars that are also useful.
+- **state_top**: This is the top file that will be used to run at the end of the provisioner
+- **pillars**: This is a set of custom pillars for configuring the instance.  There are a couple other ways to provide pillars that are also useful.
 
 # Running test kitchen on pull requests.
 
