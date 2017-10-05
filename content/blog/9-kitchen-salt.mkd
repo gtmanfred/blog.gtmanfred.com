@@ -261,11 +261,11 @@ provisioner:
 - is_file_root: This is used to say just copy everything from the current directory to the tmp fileserver in the kitchen container.  If there were not a custom module and state for this formula, kitchen could be set to have `formula: wordpress` to copy the wordpress-formula to the kitchen environment.
 - salt_copy_filter: This is a list of files to not copy to the kitchen environment.
 - dependencies: This is the fun part.  If the formula depends on other formulas, they can be configured here.  The following types are supported:
-  * path - use a local path
-  * git - clone a git repository
-  * apt - install an apt package
-  * yum - install a yum package
-  * spm - install a [spm](https://docs.saltstack.com/en/latest/topics/spm/) package
+    * path - use a local path
+    * git - clone a git repository
+    * apt - install an apt package
+    * yum - install a yum package
+    * spm - install a [spm](https://docs.saltstack.com/en/latest/topics/spm/) package
 - state_top: This is the top file that will be used to run at the end of the provisioner
 - pillars: This is a set of custom pillars for configuring the instance.  There are a couple other ways to provide pillars that are also useful.
 
