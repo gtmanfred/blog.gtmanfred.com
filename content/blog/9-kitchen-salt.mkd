@@ -1,0 +1,280 @@
+Title: Testing your salt states with kitchen-salt
+Date: 2017-10-04T16:17:16.782Z
+Category: Salt
+Tags: salt
+Slug: kitchen-salt
+Author: @author@
+Summary: Test salt formulas and states
+
+# What is [Kitchen](https://github.com/test-kitchen/test-kitchen)
+
+TestKitchen was originally written as a way to test chef cookbooks.  But the provisioners and drivers are pluggable, [kitchen-salt](https://github.com/saltstack/kitchen-salt) enables salt to be the provisioner instead of chef.
+
+# Example formula
+
+This article will be using my [wordpress-formula](https://github.com/gtmanfred/wordpress-formula) to demo the major ussage points of `kitchen-salt`.
+
+# Installing Kitchen
+
+Most distributions provide a `bundler` gem in the repositories, but there are some that have a version of ruby that is too old to use kitchen.  The easiest way to use kitchen on each system is to use a ruby version manager like [rvm](https://rvm.io/) or [rbenv](http://rbenv.org/).  `rbenv` is very similar to `pyenv`.
+
+Once ruby bundler is installed, it can be used to install localized versions of the ruby packages for each repository, using the `bundle install` command.
+
+```
+$ bundle install
+The latest bundler is 1.16.0.pre.2, but you are currently running 1.15.4.
+To update, run `gem install bundler --pre`
+Using artifactory 2.8.2
+Using bundler 1.15.4
+Using mixlib-shellout 2.3.2
+Using mixlib-versioning 1.2.2
+Using thor 0.19.1
+Using net-ssh 4.2.0
+Using safe_yaml 1.0.4
+Using mixlib-install 2.1.12
+Using net-scp 1.2.1
+Using net-ssh-gateway 1.3.0
+Using test-kitchen 1.17.0
+Using kitchen-docker 2.6.1.pre from https://github.com/test-kitchen/kitchen-docker.git (at master@9eabd01)
+Using kitchen-salt 0.0.29
+Bundle complete! 3 Gemfile dependencies, 13 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+```
+
+This will require having a separate Gemfile to hold the requirements for running test-kitchen.
+
+```
+source "https://rubygems.org"
+
+gem "test-kitchen"
+gem "kitchen-salt"
+gem 'kitchen-docker', :git => 'https://github.com/test-kitchen/kitchen-docker.git'
+```
+
+Because I am also testing opensuse, right now the git version of kitchen-docker is required.
+
+# Using kitchen
+
+```
+$ bundle exec kitchen help
+Commands:
+  kitchen console                                 # Kitchen Console!
+  kitchen converge [INSTANCE|REGEXP|all]          # Change instance state to converge. Use a provisioner to configure one or more instances
+  kitchen create [INSTANCE|REGEXP|all]            # Change instance state to create. Start one or more instances
+  kitchen destroy [INSTANCE|REGEXP|all]           # Change instance state to destroy. Delete all information for one or more instances
+  kitchen diagnose [INSTANCE|REGEXP|all]          # Show computed diagnostic configuration
+  kitchen driver                                  # Driver subcommands
+  kitchen driver create [NAME]                    # Create a new Kitchen Driver gem project
+  kitchen driver discover                         # Discover Test Kitchen drivers published on RubyGems
+  kitchen driver help [COMMAND]                   # Describe subcommands or one specific subcommand
+  kitchen exec INSTANCE|REGEXP -c REMOTE_COMMAND  # Execute command on one or more instance
+  kitchen help [COMMAND]                          # Describe available commands or one specific command
+  kitchen init                                    # Adds some configuration to your cookbook so Kitchen can rock
+  kitchen list [INSTANCE|REGEXP|all]              # Lists one or more instances
+  kitchen login INSTANCE|REGEXP                   # Log in to one instance
+  kitchen package INSTANCE|REGEXP                 # package an instance
+  kitchen setup [INSTANCE|REGEXP|all]             # Change instance state to setup. Prepare to run automated tests. Install busser and related gems on one or more instances
+  kitchen test [INSTANCE|REGEXP|all]              # Test (destroy, create, converge, setup, verify and destroy) one or more instances
+  kitchen verify [INSTANCE|REGEXP|all]            # Change instance state to verify. Run automated tests on one or more instances
+  kitchen version                                 # Print Kitchen's version information
+```
+
+The kitchen commands I use the most are:
+  - list: show the current state of each configured environment
+  - create: create the test environment with ssh or winrm.
+  - converge: run the provision command, in this case, salt_solo and the specified states
+  - verify: run the verifier.
+  - login: login to created environment
+  - destroy: remove the created environment
+  - test: run create, converge, verify, and then destroy if it all succeeds
+
+
+For triaging github issues, I regularly use `bundle exec kitchen create <setup>` and then salt bootstrap to install the salt version we are testing.
+
+Then for running tests, to setup the environment I want to run the tests in I run `bundle exec kitchen converge <setup>`
+
+# Configuring test-kitchen
+
+There are 6 major parts of the test-kitchen configuration file.
+
+- driver:  This specifies the configuration of how the driver requirements.  Drivers are how the virtual machine is created.  https://docs.chef.io/kitchen.html#drivers (I prefer docker)
+- verifier: The command to run for tests to check that the converge ran successfully.
+- platforms: The different platforms/distributions to run on
+- transport: The transport layer to use to talk to the vm.  This defaults to ssh, but winrm is also available.
+- suites: sets of different test runs.
+- provisioner: The plugin for provisioning the vm for the verifier to run against.  This is where kitchen-salt comes in.
+
+For the driver on the wordpress-fomula, the following is set:
+
+```
+driver:
+  name: docker
+  use_sudo: false
+  privileged: true
+  forward:
+    - 80
+```
+
+This is using the [kitchen-docker](https://github.com/test-kitchen/kitchen-docker) driver.  If the user running kitchen does not have the correct privileges to run docker, then `use_sudo: true` should be set.  All of the containers that are being used here are using systemd as the exec command, so `privileged: true` needs to be set.  And then port 80 is forwarded to the host so that the verifier can run commands against it to check that wordpress has been setup
+
+For the platforms, the following are setup to run systemd on the container start.
+
+```
+platforms:
+  - name: centos
+    driver_config:
+      run_command: /usr/lib/systemd/systemd
+  - name: opensuse
+    driver_config:
+      run_command: /usr/lib/systemd/systemd
+      provision_command:
+        - systemctl enable sshd.service
+  - name: ubuntu
+    driver_config:
+      run_command: /lib/systemd/systemd
+  - name: debian
+    driver_config:
+      run_command: /lib/systemd/systemd
+```
+
+All of these distributions except for opensuse have sshd.service enabled when the package is installed, so we only have to have one provision command to enable sshd for opensuse.  The rest have a command to configure the driver run_command to the correct systemd binary for that distribution.
+
+For suites, there is only one suite.
+
+```
+suites:
+  - name: wordpress
+```
+
+If multiple sets of pillars for salt were needed to be configured, they would be configured here.
+
+```
+suites:
+  - name: wordpress
+  - name: wordpress-something
+    pillars:
+      something.sls:
+        extrakey: extravalue
+```
+
+And there would be multiple suites with for each platform created and tested.
+
+And lastly for the verifier.
+
+```
+verifier:
+  name: shell
+  remote_exec: false
+  command: pytest -v tests/integration/
+```
+
+There are a couple base [verifiers](https://github.com/test-kitchen/test-kitchen/tree/master/lib/kitchen/verifier).  I usually use the shell verifier and use [testinfra](http://testinfra.readthedocs.io/en/latest/) which has multiple connectors to run pytest type test functions inside of the container.
+
+Kitchen also has a `$KITCHEN_SUITE` variable that it sets, so if different tests files need to be run for each suite.
+
+```
+verifier:
+  name: shell
+  remote_exec: false
+  command: pytest -v tests/integration/$KITCHEN_SUITE
+```
+
+For the [salt-jenkins](https://github.com/saltstack/salt-jenkins.git), since we are setting up the containers to run the SaltStack testing suite, the verifier is setup to run inside of the container, and run the salt testing suite.
+
+```
+verifier:
+  name: shell
+  remote_exec: true
+  command: '$(kitchen) /testing/tests/runtests.py -v --output-columns=80 --run-destructive<%= ENV["TEST"] ? " -n #{ENV["TEST"]}" : "" %>'
+```
+
+`remote_exec` will cause the command to be run inside of the container.  The [kitchen](https://github.com/saltstack/salt-jenkins/blob/2017.7/kitchen/kitchen.py) command uses the installed salt to lookup if py3 was used or not, so that the correct python executable is used to run the test suite.  Then if the TEST environment variable is set, that test is run, otherwise the full test suite is run.
+
+# Configuring kitchen-salt
+
+The documentation for kitchen-salt is located [here](https://github.com/saltstack/kitchen-salt/blob/master/provisioner_options.md)
+
+```
+provisioner:
+  name: salt_solo
+  salt_install: bootstrap
+  salt_version: latest
+  salt_bootstrap_url: https://bootstrap.saltstack.com
+  salt_bootstrap_options: -X -p git -p curl -p sudo
+  is_file_root: true
+  require_chef: false
+  salt_copy_filter:
+    - .circleci/
+    - Dockerfile
+    - .drone.yml
+    - .git/
+    - .gitignore
+    - .kitchen/
+    - .kitchen.yml
+    - Gemfile
+    - Gemfile.lock
+    - requirements.txt
+    - tests/
+    - .travis.yml
+  dependencies:
+    - name: apache
+      repo: git
+      source: https://github.com/saltstack-formulas/apache-formula.git
+    - name: mysql
+      repo: git
+      source: https://github.com/saltstack-formulas/mysql-formula.git
+    - name: php
+      repo: git
+      source: https://github.com/saltstack-formulas/php-formula.git
+  state_top:
+    base:
+      "*":
+        - wordpress
+  pillars:
+    top.sls:
+      base:
+        "*":
+          - wordpress
+    wordpress.sls:
+      mysql:
+        database:
+          - wordpress
+        user:
+          wordpress:
+            password: quair9aiqueeShae4toh
+            host: localhost
+            databases:
+              - database: wordpress
+                grants:
+                  - all privileges
+      wordpress:
+        lookup:
+          admin_user: gtmanfred
+          admin_email: daniel@gtmanfred.com
+          title: "GtManfred's Blog"
+          url: http://blog.manfred.io
+```
+
+- name: The name of the provisioner is `salt_solo`
+- salt_install: This defaults to `bootstrap` which installs using the salt bootstrap.  Other options are `apt` and `yum` which use the repo.saltstack.com repository.  `ppa` allows for specifying a ppa from which to install salt.  And `distrib` which just uses whatever version of salt is provided by the distribution repositories.
+- salt_bootstrap_options: These are the bootstrap options that are passed to the bootstrap script.  `-X` can be passed here to not start the salt services, because salt_solo runs salt-call and doesn't use the salt-minion process.
+- is_file_root: This is used to say just copy everything from the current directory to the tmp fileserver in the kitchen container.  If there were not a custom module and state for this formula, kitchen could be set to have `formula: wordpress` to copy the wordpress-formula to the kitchen environment.
+- salt_copy_filter: This is a list of files to not copy to the kitchen environment.
+- dependencies: This is the fun part.  If the formula depends on other formulas, they can be configured here.  The following types are supported:
+  * path - use a local path
+  * git - clone a git repository
+  * apt - install an apt package
+  * yum - install a yum package
+  * spm - install a [spm](https://docs.saltstack.com/en/latest/topics/spm/) package
+- state_top: This is the top file that will be used to run at the end of the provisioner
+- pillars: This is a set of custom pillars for configuring the instance.  There are a couple other ways to provide pillars that are also useful.
+
+# Running test kitchen on pull requests.
+
+Any of the major testing platforms should be usable.  If there are complicated setups needed, Jenkins is probably the best, unfortunately I do not know jenkins very well, so I have provided examples for the three I know how to use.
+
+- [TravisCI](https://github.com/gtmanfred/wordpress-formula/blob/master/.travis.yml)
+- [Drone](https://github.com/gtmanfred/wordpress-formula/blob/master/.drone.yml)
+- [CircleCI](https://github.com/gtmanfred/wordpress-formula/blob/master/.circleci/config.yml)
+
+My personal favorite is Drone.  You can setup each one of the tests suites to run with a mysql container if you did not have states that need mysql-server installed on the instance.  Also, for each job runner for Drone, you just need to setup another drone-agent on a server running docker, and then hook it into the drone-server, then each drone-agent can pick up a job and run it.
