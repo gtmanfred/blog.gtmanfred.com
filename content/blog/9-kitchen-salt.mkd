@@ -6,9 +6,11 @@ Slug: kitchen-salt
 Author: @author@
 Summary: Test salt formulas and states
 
-# What is [Kitchen](https://github.com/test-kitchen/test-kitchen)
+# What is [Kitchen](https://github.com/test-kitchen/test-kitchen) and why would someone use it.
 
-TestKitchen was originally written as a way to test chef cookbooks.  But the provisioners and drivers are pluggable, [kitchen-salt](https://github.com/saltstack/kitchen-salt) enables salt to be the provisioner instead of chef.
+test-kitchen was originally written as a way to test chef cookbooks.  But the provisioners and drivers are pluggable, [kitchen-salt](https://github.com/saltstack/kitchen-salt) enables salt to be the provisioner instead of chef.
+
+The goal of this kitchen-salt is to make it easy to test salt states or formulas independently of a production environment.  It allows for doing quick checks of states and to make sure that upstream changes in packages will not affect deployments.  By using platforms, users can run checks on their states against the environment they are running in production as well as checking future releases of distributions before doing major upgrades.  It is also possible to test states against multiple versions of salt to make sure there are no major regressions.
 
 # Example formula
 
