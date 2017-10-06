@@ -99,7 +99,7 @@ Then for running tests, to setup the environment I want to run the tests in I ru
 
 There are 6 major parts of the test-kitchen configuration file.  This is `.kitchen.yml` and should be in the directory inside of which the `kitchen` command is going to be run.
 
-- **driver**:  This specifies the configuration of how the driver requirements.  Drivers are how the virtual machine is created.  https://docs.chef.io/kitchen.html#drivers (I prefer docker)
+- **driver**:  This specifies the configuration of how the driver requirements.  Drivers are how the virtual machine is created. [kitchen drivers](https://docs.chef.io/kitchen.html#drivers) (I prefer docker)
 - **verifier**: The command to run for tests to check that the converge ran successfully.
 - **platforms**: The different platforms/distributions to run on
 - **transport**: The transport layer to use to talk to the vm.  This defaults to ssh, but winrm is also available.
