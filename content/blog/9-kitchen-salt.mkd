@@ -148,15 +148,14 @@ suites:
   - name: wordpress
 ```
 
-If multiple sets of pillars for salt were needed to be configured, they would be configured here.
+If multiple sets of pillars or different versions of salt were needed to be tested, they would be configured here.
 
 ```
 suites:
-  - name: wordpress
-  - name: wordpress-something
-    pillars:
-      something.sls:
-        extrakey: extravalue
+  - name: nitrogen
+  - name: develop
+    provisioner:
+      salt_bootstrap_options: -X -p git -p curl -p sudo git develop
 ```
 
 And there would be multiple suites with for each platform created and tested.
