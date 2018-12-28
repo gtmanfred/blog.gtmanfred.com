@@ -58,7 +58,7 @@ This will enable the webhook on all ips on port 5000 with the listed ssl certifi
 
 Now we need to setup the github webhook so we can see the events in the event stream.  Go to your blog's github repository, and go to the settings.  Then select webhooks, and create a new one.
 
-![Configure Github]({filename}/images/blog.png)
+![Configure Github]({static}/images/blog.png)
 
 For the "Payload URL" you are going to set https and then the ip address/domain and port to access, followed by the uri which should match what your are going to trigger on for the reactor.  As you can see in the picture above, I have `/update/blog/gtmanfred.com` as my URI, and this matches what follows the prefix `salt/engines/hook` in the reactor config above.  Be sure to add a secret! And don't forget it! We will be verifying that in a later step.  Then customize which events you would like to trigger on and save. I am going to rebuild the blog on each push, so I am only sending push events.
 
