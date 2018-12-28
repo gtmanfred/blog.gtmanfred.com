@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/gtmanfred
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://blog.gtmanfred.com
+  * I am gtmanfred (https://keybase.io/gtmanfred) on keybase.
+  * I have a public key ASBG3g6vJPG5FK_2maDyyhD3jVKeBHIyMZ2BFRyonHUgLgo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "012046de0eaf24f1b914aff699a0f2ca10f78d529e047232319d81151ca89c75202e0a",
+      "host": "keybase.io",
+      "kid": "012046de0eaf24f1b914aff699a0f2ca10f78d529e047232319d81151ca89c75202e0a",
+      "uid": "4e0b1f2da57655e854375fc956d63319",
+      "username": "gtmanfred"
+    },
+    "merkle_root": {
+      "ctime": 1546036705,
+      "hash": "b863e29569afc7ee1a0c69819a877d1a7daa39c27d09f32f7c6cfd0e6fc93f80c3fa3429b00595785a094f9200664e5050d074adf2e845ccb4055e9b092fe2ea",
+      "hash_meta": "b40f6be439d049fa7dd21d9871f7221d94eb6a5938e6c70b52245ca3f448b595",
+      "seqno": 4204820
+    },
+    "service": {
+      "entropy": "JDjSaBDXam16fZ0ztVxc9HVr",
+      "hostname": "blog.gtmanfred.com",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "2.12.4"
+  },
+  "ctime": 1546036721,
+  "expire_in": 504576000,
+  "prev": "79c0277a07caf423fdfbe29f40f57ee2e57d806b9e46cb48113353b5082801a1",
+  "seqno": 27,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgRt4OryTxuRSv9pmg8soQ941SngRyMjGdgRUcqJx1IC4Kp3BheWxvYWTESpcCG8QgecAnegfK9CP9++KfQPV+4uV9gGueRstIETNTtQgoAaHEIM2dMVn1jWSnlhryZJtX3s+UOL6Um2fqBmEtgXK5wo3QAgHCo3NpZ8RA9xFMmcBsIxAYFoOYSWF8XlbbnFnHC+cK1yDd4YUQy7Xm7eYYAlU+25qlPJ0SRZ5hEESZlunyfBlmHzvX5wIaA6hzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIJzrsb0Z826y9FOIFwZuBP2ks0XRZCAT7TFSMXOrAwuOo3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/gtmanfred
+
+==================================================================
