@@ -1,139 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
-        <meta charset="utf-8" />
-        <title>GTmanfred - webhooks</title>
-        <link rel="stylesheet" href="https://blog.gtmanfred.com/theme/css/main.css" />
-        <link href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="GTmanfred Atom Feed" />
+    <title>webhooks - GTmanfred</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <!--[if IE]>
-            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+
+
+
+    <meta name="author" content="Daniel Wallace" />
+    <meta name="keywords" content="webhooks" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="GTmanfred" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="GTmanfred"/>
+        <meta property="og:url" content="https://blog.gtmanfred.com"/>
+        <meta property="og:description" content="GTmanfred"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.gtmanfred.com/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.gtmanfred.com/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.gtmanfred.com/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.gtmanfred.com/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="GTmanfred ATOM Feed"/>
+
+
+
+
 </head>
+<body>
 
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="https://blog.gtmanfred.com/">GTmanfred </a></h1>
-                <nav><ul>
-    
-                        <li><a href="https://blog.gtmanfred.com/pages/about.html">About</a></li>
-                    <li><a href="https://blog.gtmanfred.com/category/pelican.html">Pelican</a></li>
-                    <li><a href="https://blog.gtmanfred.com/category/salt.html">Salt</a></li>
-                    <li><a href="https://blog.gtmanfred.com/category/zsh.html">Zsh</a></li>
-                </ul>
-                </nav>
-        </header><!-- /#banner -->
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.gtmanfred.com/" class="navbar-brand">
+GTmanfred            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.gtmanfred.com/pages/about.html">
+                             About
+                          </a></li>
+                        <li >
+                            <a href="https://blog.gtmanfred.com/category/pelican.html">Pelican</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.gtmanfred.com/category/salt.html">Salt</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.gtmanfred.com/category/zsh.html">Zsh</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
 
-            <aside id="featured" class="body">
-                <article>
-                    <h1 class="entry-title"><a href="https://blog.gtmanfred.com/masterless-reactor.html">Using webhooks and the reactor with masterless minions</a></h1>
-<footer class="post-info">
-        <span>Fri 14 October 2016</span>
-<span>| tags: <a href="https://blog.gtmanfred.com/tag/salt.html">salt</a><a href="https://blog.gtmanfred.com/tag/masterless.html">masterless</a><a href="https://blog.gtmanfred.com/tag/webhooks.html">webhooks</a><a href="https://blog.gtmanfred.com/tag/github.html">github</a></span>
-</footer><!-- /.post-info --><h1>Getting Started</h1>
-<p>This requires at least the 2016.11.0 release of saltstack.</p>
-<p>http://repo.saltstack.com/</p>
-<p>Then just <code>yum install -y salt-minion</code></p>
-<h1>Modules from Nitrogen</h1>
-<p>You will also need a few new modules and a new engine that will be in the Nitrogen release.</p>
-<p>In <code>/srv/salt/_modules</code> you will need the following two modules: <a href="https://github.com/gtmanfred/salt/blob/hashutil/salt/modules/hashutil.py">new hashutil module</a> and <a href="https://github.com/gtmanfred/salt/blob/event_send/salt/modules/event.py">new event module</a></p>
-<p>And the thing that makes it all possible the new webhook engine needs to be put in <code>/srv/salt/_engines</code>: <a href="https://github.com/gtmanfred/salt/blob/webhook/salt/engines/webhook.py">Webhook engine</a></p>
-<p>Once these are all in place, run <code>salt-call saltutil.sync_all</code> to make sure they get put in the extmods directory and are usable.</p>
-<h1>Configuration</h1>
-<p>My configurations are located <a href="https://github.com/gtmanfred/blog-sls">here</a> but I will highlight some of the specifics here.</p>
-<p>First, we want to make the minion a masterless minion, and to never query the master for anything.  So to <code>/etc/salt/minion.d/local.conf</code> add</p>
-<div class="highlight"><pre><span></span><span class="n">local</span><span class="o">:</span> <span class="n">True</span>
-<span class="n">file_client</span><span class="o">:</span> <span class="n">local</span>
-<span class="n">master_type</span><span class="o">:</span> <span class="n">disable</span>
-</pre></div>
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="https://blog.gtmanfred.com/masterless-reactor.html">Using webhooks and the reactor with masterless minions</a></h2>
+                <div class="summary"><p>Discussing new capabilities in salt for using webhooks with masterless minions</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.gtmanfred.com/masterless-reactor.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="https://github.com/gtmanfred/" target="_blank">Git Repositories</a>
+    </li>
+    <li class="list-group-item">
+      <a href="/feeds/" target="_blank">Feeds</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Daniel Wallace
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.gtmanfred.com/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.gtmanfred.com/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.gtmanfred.com/theme/js/respond.min.js"></script>
 
 
-<p>Any one of the settings could be used, I like to use all three just to make certain.</p>
-<p>Second, we need to setup the ssl keys so that we can have a secure connection.  To do this, you can run the following command to create a generic ssl certificate, if you want to have verification in there, you can make a nice one for the domain and everything, but we just want to have the traffice encrypted, so use <code>salt-call --local tls.create_self_signed_cert</code>.  Now that we have an ssl certificate pair, we can setup the webhook engine.  I put the following in <code>/etc/salt/minion.d/engines.conf</code>.</p>
-<div class="highlight"><pre><span></span>engines:
-  - webhook:
-      address: None
-      port: 5000
-      ssl_crt: /etc/pki/tls/certs/localhost.crt
-      ssl_key: /etc/pki/tls/certs/localhost.key
-  - reactor: {}
-
-reactor:
-  - &#39;salt/engines/hook/update/blog/gtmanfred.com&#39;:
-    - salt://reactor/blog.gtmanfred.com.sls
-</pre></div>
-
-
-<p>This will enable the webhook on all ips on port 5000 with the listed ssl certificate.  It will also enable the reactor to be able to act upon the one tag in the event stream, which we will get to later.</p>
-<p>Now we need to setup the github webhook so we can see the events in the event stream.  Go to your blog's github repository, and go to the settings.  Then select webhooks, and create a new one.</p>
-<p><img alt="Configure Github" src="https://blog.gtmanfred.com/images/blog.png"></p>
-<p>For the "Payload URL" you are going to set https and then the ip address/domain and port to access, followed by the uri which should match what your are going to trigger on for the reactor.  As you can see in the picture above, I have <code>/update/blog/gtmanfred.com</code> as my URI, and this matches what follows the prefix <code>salt/engines/hook</code> in the reactor config above.  Be sure to add a secret! And don't forget it! We will be verifying that in a later step.  Then customize which events you would like to trigger on and save. I am going to rebuild the blog on each push, so I am only sending push events.</p>
-<p>BE SURE TO DISABLE SSL VERIFICATION IF YOU DON'T USE A SIGNED KEY!</p>
-<p>Before you forget that secret key, we should save it somewhere.  I use sdb in salt so that I can save my states and reactors in public github, but hide the secret key in sdb.  Create <code>/etc/salt/minion.d/sdb.conf</code> with the following.</p>
-<div class="highlight"><pre><span></span><span class="n">secrets</span><span class="o">:</span>
-  <span class="n">driver</span><span class="o">:</span> <span class="n">sqlite3</span>
-  <span class="n">database</span><span class="o">:</span> <span class="sr">/var/lib/s</span><span class="n">db</span><span class="o">.</span><span class="na">sqlite</span>
-  <span class="n">table</span><span class="o">:</span> <span class="n">sdb</span>
-  <span class="n">create_table</span><span class="o">:</span> <span class="n">True</span>
-</pre></div>
-
-
-<p>Now run <code>salt-call --local sdb.set sdb://secrets/github_secret &lt;secretkey&gt;</code> to save the key.</p>
-<p>Now the last step, creating the reactor file in the salt fileserver.  Mine is in /srv/salt/reactor/blog.gtmanfred.com.sls, so I just have to reference it with salt://reactor/blog.gtmanfred.com.sls (and can also use the reactor files from gitfs).</p>
-<div class="highlight"><pre><span></span>{%- if salt.hashutil.github_signature(data[&#39;body&#39;], salt.sdb.get(&#39;sdb://secrets/github_secret&#39;), data[&#39;headers&#39;][&#39;X-Hub-Signature&#39;]) %}
-highstate_run:
-  caller.state.apply:
-    - args: []
-{%- endif %}
-</pre></div>
-
-
-<p>Lets walk through this.  We are going to take the <code>data['body']</code> from the github post, and our secret, and the <code>X-Hub-Signature</code> and run it through the github_signature function to verify if the signature is the result of signing the body with your secret key.  If True comes back, we can be sure this came from github, and then our minion runs a highstate on itself.  If it is False, nothing is rendered and no event is run.</p><p><a href="https://blog.gtmanfred.com/masterless-reactor.html#disqus_thread">comments</a></p>                </article>
-<p class="paginator">
-    Page 1 / 1
-</p>
-            </aside><!-- /#featured -->
-            </ol><!-- /#posts-list -->
-            </section><!-- /#content -->
-        <section id="extras" class="body">
-                <div class="blogroll">
-                        <h2>blogroll</h2>
-                        <ul>
-                            <li><a href="https://github.com/gtmanfred/">Git Repositories</a></li>
-                            <li><a href="/feeds/">Feeds</a></li>
-                        </ul>
-                </div><!-- /.blogroll -->
-                <div class="social">
-                        <h2>social</h2>
-                        <ul>
-                            <li><a href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
-
-                        </ul>
-                </div><!-- /.social -->
-        </section><!-- /#extras -->
-
-        <footer id="contentinfo" class="body">
-                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
-        </footer><!-- /#contentinfo -->
-
+    <!-- Disqus -->
     <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-42514099-1']);
-    _gaq.push(['_trackPageview']);
-    (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'gtmanfred'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
     </script>
-<script type="text/javascript">
-    var disqus_shortname = 'gtmanfred';
-    (function () {
-        var s = document.createElement('script'); s.async = true;
-        s.type = 'text/javascript';
-        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
-        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-    }());
-</script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-42514099-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+
 </body>
 </html>
