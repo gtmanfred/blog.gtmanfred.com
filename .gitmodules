@@ -1,6 +1,6 @@
 [submodule "plugins"]
 	path = plugins
 	url = git://github.com/getpelican/pelican-plugins.git
-[submodule "themes/bootstrap4"]
-	path = themes/bootstrap4
-	url = git://github.com/rask004/pelican-theme-bootstrap4
+[submodule "themes/bootstrap3"]
+	path = themes/bootstrap3
+	url = git://github.com/gtmanfred/bootstrap3
