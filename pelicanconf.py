@@ -14,7 +14,7 @@ TIMEZONE = 'America/Chicago'
 DEFAULT_LANG = 'en'
 LOCALE = 'en_US.utf8'
 
-THEME = "themes/blueidea"
+THEME = "themes/bootstrap4"
 JINJA_ENVIRONMENT = {'extensions': ['jinja2.ext.i18n']}
 PLUGIN_PATHS = ['plugins']
 PLUGINS = ['i18n_subsites']
