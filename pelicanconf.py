@@ -25,12 +25,11 @@ FEED_ALL_ATOM = 'feeds/all.atom.xml'
 TRANSLATION_FEED_ATOM = None
 
 # Blogroll
-LINKS =  (
+LINKS = (
     ('Git Repositories', 'https://github.com/gtmanfred/'),
     ('Feeds', '/feeds/'),
 )
-EXTRA_PATH_METADATA={'extra/robots.txt': {'path': 'robots.txt'}}
-
+STATIC_PATHS = ['robots.txt', 'keybase.txt']
 DEFAULT_PAGINATION = 10
 MARKUP = ('mkd', )
 
