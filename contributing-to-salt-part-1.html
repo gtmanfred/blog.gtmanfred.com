@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>What do I need to know if I want to start contributing to SaltStack?</title>
+        <link rel="stylesheet" href="https://blog.gtmanfred.com/theme/css/main.css" />
+        <link href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="GTmanfred Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://blog.gtmanfred.com/">GTmanfred </a></h1>
+                <nav><ul>
+    
+                        <li><a href="https://blog.gtmanfred.com/pages/about.html">About</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/pelican.html">Pelican</a></li>
+                    <li class="active"><a href="https://blog.gtmanfred.com/category/salt.html">Salt</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/zsh.html">Zsh</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="https://blog.gtmanfred.com/contributing-to-salt-part-1.html" rel="bookmark"
+           title="Permalink to What do I need to know if I want to start contributing to SaltStack?">What do I need to know if I want to start contributing to SaltStack?</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <span>Thu 03 November 2016</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/salt.html">salt</a></span>
+</footer><!-- /.post-info -->      <h1>How I came to work on SaltStack</h1>
+<p>I was working at Rackspace doing Linux support in the Hybrid segment.  I did a lot of work with supporting Rackconnect v2/v3 and Rackspace Public cloud as well as the dedicated part of the house.  I started down the road to server automation and orchestration the way I think a lot of people do.  At some point, I started to think... there has to be a better way.</p>
+<p>I began with learning chef.  Rackspace's devops offering had just begun and there was a lot of people using chef and poo pooing puppet in places that I was looking.  I had never used ruby before, so I did some ruby practice on <a href="https://www.codecademy.com/learn/ruby">codecademy</a> and I learned the basics of different blocks in ruby.  I then setup <a href="https://github.com/gtmanfred/chef-repo">wordpress</a>.  As can be seen from that repository, it has been a very long time since I did chef.  I played with chef for about 6 months, and then I decided to try using Ansible and see what that was all about.  I liked the idea of pushing instead of pulling and the easy deployment method was nice.  But after about a month of using Ansible, <a href="https://twitter.com/techhat">Joseph Hall</a> came to Rackspace right after the first SaltConf in 2014 and gave a 3 day class on salt.  And I was in love.  I loved the extensibility of salt, the reactor, the api, salt-cloud being built in.  It was all just perfect for me.  And by the end of the second day of the class, I had submitted my <a href="https://github.com/saltstack/salt/pull/10184">first pull request to saltstack</a>.</p>
+<p>My favorite thing I think about contributing to salt is how open it is to the community and how hard we all try to be welcoming to anyone new.  We kind of have a <a href="https://en.wikipedia.org/wiki/The_No_Asshole_Rule">No Jerks Allowed Rule</a>, and try to be as polite and welcoming as possible.</p>
+<p>Anyway, lets get started.  This is going to be just as much as I can think of on how to go about contributing to salt.</p>
+<h1>Getting setup</h1>
+<p>I probably run my testing setup a little different than everyone else.  Anyway you can get salt running to do testing is good.  If it works for you, do it.</p>
+<p>I create a server in VMWare Fusion using CentOS.  Then I install <code>epel-release</code> and then <code>python-pip</code> and I do a <code>pip install -e git://github.com/gtmanfred/salt.git@&lt;branch&gt;#egg=salt</code>.  This will give me everything I need to install to get salt running.  Since it is also <code>-e</code> the git install is editable, so the changes take effect immediately and I can edit right there in ./src/salt.  From here for all my changes, I can just commit right there to save for later.</p>
+<p>Recently I have been trying to switch to using <a href="https://atom.io">atom</a> as my editor.  I really like it.  What I have been using is the <a href="https://atom.io/packages/remote-ftp">remote ftp plugin</a>.  This allows for the remote directory to be setup to ~/src/salt, and then I just have that in the .ftpconfig and once connected, there is a second project window that shows the remote ftp location with all the files, and I can treat it as if it was the local file.  Then once all the files are done, I can sync from the remote down to the local and make my pull request.</p>
+<p>Either way, get a working environment going.</p>
+<p>Here is the salt document on <a href="https://docs.saltstack.com/en/latest/topics/development/hacking.html">getting started with the development</a>.  You can ignore parts in there about M2Crypto and swig.  There are no currently supported salt versions that use M2Crypto.</p>
+<p>Another thing you could do if you were so inclined, would be to copy the module you are going to be modifying to <code>/srv/salt/_modules</code> or whatever <a href="https://docs.saltstack.com/en/latest/ref/file_server/dynamic-modules.html">dynamic directory</a> where it belongs.  You will then need to run <code>salt-call saltutil.sync_all</code> to sync modules to the minion or <code>salt-run saltutil.sync_all</code> for the master.</p>
+<h1>Writing a ... template</h1>
+<p>The first thing that I do any time I make a new file for a salt module is to add the following template.</p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">:depends: none</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="c1"># Import python libraries</span>
+
+<span class="c1"># Import Salt libraries</span>
+
+
+<span class="k">def</span> <span class="nf">__virtual__</span><span class="p">():</span>
+    <span class="k">return</span> <span class="bp">True</span>
+</pre></div>
+
+
+<p>Here are the things that are going on above.</p>
+<ol>
+<li>We require the <code># -*- coding: utf-8 -*-</code> at the top of all files.</li>
+<li>Each file requires a docstring at the to to list any depends and then basic configuration for usage such as s3 credentials.  It is also good to use the <code>:depends:</code> key if there are any required packages that need to be installed for the module to be used.</li>
+<li>I pretty much always import absolute_import.  This is just useful to have and will cause less weird issues later.  Plus it is the default behavior in python3, so there is nothing bad that could come from it.</li>
+<li>Then We have the two import options.  Anything that gets import from salt, like <code>salt.utils</code> gets put under the Import Salt libraries, and all other imports get put under python libraries.</li>
+<li>Then we have the <code>__virtual__</code> functions which we will go over later when we talk about the anatomy of a module.</li>
+</ol>
+<h1>Execution Modules</h1>
+<p>Now lets move to <a href="https://docs.saltstack.com/en/latest/ref/modules/">writing a module</a>.  I am going to demo with a contrived example of a redis module, and then go over every line.</p>
+<p>Here is a simplified <code>salt/modules/redismod.py</code> file.</p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Redis module for interactive with basic redis commands.</span>
+
+<span class="sd">.. versionadded:: Nitrogen</span>
+
+<span class="sd">:depends: redis</span>
+
+<span class="sd">Example configuration</span>
+
+<span class="sd">.. code-block:: yaml</span>
+<span class="sd">    redis:</span>
+<span class="sd">      host: 127.0.0.1</span>
+<span class="sd">      port: 6379</span>
+<span class="sd">      database: 0</span>
+<span class="sd">      password: None</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="c1"># Import python libraries</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">redis</span>
+    <span class="n">HAS_REDIS</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">HAS_REDIS</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="n">__virtualname__</span> <span class="o">=</span> <span class="s1">&#39;redis&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">__virtual__</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Only load this module if redis python module is installed</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">HAS_REDIS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">__virtualname__</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="s1">&#39;The redis execution module failed to load: redis python module is not available&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_connect</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Return redis client instance</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="p">:</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;config.option&#39;</span><span class="p">](</span><span class="s1">&#39;redis.host&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">port</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;config.option&#39;</span><span class="p">](</span><span class="s1">&#39;redis.port&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">database</span><span class="p">:</span>
+        <span class="n">database</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;config.option&#39;</span><span class="p">](</span><span class="s1">&#39;redis.database&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">password</span><span class="p">:</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;config.option&#39;</span><span class="p">](</span><span class="s1">&#39;redis.password&#39;</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">password</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__context__</span><span class="p">:</span>
+        <span class="n">__context__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">StrictRedis</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">__context__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get Redis key value</span>
+
+<span class="sd">    CLI Example:</span>
+
+<span class="sd">    .. code-block:: bash</span>
+
+<span class="sd">        salt &#39;*&#39; redis.get foo</span>
+<span class="sd">        salt &#39;*&#39; redis.get bar host=127.0.0.1 port=21345 database=1</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">_connect</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">server</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Set Redis key value</span>
+
+<span class="sd">    CLI Example:</span>
+
+<span class="sd">    .. code-block:: bash</span>
+
+<span class="sd">        salt &#39;*&#39; redis.set foo bar</span>
+<span class="sd">        salt &#39;*&#39; redis.set spam eggs host=127.0.0.1 port=21345 database=1</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">_connect</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">server</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Delete Redis key value</span>
+
+<span class="sd">    CLI Example:</span>
+
+<span class="sd">    .. code-block:: bash</span>
+
+<span class="sd">        salt &#39;*&#39; redis.delete foo bar</span>
+<span class="sd">        salt &#39;*&#39; redis.delete spam host=127.0.0.1 port=21345 database=1</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">_connect</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">server</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+
+
+<p>There, that is a moderately simple example where we can talk about every thing going on.</p>
+<ol>
+<li>You will notice the coding line at the top like in the template</li>
+<li>Next we have the docstring.<ul>
+<li>There is a brief description</li>
+<li>a versionadded string.  Please include these if you make new modules, so that when referencing back we can see when the module was added.  Also, if it is an untagged release, use the codename, otherwise use the point release where it was added.  We update the code names on all versonadded added and versionchanged strings when we tag them with a release date.</li>
+<li>A depends string, to let the user know that the redis python module is required.</li>
+<li>An example configuration if you one is possible to be used.</li>
+</ul>
+</li>
+<li>Then we have the imports.  We catch the import error on redis, and set HAS_REDIS as False if it can't be imported so that we can reference it in the <code>__virtual__</code> function and know if the module should be available or not.</li>
+<li><code>__virtualname__</code> is used to change the name the module should be loaded under.  If <code>__virtualname__</code> isn't set and returned by the <code>__virtual__</code> function then the module would be called using <code>redismod.set</code>.</li>
+<li>The <code>__virtual__</code> function is used to decide if the module can be used or not.<ul>
+<li>If it can be used and it has a <code>__virtualname__</code> variable, return that variable.  Otherwise if it is to be named after the name of the file, just return <code>True</code>.</li>
+<li>If this function can't be used, return a two entry tuple where the first index is <code>False</code> and the second is a string with the reason it could not be loaded so that the user does not have to go code diving.</li>
+</ul>
+</li>
+<li>Now the connect function.<ul>
+<li>If you include something like this, please be sure to also include the ability to connect to the module by passing arguments from the command-line and not only having to modify configuration files.</li>
+<li>It is important to note, while python allows for any "private" functions to be importable and used, salt does not.  The <code>_connect</code> function is not usable from the command-line, or from the <code>__salt__</code> dictionary</li>
+<li>There are a lot of includes that salt provides into different portions of salt.  These are usually called <a href="https://docs.saltstack.com/en/latest/topics/development/dunder_dictionaries.html">dunder dictionaries</a>.</li>
+<li>Using <code>config.get</code> lets the configuration be put in the minion config, grains, or pillars.  There is a <a href="https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.config.html#salt.modules.config.get">heirarchy</a>.</li>
+<li>The lastly we have <code>__context__</code>.  This is a really usefull for connections, because you only have to setup the connection one time, and then you can continually just return it and use it every time the module is used, instead of having to reinitialize the connection.</li>
+</ul>
+</li>
+<li>Lastly we have the functions that are available.<ul>
+<li>You want a doc string that has a description, then a code example.  The code example is required.  This is the doc string that gets showed when you run <code>salt-call sys.doc &lt;module.function&gt;</code></li>
+<li>Then just all the logic.</li>
+<li>If you have stuff that is being used a lot in multiple functions.  Maybe split it out into another function for everything else to use, and if that function shouldn't be used from the command-line, be sure to prefix it with an underscore.</li>
+</ul>
+</li>
+</ol>
+<p>And that is your basic anatomy of a salt execution module.</p>
+<h1>State Modules</h1>
+<p>Now lets move on to <a href="https://docs.saltstack.com/en/latest/ref/states/writing.html">writing state modules</a>.  State modules are where all the idempotence, configuration, and statefullness comes in.  I am going to use the above module in order to make sure that certain keys are present or absent in the redis server.</p>
+<p>Here is my simplified <code>salt/states/redismod.py</code></p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Management of  Redis servers</span>
+<span class="sd">============================</span>
+
+<span class="sd">.. versionadded:: Nitrogen</span>
+
+<span class="sd">:depends: redis</span>
+<span class="sd">:configuration: see :py:mod:`salt.modules.redis` for setup instructions</span>
+
+<span class="sd">Example States</span>
+
+<span class="sd">.. code-block:: yaml</span>
+
+<span class="sd">    set redis key:</span>
+<span class="sd">      redis.present:</span>
+<span class="sd">        - name: key</span>
+<span class="sd">        - value: value</span>
+
+<span class="sd">    set redis key with host args:</span>
+<span class="sd">      redis.absent:</span>
+<span class="sd">        - name: key</span>
+<span class="sd">        - host: 127.0.0.1</span>
+<span class="sd">        - port: 1234</span>
+<span class="sd">        - database: 3</span>
+<span class="sd">        - password: somepass</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="n">__virtualname__</span> <span class="o">=</span> <span class="s1">&#39;redis&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">__virtual__</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s1">&#39;redis.set&#39;</span> <span class="ow">in</span> <span class="n">__salt__</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">__virtualname__</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="s1">&#39;The redis execution module failed to load: redis python module is not available&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Ensure key and value pair exists</span>
+
+<span class="sd">    name</span>
+<span class="sd">        Key to ensure it exists</span>
+
+<span class="sd">    value</span>
+<span class="sd">        Value the key should be set to</span>
+
+<span class="sd">    host</span>
+<span class="sd">        Host to use for connection</span>
+
+<span class="sd">    port</span>
+<span class="sd">        Port to use for connection</span>
+
+<span class="sd">    database</span>
+<span class="sd">        Database key should be in</span>
+
+<span class="sd">    password</span>
+<span class="sd">        Password to use for connection</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+           <span class="s1">&#39;changes&#39;</span><span class="p">:</span> <span class="p">{},</span>
+           <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+           <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to set key {key} to value {value}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)}</span>
+
+    <span class="n">connection</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="n">host</span><span class="p">,</span> <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="s1">&#39;database&#39;</span><span class="p">:</span> <span class="n">database</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">}</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.get&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} is already value correct&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">if</span> <span class="n">__opts__</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;old&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">current</span><span class="p">},</span>
+            <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span>
+        <span class="p">}</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;pchanges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} will be updated.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.set&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">)</span>
+
+    <span class="n">current</span><span class="p">,</span> <span class="n">old</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.get&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">),</span> <span class="n">current</span>
+
+    <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} was updated.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;old&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">old</span><span class="p">},</span>
+            <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">current</span><span class="p">},</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="k">def</span> <span class="nf">absent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Ensure key is not set.</span>
+
+<span class="sd">    name</span>
+<span class="sd">        Key to ensure it does not exist</span>
+
+<span class="sd">    host</span>
+<span class="sd">        Host to use for connection</span>
+
+<span class="sd">    port</span>
+<span class="sd">        Port to use for connection</span>
+
+<span class="sd">    database</span>
+<span class="sd">        Database key should be in</span>
+
+<span class="sd">    password</span>
+<span class="sd">        Password to use for connection</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+           <span class="s1">&#39;changes&#39;</span><span class="p">:</span> <span class="p">{},</span>
+           <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+           <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to delete key {key}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)}</span>
+
+    <span class="n">connection</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="n">host</span><span class="p">,</span> <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="s1">&#39;database&#39;</span><span class="p">:</span> <span class="n">database</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">}</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.get&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} is already absent&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">if</span> <span class="n">__opts__</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;old&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">current</span><span class="p">},</span>
+            <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="bp">None</span><span class="p">},</span>
+        <span class="p">}</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;pchanges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} will be deleted.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.delete&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">)</span>
+
+    <span class="n">current</span><span class="p">,</span> <span class="n">old</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.get&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">),</span> <span class="n">current</span>
+
+    <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} was deleted.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;old&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">old</span><span class="p">},</span>
+            <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">current</span><span class="p">},</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">return</span> <span class="n">ret</span>
+</pre></div>
+
+
+<p>And lets review, this will mostly be the same as the execution module with one major difference that we use the execution module in the state.</p>
+<ol>
+<li>Same coding line</li>
+<li>Include depends and configuration information.  If the configuration is stored with the module, you can link to the module using py mod link like i did above.</li>
+<li>Include any complex information about the state in the top doc string.  It is important to also include an example state up here.  But if you have more complicated states, it would be good to include examples in each function to show how they should be used.</li>
+<li>Changes to see if the <code>redis.set_key</code> module is loaded in the <code>__salt__</code> dunder.  If it is not loaded, we know we can't do any work in this state, and we should return <code>False</code>.</li>
+<li>Now we get to <a href="https://docs.saltstack.com/en/latest/ref/states/writing.html">writing a state</a><ul>
+<li>We have a <a href="https://docs.saltstack.com/en/latest/ref/states/writing.html#return-data">return dictionary</a> and it always includes the following:<ul>
+<li>name: the string name of the state</li>
+<li>changes: a dictionary of things that were or could be changed</li>
+<li>pchanges: a dictionary of potential changes that is used if <code>test=True</code> is passed</li>
+<li>result: True, False, None</li>
+<li>comment: a string describing what happened in the state.</li>
+</ul>
+</li>
+<li>I always start with a default <code>ret</code> variable that describes what happens when the state fails, so I can just return it on failure at the end.</li>
+<li>Then the first thing to do is check if the state is already as it should be.  In the case of <code>present</code> we check if the key is already set to the desired value.  For <code>absent</code> we check if the key is set to <code>None</code> which indicates that it is a <code>null</code> value which is what redis considers deleted.  If it is already set, we set results to True, and set the comment to reflect that it is True, and return the dictionary.</li>
+<li>There is also a <a href="https://docs.saltstack.com/en/latest/ref/states/writing.html#test-state">testing run portion of the state</a> we should check if <code>__opts__['test'] is True</code> which would signify that <code>test=True</code> was passed on the command-line.  Then we should only set changes to reflect what is going to change, and return with <code>result</code> set to <code>None</code> to signify that it should be a successful change, but changes are required.</li>
+<li>Last, we make the change, then check if the change took affect.  If it did, result should be True, and we return with the correct stuff in changes and an updated comment.</li>
+<li>Otherwise we return with our False dictionary we setup at the beginning.</li>
+</ul>
+</li>
+</ol>
+<p>One other thing to remember about is the mod_init and mod_watch functions.  These can be used to change the way the module behaves when initially called.  The <code>mod_watch</code> is the part that is actually called when you <code>watch</code> or <code>listen</code> to a state in your <a href="https://docs.saltstack.com/en/latest/ref/states/requisites.html">requisites</a>.</p>
+<h1>Running pylint on your changes</h1>
+<p>We run pylint on every change, so it is a good thing to know about because you can start adjusting yourself to write more inline with what pylint wants.  The only big thing that I will say you should know is that our line limit is actually 119 instead of 80.</p>
+<p>Now, to run pylint, you are going to need a few things.  You should install all the dependencies for salt, and you should install the stuff for dev_python27.txt.  But then you also need to update to the newest version of SaltPylint and SaltTesting.</p>
+<div class="highlight"><pre><span></span>pip install -r requirements/dev_python27.txt -r requirements/raet.txt -r requirements/zeromq.txt
+pip install --upgrade SaltPyLint SaltTesting
+</pre></div>
+
+
+<p>And then you can run pylint on your code before submitting a PR.</p>
+<div class="highlight"><pre><span></span>pylint --rcfile<span class="o">=</span>.testing.pylintrc --disable<span class="o">=</span>W1307,E1322 salt/
+</pre></div>
+
+
+<h1>Getting the docs working</h1>
+<p>Unfortunately, if you write a new module, sphinx is unable to discover than and just import the docstrings for you, so we will need to create a few files to reference the ones above.</p>
+<p>First, we autoload the docstrings for the actual doc file.</p>
+<p><code>doc/ref/modules/all/salt.modules.redismod.rst</code></p>
+<div class="highlight"><pre><span></span>==================
+salt.modules.redis
+==================
+
+.. automodule:: salt.modules.redismod
+    :members:
+</pre></div>
+
+
+<p><code>doc/ref/states/all/salt.states.redismod.rst</code></p>
+<div class="highlight"><pre><span></span>==================
+salt.states.redis
+==================
+
+.. automodule:: salt.states.redismod
+    :members:
+</pre></div>
+
+
+<p>Then they will get compiled, then we have to add the following references to the correct index files and just add <code>redis</code> to <code>doc/ref/modules/all/index.rst</code> and <code>doc/ref/states/all/index.rst</code> so that they will be visible in the index pages for all execution modules and all state modules.</p>
+<h1>Creating a pull request</h1>
+<p>We love pull requests.  Just look at the <a href="https://github.com/saltstack/salt/pulls">github repository</a>, there have been 23,296 pull request, almost all of which I would bet are accepted, and almost none have been closed with saying we can't accept that.  There have been <a href="https://github.com/saltstack/salt/graphs/contributors">1642 contributors</a> as of this writing!</p>
+<p>Here are things to remember when opening a pull request.</p>
+<ul>
+<li>If it is a new feature, add it to develop.  We include a very easy way to take the changes and import them into a running system, we don't want to break other peoples deploys by adding new features into point releases.</li>
+<li>If it is a bug fix, go back to the latest supported release, and add it there.  Right now, unless it is a CVE change, the oldest supported release for commits is <a href="https://saltstack.com/product-support-lifecycle/">2016.3</a>, everything else is in phase 3 or extended life support. (We are working very hard to get Carbon out the door right now.)</li>
+<li>Please fill out the form!  As much of the form in the pull request that makes sense, provide us with as much information about the change you are making.  I am bad about it to, sometimes I just think <a href="https://twitter.com/cachedout">Mike Place</a> or <a href="https://twitter.com/rallytime_nt">Nicole Thomas</a> are mind readers and can just get what I mean, but the definitely can't.  So let them know in detail what you are actually changing.</li>
+<li>I will cover this in a later part, but please! provide unittests if at all possible! (though not required)</li>
+</ul>
+<h1>End of Part 1</h1>
+<p>This was a lot longer than I thought it was going to be.  I am going to try and continue next week and talk about beacons and engines and some specifics to look for there.  Hopefully this will be helpful for some reason.  It basically just became a link dump to a lot of useful information in our documentation since it can be sometimes hard to find.</p>
+<p>Leave any comments if you have any thing that you would like to be covered</p>
+    </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "contributing-to-salt-part-1.html";
+        var disqus_url = "https://blog.gtmanfred.com/contributing-to-salt-part-1.html";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//gtmanfred.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="https://github.com/gtmanfred/">Git Repositories</a></li>
+                            <li><a href="/feeds/">Feeds</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42514099-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'gtmanfred';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

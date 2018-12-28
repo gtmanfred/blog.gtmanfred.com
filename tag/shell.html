@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>GTmanfred - shell</title>
+        <link rel="stylesheet" href="https://blog.gtmanfred.com/theme/css/main.css" />
+        <link href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="GTmanfred Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://blog.gtmanfred.com/">GTmanfred </a></h1>
+                <nav><ul>
+    
+                        <li><a href="https://blog.gtmanfred.com/pages/about.html">About</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/pelican.html">Pelican</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/salt.html">Salt</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/zsh.html">Zsh</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="https://blog.gtmanfred.com/intro-zsh.html">Getting Started with Zshell</a></h1>
+<footer class="post-info">
+        <span>Tue 08 September 2015</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/zsh.html">zsh</a><a href="https://blog.gtmanfred.com/tag/shell.html">shell</a></span>
+</footer><!-- /.post-info --><h1>Getting Started</h1>
+<p>The first thing I will say about zsh is that all the extra tools to put more
+information in your prompt for your every day use, aren't needed with zshell.
+It can handle all of that fancyness for you.</p>
+<script type="text/javascript" src="https://asciinema.org/a/4jv45lf9cxv8miuov2fq80z8o.js" id="asciicast-4jv45lf9cxv8miuov2fq80z8o" async></script>
+
+<p>All of that is done only in zsh code <a href="https://github.com/gtmanfred/dotfiles/blob/work/zsh/themes/prompt_gtmanfred_setup">here</a>.  I don't have much written in
+there to do anything, it is mostly just configuring using zstyle.</p>
+<h2>Parameter Expansion</h2>
+<p><a href="http://zshwiki.org/home/">ZSHwiki</a></p>
+<p><a href="http://zshwiki.org/home/scripting/paramflags">ZSH Parameter expansion flags</a></p>
+<p><a href="http://zsh.sourceforge.net/Doc/Release/Expansion.html#Parameter-Expansion">Parameter Expansion documentation</a></p>
+<p>These are probably the links I still use the most.  The first one is just to the
+zsh wiki, there is a ton of good information to get started in there.  The
+second link is what I use the most, because I never remember what all the
+parameter expamsion stuff does.</p>
+<p>The one I use the most is probably <code>(f)</code>, which will split output of a parameter
+on newlines. The below takes the output from <code>ls -l</code> and then splits it on
+newline, and then grabs the 4th line from the output.</p>
+<div class="highlight"><pre><span></span>└─╼ <span class="nb">echo</span> <span class="si">${</span><span class="s2">&quot;</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">[4]</span><span class="si">}</span>
+-rw-r--r--  <span class="m">1</span> daniel daniel   <span class="m">1770341</span> Jun  <span class="m">2</span>  <span class="m">2014</span> <span class="m">2014</span>-06-02-182425_1918x1079_scrot.png
+</pre></div>
+
+
+<p>You can also do matching. The below uses the <code>(M)</code> to tell the expansion to only
+show lines that start with 'drwx'.</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+└─╼ print -l -- <span class="si">${</span><span class="p">(M)</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="p">:#drwx*</span><span class="si">}</span>
+drwxr-xr-x <span class="m">18</span> daniel daniel      <span class="m">4096</span> Aug <span class="m">24</span> <span class="m">00</span>:06 aurinstall
+drwxr-xr-x  <span class="m">2</span> daniel daniel      <span class="m">4096</span> Nov  <span class="m">8</span>  <span class="m">2014</span> bin
+drwxr-xr-x  <span class="m">3</span> daniel daniel      <span class="m">4096</span> Mar <span class="m">10</span> <span class="m">22</span>:17 Colossal Order
+drwxr-xr-x  <span class="m">2</span> daniel daniel      <span class="m">4096</span> Apr <span class="m">26</span> <span class="m">09</span>:44 Desktop
+drwxr-xr-x  <span class="m">2</span> daniel daniel      <span class="m">4096</span> Apr  <span class="m">1</span>  <span class="m">2014</span> Documents
+drwxr-xr-x  <span class="m">5</span> daniel daniel      <span class="m">4096</span> Jul <span class="m">14</span> <span class="m">17</span>:34 Downloads
+drwxr-xr-x <span class="m">41</span> daniel users       <span class="m">4096</span> Jul <span class="m">20</span> <span class="m">18</span>:49 github
+drwxr-xr-x  <span class="m">2</span> daniel daniel      <span class="m">4096</span> Apr  <span class="m">1</span>  <span class="m">2014</span> Music
+drwxr-xr-x  <span class="m">4</span> daniel daniel      <span class="m">4096</span> Sep  <span class="m">8</span> <span class="m">14</span>:12 Pictures
+drwxr-xr-x  <span class="m">2</span> daniel daniel      <span class="m">4096</span> Apr  <span class="m">1</span>  <span class="m">2014</span> Public
+drwxr-xr-x  <span class="m">6</span> daniel daniel      <span class="m">4096</span> Jul <span class="m">30</span> <span class="m">11</span>:04 python-systemd
+drwxr-xr-x  <span class="m">2</span> daniel daniel      <span class="m">4096</span> Apr  <span class="m">1</span>  <span class="m">2014</span> Videos
+</pre></div>
+
+
+<p>Things to remember about zsh parameter expansion, like bash <code>#</code> means from the
+beginning of the line, and <code>%</code> means from the end of the line.  But, you can
+chain them together on one line, unlike in bash.  The below is a somewhat
+contrived example.  First we use <code>#</code> and <code>%</code> to do replacement on each line of
+the array to find out what groups are available, then we assign the array to the
+<code>names</code> variable, and use <code>${array1:|array2}</code> to get all variables in array1
+that aren't in array2.</p>
+<div class="highlight"><pre><span></span>└─╼ print -l <span class="si">${${${</span><span class="p">(M)</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="p">:#drwx*</span><span class="si">}</span><span class="p">#* * * </span><span class="si">}</span><span class="p">%% *</span><span class="si">}</span>
+daniel
+daniel
+daniel
+daniel
+daniel
+daniel
+users
+daniel
+daniel
+daniel
+daniel
+daniel
+┌─ daniel at hailey in ~
+└─╼ <span class="nv">names</span><span class="o">=(</span><span class="si">${${${</span><span class="p">(M)</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="p">:#drwx*</span><span class="si">}</span><span class="p">#* * * </span><span class="si">}</span><span class="p">%% *</span><span class="si">}</span><span class="o">)</span>
+┌─ daniel at hailey in ~
+└─╼ <span class="nv">groups</span><span class="o">=(</span>daniel<span class="o">)</span>
+┌─ daniel at hailey in ~
+└─╼ <span class="nb">echo</span> <span class="si">${</span><span class="nv">names</span><span class="p">:|groups</span><span class="si">}</span>
+users
+</pre></div>
+
+
+<h2>Globbing</h2>
+<p><a href="http://zsh.sourceforge.net/Doc/Release/Expansion.html#Filename-Generation">Filename Expansion</a></p>
+<p>Just like with parameter expansion, zshell has a bunch of extra flags to expand
+filenames.  One of my favorite examples is to just find filenames that are only
+directories.  Which can also be expanded using the information from before to
+find all files that aren't directories.</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
+└─╼ tree
+.
+├── dir1
+├── dir2
+│   └── file1
+├── dir3
+├── file1
+├── file2
+└── file3
+<span class="m">3</span> directories, <span class="m">4</span> files
+┌─ daniel at hailey in ~/example
+└─╼ print -- *<span class="o">(</span>/<span class="o">)</span>
+dir1 dir2 dir3
+┌─ daniel at hailey in ~/example
+└─╼ print -- *<span class="o">(</span>/F<span class="o">)</span> <span class="c1"># expand to only Full directories...</span>
+dir2
+┌─ daniel at hailey in ~/example
+└─╼ <span class="nv">dirs</span><span class="o">=(</span>*<span class="o">(</span>/<span class="o">))</span>
+┌─ daniel at hailey in ~/example
+└─╼ <span class="nv">everything</span><span class="o">=(</span>*<span class="o">)</span>
+┌─ daniel at hailey in ~/example
+└─╼ print <span class="si">${</span><span class="nv">everything</span><span class="p">:|dirs</span><span class="si">}</span>
+file1 file2 file3
+└─╼ print *<span class="o">(</span>.<span class="o">)</span>      <span class="c1"># or just match plain files</span>
+file1 file2 file3
+</pre></div>
+
+
+<p>Another nice one is being able to recursively glob for files.</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
+└─╼ tree
+.
+├── dir1
+│   ├── dir1
+│   │   └── file3
+│   ├── dir2
+│   │   ├── dir1
+│   │   ├── dir2
+│   │   └── dir3
+│   │       ├── file1
+│   │       └── file2
+│   └── dir3
+├── dir2
+├── dir3
+├── file1
+├── file2
+└── file3
+
+9 directories, 6 files
+─ daniel at hailey in ~/example
+└─╼ for file in **/*(.); do mv $file{,.sh}; done
+┌─ daniel at hailey in ~/example
+└─╼ tree
+.
+├── dir1
+│   ├── dir1
+│   │   └── file3.sh
+│   ├── dir2
+│   │   ├── dir1
+│   │   ├── dir2
+│   │   └── dir3
+│   │       ├── file1.sh
+│   │       └── file2.sh
+│   └── dir3
+├── dir2
+├── dir3
+├── file1.sh
+├── file2.sh
+└── file3.sh
+
+9 directories, 6 files
+</pre></div>
+
+
+<p>and maybe you want to remove suffixes from each file that is found in the glob</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
+└─╼ print -- **/file*.sh<span class="o">(</span>:r<span class="o">)</span>
+dir1/dir1/file3 dir1/dir2/dir3/file1 dir1/dir2/dir3/file2 file1 file2 file3
+</pre></div>
+
+
+<p>or maybe you only want to show the files, with the removed path, like using
+basename.</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
+└─╼ rename .sh .zip *.sh
+┌─ daniel at hailey in ~/example
+└─╼ ls
+dir1  dir2  dir3  file1.zip  file2.zip  file3.zip
+┌─ daniel at hailey in ~/example
+└─╼ tree
+.
+├── dir1
+│   ├── dir1
+│   │   └── file3.sh
+│   ├── dir2
+│   │   ├── dir1
+│   │   ├── dir2
+│   │   └── dir3
+│   │       ├── file1.sh
+│   │       └── file2.sh
+│   └── dir3
+├── dir2
+├── dir3
+├── file1.zip
+├── file2.zip
+└── file3.zip
+┌─ daniel at hailey in ~/example
+└─╼ print -- **/*<span class="o">(</span>.:t<span class="o">)</span>
+file1.sh file1.zip file2.sh file2.zip file3.sh file3.zip
+┌─ daniel at hailey in ~/example
+└─╼ print -- **/*<span class="o">(</span>.:h<span class="o">)</span>      <span class="c1"># or head</span>
+. . . dir1/dir1 dir1/dir2/dir3 dir1/dir2/dir3
+</pre></div>
+
+
+<p>The <code>:h</code> modifier is great for moving into directories with files you just
+opened or referenced on the commandline. (<code>!$</code> works just like in bash, it grabs
+the last argument of the previous line)</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
+└─╼ ls dir1/dir2/dir3/file2.sh -l
+-rw-r--r-- <span class="m">1</span> daniel daniel <span class="m">0</span> Sep  <span class="m">8</span> <span class="m">14</span>:56 dir1/dir2/dir3/file2.sh
+┌─ daniel at hailey in ~/example
+└─╼ <span class="nb">cd</span> !:1:h        <span class="c1"># index 1 of the previous line array, grab the head</span>
+<span class="nb">cd</span> dir1/dir2/dir3
+┌─ daniel at hailey in ~/example/dir1/dir2/dir3
+└─╼ <span class="nb">pwd</span>
+/home/daniel/example/dir1/dir2/dir3
+</pre></div>
+
+
+<p>You can do the above with <code>!:1</code> in bash, but you would need to put it in a
+subshell and run it through <code>dirname</code> first... <code>cd $(dirname !:1)</code></p>
+<p>And there are a ton more things you can do with this that I haven't even
+covered.</p>
+<h2>Aliases!</h2>
+<p>Alaises in zsh are for the most part similar to bash.  You have your regular
+command replacement, but you also have extra stuff like global aliases.</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+└─╼ <span class="nb">alias</span> -g <span class="nv">AWK</span><span class="o">=</span><span class="s2">&quot;|awk&quot;</span>
+┌─ daniel at hailey in ~
+└─╼ ip a AWK <span class="s1">&#39;/^\w/&#39;</span>
+<span class="m">1</span>: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class="m">65536</span> qdisc noqueue state UNKNOWN group default
+<span class="m">2</span>: enp2s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class="m">1500</span> qdisc fq_codel state UP group default qlen <span class="m">1000</span>
+</pre></div>
+
+
+<p>This comes in handy from time to time when you want to do something like</p>
+<div class="highlight"><pre><span></span><span class="nb">alias</span> -g <span class="nv">NULL</span><span class="o">=</span><span class="s2">&quot;2&gt;&amp;1 &gt;/dev/null&quot;</span>
+</pre></div>
+
+
+<p>and redirect everything to dev null just by appending the word <code>NULL</code> to the end
+of the line.</p>
+<h2>Commands and fpath!</h2>
+<p>Anyone that has ever done bash scripting before has to have run into doing this.</p>
+<div class="highlight"><pre><span></span><span class="k">if</span> ! which git <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> &gt;/dev/null<span class="p">;</span> <span class="k">then</span>
+    yum install -y git
+<span class="k">fi</span>
+</pre></div>
+
+
+<p>In zsh, you get an array with all of the commands in it.</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+└─╼ <span class="nb">echo</span> <span class="si">${</span><span class="nv">commands</span><span class="p">[pacman]</span><span class="si">}</span>
+/usr/bin/pacman
+f <span class="o">[[</span> -n <span class="si">${</span><span class="nv">commands</span><span class="p">[pacman]</span><span class="si">}</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> yes<span class="p">;</span> <span class="k">else</span> <span class="nb">echo</span> no<span class="p">;</span> <span class="k">fi</span>
+yes
+</pre></div>
+
+
+<p>You also have a new variable <code>$path</code> that is an array for your <code>$PATH</code> variable,
+so that you can manage it using +=.</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+└─╼ <span class="nb">echo</span> <span class="nv">$path</span><span class="o">[</span>@<span class="o">]</span>
+/home/daniel/bin /usr/local/sbin /usr/local/bin /usr/bin
+</pre></div>
+
+
+<p>And a new variable called <code>$fpath</code> which is the location of all the zsh function
+stuff.  The first thing that is really in the function path is your completion
+files, and it defines the inheritance.</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+└─╼ print -l -- <span class="si">${</span><span class="p">^fpath</span><span class="si">}</span>/**/_pacman<span class="o">(</span>N<span class="o">)</span>
+/home/daniel/.config/zsh/completion/_pacman
+/usr/share/zsh/site-functions/_pacman
+</pre></div>
+
+
+<p>You can use this to maintain your own completion files outside of the system
+locations, but have them automatically loaded.  To enable completion, you have
+to load the compinit module in zsh, so you don't have to source stuff like you
+do in bash.  That is another one of the big differences.</p>
+<p><code>autoload -U</code> is used to load files as functions.  I have this function <a href="https://github.com/gtmanfred/dotfiles/blob/work/zsh/functions/tach">here</a>
+that I use to manage <code>dtach</code> sessions, since the only thing I used to use of
+tmux or screen was the dtach feature and I use a tiling window manager, and tach
+will put the socket files in my <code>$XDG_RUNTIME_DIR</code>.  Then it is just loaded as a
+function as if it was defined like <code>tach() {...;}</code> in a zsh script.</p>
+<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+└─╼ which tach
+tach <span class="o">()</span> <span class="o">{</span>
+        <span class="c1"># undefined</span>
+            <span class="nb">builtin</span> autoload -X
+<span class="o">}</span>
+</pre></div>
+
+
+<p>To load and enable completion, you do basically the same thing, load the
+compinit function, and run it.</p>
+<div class="highlight"><pre><span></span>autoload -U compinit <span class="o">&amp;&amp;</span> compinit
+</pre></div>
+
+
+<p>And zsh will look for compdef options at the top of files in your fpath to
+specify tab completions.</p>
+<p>The other big things that are specified in <code>fpath</code> are the different prompts.
+First you have to autoload them, then you can choose from one of the default
+prompts, or preview them.</p>
+<div class="highlight"><pre><span></span>hailey% autoload compinit promptinit <span class="o">&amp;&amp;</span> compinit <span class="o">&amp;&amp;</span> promptinit
+hailey% prompt
+Usage: prompt &lt;options&gt;
+Options:
+    -c              Show currently selected theme and parameters
+    -l              List currently available prompt themes
+    -p <span class="o">[</span>&lt;themes&gt;<span class="o">]</span>   Preview given themes <span class="o">(</span>defaults to all<span class="o">)</span>
+    -h <span class="o">[</span>&lt;theme&gt;<span class="o">]</span>    Display <span class="nb">help</span> <span class="o">(</span><span class="k">for</span> given theme<span class="o">)</span>
+    -s &lt;theme&gt;      Set and save theme
+    &lt;theme&gt;         Switch to new theme immediately <span class="o">(</span>changes not saved<span class="o">)</span>
+
+Use prompt -h &lt;theme&gt; <span class="k">for</span> <span class="nb">help</span> on specific themes.
+hailey% prompt redhat
+<span class="o">[</span>daniel@hailey ~<span class="o">]</span>$ prompt zefram
+<span class="o">[</span><span class="m">2</span>/5.0.8<span class="o">]</span>daniel@hailey:~&gt; prompt adam1
+daniel@hailey ~ % prompt -l
+Currently available prompt themes:
+adam1 adam2 bart bigfade clint elite2 elite fade fire off oliver pws redhat suse walters zefram
+</pre></div>
+
+
+<p>This makes it easy for other people to share the same setup too, if that is what
+you want to do, and you can just set up different prompts and switch between
+them.</p>
+<p>I have my 2 prompts stored in <code>~/.config/zsh/themes/prompt_&lt;name&gt;_setup</code> and can
+switch back and forth between them. (I try to put stuff in <code>~/.config</code> when
+possible, if you specify ZDOTDIR to ~/.config/zsh in your zprofile, or on linux
+in your .pam_environment, which could be moved as well, then you should be all
+set to go.)</p>
+<p><a href="http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Prompt-Themes">Prompt docs here</a></p>
+<h2>Zstyle</h2>
+<p>This is where zsh gets fun.  Instead of having a bunch of variables to configure
+in your environment, zsh uses zstyles to configure things. The best example I
+have is in my prompt.</p>
+<div class="highlight"><pre><span></span>zstyle &#39;:vcs_info:*&#39; enable bzr git hg svn                      # enable different source control plugins
+zstyle &#39;:vcs_info:*&#39; check-for-changes true                     # check for changes when in a vcs directory
+zstyle &#39;:vcs_info:*&#39; stagedstr &#39;%F{g}●%f&#39;                       # if we have an staged, uncommitted file, put a green dot
+zstyle &#39;:vcs_info:*&#39; unstagedstr &#39;%F{y}!%f&#39;                     # if there are unstaged files, that are tracked, put a yellow !
+zstyle &#39;:vcs_info:*&#39; formats &#39;on %F{m}%b%c%u%m%F{n}&#39;            # display the branch and bold it in magento
+zstyle &#39;:vcs_info:*&#39; actionformats &quot;%b%c%u|%F{c}%a%f&quot;           # display the branch/commit during an action (bisect, etc)
+zstyle &#39;:vcs_info:(sv[nk]|bzr):*&#39; branchformat &#39;%b|%F{c}%r%f&#39;   # different branch information for svn and bzr
+zstyle &#39;:vcs_info:git*+set-message:*&#39; hooks git-status          # I do not remember
+</pre></div>
+
+
+<p>Also for this to work, you have to include the <code>vcs_info</code> function as part of
+your zsh precmd.</p>
+<div class="highlight"><pre><span></span># Example 1
+autoload -Uz vcs_info
+precmd(){ vcs_info }
+
+# Example 2
+prompt_gtmanfred_precmd(){
+    vcs_info
+}
+autoload -Uz add-zsh-hook vcs_info
+add-zsh-hook precmd prompt_gtmanfred_precmd
+</pre></div>
+
+
+<p>Then you just need to put your vcs_info variables into your prompt <code>${vcs_info_msg_0_}</code></p>
+<p>More info about vcs_info can be found <a href="http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Version-Control-Information">here</a></p>
+<p>The other big one that I configure is zsh completion, with some documentation
+<a href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Standard-Styles">here</a> with my configuration <a href="https://github.com/gtmanfred/dotfiles/blob/work/zsh/08zstyles.zsh">here</a></p>
+<h2>Closing</h2>
+<p>I would really strongly encourage anyone wanting to get started with zshell to
+dive into the docs.  I really started diving in when I wanted to write some
+zshell completion for different stuff I was using.  You will get more out of it
+if you spend time actually learning the different ins and outs of how other
+people are configuring plugins instead of just using stuff already out there.</p>
+<p>If you do want to get a jumpstart, I really don't like oh-my-zsh, back when I
+would hangout in the <code>#zsh</code> irc channel on freenode, the majority of the
+problems that came in there were caused by something weird with omz.  The better
+one, is the fork that was made off of it, and then basically made independent,
+<a href="https://github.com/sorin-ionescu/prezto">prezto</a> is really solid, if you need help beginning with plugins.</p>
+<p>Happy Hacking :)!</p>
+<p>Daniel</p>
+<h2>Extra links</h2>
+<p><a href="http://zsh.sourceforge.net/Guide/zshguide04.html">setting up bindkeys and zle</a></p><p><a href="https://blog.gtmanfred.com/intro-zsh.html#disqus_thread">comments</a></p>                </article>
+<p class="paginator">
+    Page 1 / 1
+</p>
+            </aside><!-- /#featured -->
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="https://github.com/gtmanfred/">Git Repositories</a></li>
+                            <li><a href="/feeds/">Feeds</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42514099-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'gtmanfred';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

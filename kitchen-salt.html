@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Testing your salt states with kitchen-salt</title>
+        <link rel="stylesheet" href="https://blog.gtmanfred.com/theme/css/main.css" />
+        <link href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="GTmanfred Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://blog.gtmanfred.com/">GTmanfred </a></h1>
+                <nav><ul>
+    
+                        <li><a href="https://blog.gtmanfred.com/pages/about.html">About</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/pelican.html">Pelican</a></li>
+                    <li class="active"><a href="https://blog.gtmanfred.com/category/salt.html">Salt</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/zsh.html">Zsh</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="https://blog.gtmanfred.com/kitchen-salt.html" rel="bookmark"
+           title="Permalink to Testing your salt states with kitchen-salt">Testing your salt states with kitchen-salt</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <span>Wed 04 October 2017</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/salt.html">salt</a></span>
+</footer><!-- /.post-info -->      <h1>What is <a href="https://github.com/test-kitchen/test-kitchen">Kitchen</a> and why would someone use it.</h1>
+<p>test-kitchen was originally written as a way to test chef cookbooks.  But the provisioners and drivers are pluggable, <a href="https://github.com/saltstack/kitchen-salt">kitchen-salt</a> enables salt to be the provisioner instead of chef.</p>
+<p>The goal of this kitchen-salt is to make it easy to test salt states or formulas independently of a production environment.  It allows for doing quick checks of states and to make sure that upstream changes in packages will not affect deployments.  By using platforms, users can run checks on their states against the environment they are running in production as well as checking future releases of distributions before doing major upgrades.  It is also possible to test states against multiple versions of salt to make sure there are no major regressions.</p>
+<h1>Example formula</h1>
+<p>This article will be using my <a href="https://github.com/gtmanfred/wordpress-formula">wordpress-formula</a> to demo the major usage points of <code>kitchen-salt</code>.</p>
+<h1>Installing Kitchen</h1>
+<p>Most distributions provide a <code>bundler</code> gem in the repositories, but there are some that have a version of ruby that is too old to use kitchen.  The easiest way to use kitchen on each system is to use a ruby version manager like <a href="https://rvm.io/">rvm</a> or <a href="http://rbenv.org/">rbenv</a>.  <code>rbenv</code> is very similar to <code>pyenv</code>.</p>
+<p>Once ruby bundler is installed, it can be used to install localized versions of the ruby packages for each repository, using the <code>bundle install</code> command.</p>
+<div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">bundle</span> <span class="n">install</span>
+<span class="n">The</span> <span class="n">latest</span> <span class="n">bundler</span> <span class="n">is</span> <span class="mf">1.16.0</span><span class="p">.</span><span class="n">pre</span><span class="mf">.2</span><span class="p">,</span> <span class="n">but</span> <span class="n">you</span> <span class="n">are</span> <span class="n">currently</span> <span class="n">running</span> <span class="mf">1.15.4</span><span class="p">.</span>
+<span class="n">To</span> <span class="n">update</span><span class="p">,</span> <span class="n">run</span> <span class="err">`</span><span class="n">gem</span> <span class="n">install</span> <span class="n">bundler</span> <span class="o">--</span><span class="n">pre</span><span class="err">`</span>
+<span class="n">Using</span> <span class="n">artifactory</span> <span class="mf">2.8.2</span>
+<span class="n">Using</span> <span class="n">bundler</span> <span class="mf">1.15.4</span>
+<span class="n">Using</span> <span class="n">mixlib</span><span class="o">-</span><span class="n">shellout</span> <span class="mf">2.3.2</span>
+<span class="n">Using</span> <span class="n">mixlib</span><span class="o">-</span><span class="n">versioning</span> <span class="mf">1.2.2</span>
+<span class="n">Using</span> <span class="n">thor</span> <span class="mf">0.19.1</span>
+<span class="n">Using</span> <span class="n">net</span><span class="o">-</span><span class="n">ssh</span> <span class="mf">4.2.0</span>
+<span class="n">Using</span> <span class="n">safe_yaml</span> <span class="mf">1.0.4</span>
+<span class="n">Using</span> <span class="n">mixlib</span><span class="o">-</span><span class="n">install</span> <span class="mf">2.1.12</span>
+<span class="n">Using</span> <span class="n">net</span><span class="o">-</span><span class="n">scp</span> <span class="mf">1.2.1</span>
+<span class="n">Using</span> <span class="n">net</span><span class="o">-</span><span class="n">ssh</span><span class="o">-</span><span class="n">gateway</span> <span class="mf">1.3.0</span>
+<span class="n">Using</span> <span class="n">test</span><span class="o">-</span><span class="n">kitchen</span> <span class="mf">1.17.0</span>
+<span class="n">Using</span> <span class="n">kitchen</span><span class="o">-</span><span class="n">docker</span> <span class="mf">2.6.1</span><span class="p">.</span><span class="n">pre</span> <span class="n">from</span> <span class="nl">https</span><span class="p">:</span><span class="c1">//github.com/test-kitchen/kitchen-docker.git (at master@9eabd01)</span>
+<span class="n">Using</span> <span class="n">kitchen</span><span class="o">-</span><span class="n">salt</span> <span class="mf">0.0.29</span>
+<span class="n">Bundle</span> <span class="n">complete</span><span class="o">!</span> <span class="mi">3</span> <span class="n">Gemfile</span> <span class="n">dependencies</span><span class="p">,</span> <span class="mi">13</span> <span class="n">gems</span> <span class="n">now</span> <span class="n">installed</span><span class="p">.</span>
+<span class="n">Use</span> <span class="err">`</span><span class="n">bundle</span> <span class="n">info</span> <span class="p">[</span><span class="n">gemname</span><span class="p">]</span><span class="err">`</span> <span class="n">to</span> <span class="n">see</span> <span class="n">where</span> <span class="n">a</span> <span class="n">bundled</span> <span class="n">gem</span> <span class="n">is</span> <span class="n">installed</span><span class="p">.</span>
+</pre></div>
+
+
+<p>This will require having a separate Gemfile to hold the requirements for running test-kitchen.</p>
+<div class="highlight"><pre><span></span>source &quot;https://rubygems.org&quot;
+
+gem &quot;test-kitchen&quot;
+gem &quot;kitchen-salt&quot;
+gem &#39;kitchen-docker&#39;, :git =&gt; &#39;https://github.com/test-kitchen/kitchen-docker.git&#39;
+</pre></div>
+
+
+<p>Because I am also testing opensuse, right now the git version of kitchen-docker is required.</p>
+<h1>Using kitchen</h1>
+<div class="highlight"><pre><span></span>$ bundle <span class="nb">exec</span> kitchen <span class="nb">help</span>
+Commands:
+  kitchen console                                 <span class="c1"># Kitchen Console!</span>
+  kitchen converge <span class="o">[</span>INSTANCE<span class="p">|</span>REGEXP<span class="p">|</span>all<span class="o">]</span>          <span class="c1"># Change instance state to converge. Use a provisioner to configure one or more instances</span>
+  kitchen create <span class="o">[</span>INSTANCE<span class="p">|</span>REGEXP<span class="p">|</span>all<span class="o">]</span>            <span class="c1"># Change instance state to create. Start one or more instances</span>
+  kitchen destroy <span class="o">[</span>INSTANCE<span class="p">|</span>REGEXP<span class="p">|</span>all<span class="o">]</span>           <span class="c1"># Change instance state to destroy. Delete all information for one or more instances</span>
+  kitchen diagnose <span class="o">[</span>INSTANCE<span class="p">|</span>REGEXP<span class="p">|</span>all<span class="o">]</span>          <span class="c1"># Show computed diagnostic configuration</span>
+  kitchen driver                                  <span class="c1"># Driver subcommands</span>
+  kitchen driver create <span class="o">[</span>NAME<span class="o">]</span>                    <span class="c1"># Create a new Kitchen Driver gem project</span>
+  kitchen driver discover                         <span class="c1"># Discover Test Kitchen drivers published on RubyGems</span>
+  kitchen driver <span class="nb">help</span> <span class="o">[</span>COMMAND<span class="o">]</span>                   <span class="c1"># Describe subcommands or one specific subcommand</span>
+  kitchen <span class="nb">exec</span> INSTANCE<span class="p">|</span>REGEXP -c REMOTE_COMMAND  <span class="c1"># Execute command on one or more instance</span>
+  kitchen <span class="nb">help</span> <span class="o">[</span>COMMAND<span class="o">]</span>                          <span class="c1"># Describe available commands or one specific command</span>
+  kitchen init                                    <span class="c1"># Adds some configuration to your cookbook so Kitchen can rock</span>
+  kitchen list <span class="o">[</span>INSTANCE<span class="p">|</span>REGEXP<span class="p">|</span>all<span class="o">]</span>              <span class="c1"># Lists one or more instances</span>
+  kitchen login INSTANCE<span class="p">|</span>REGEXP                   <span class="c1"># Log in to one instance</span>
+  kitchen package INSTANCE<span class="p">|</span>REGEXP                 <span class="c1"># package an instance</span>
+  kitchen setup <span class="o">[</span>INSTANCE<span class="p">|</span>REGEXP<span class="p">|</span>all<span class="o">]</span>             <span class="c1"># Change instance state to setup. Prepare to run automated tests. Install busser and related gems on one or more instances</span>
+  kitchen <span class="nb">test</span> <span class="o">[</span>INSTANCE<span class="p">|</span>REGEXP<span class="p">|</span>all<span class="o">]</span>              <span class="c1"># Test (destroy, create, converge, setup, verify and destroy) one or more instances</span>
+  kitchen verify <span class="o">[</span>INSTANCE<span class="p">|</span>REGEXP<span class="p">|</span>all<span class="o">]</span>            <span class="c1"># Change instance state to verify. Run automated tests on one or more instances</span>
+  kitchen version                                 <span class="c1"># Print Kitchen&#39;s version information</span>
+</pre></div>
+
+
+<p>The kitchen commands I use the most are:
+  - <strong>list</strong>: show the current state of each configured environment
+  - <strong>create</strong>: create the test environment with ssh or winrm.
+  - <strong>converge</strong>: run the provision command, in this case, salt_solo and the specified states
+  - <strong>verify</strong>: run the verifier.
+  - <strong>login</strong>: login to created environment
+  - <strong>destroy</strong>: remove the created environment
+  - <strong>test</strong>: run create, converge, verify, and then destroy if it all succeeds</p>
+<p>For triaging github issues, I regularly use <code>bundle exec kitchen create &lt;setup&gt;</code> and then salt bootstrap to install the salt version we are testing.</p>
+<p>Then for running tests, to setup the environment I want to run the tests in I run <code>bundle exec kitchen converge &lt;setup&gt;</code></p>
+<h1>Configuring test-kitchen</h1>
+<p>There are 6 major parts of the test-kitchen configuration file.  This is <code>.kitchen.yml</code> and should be in the directory inside of which the <code>kitchen</code> command is going to be run.</p>
+<ul>
+<li><strong>driver</strong>:  This specifies the configuration of how the driver requirements.  Drivers are how the virtual machine is created. <a href="https://docs.chef.io/kitchen.html#drivers">kitchen drivers</a> (I prefer docker)</li>
+<li><strong>verifier</strong>: The command to run for tests to check that the converge ran successfully.</li>
+<li><strong>platforms</strong>: The different platforms/distributions to run on</li>
+<li><strong>transport</strong>: The transport layer to use to talk to the vm.  This defaults to ssh, but winrm is also available.</li>
+<li><strong>suites</strong>: sets of different test runs.</li>
+<li><strong>provisioner</strong>: The plugin for provisioning the vm for the verifier to run against.  This is where kitchen-salt comes in.</li>
+</ul>
+<p>For the driver on the wordpress-fomula, the following is set:</p>
+<div class="highlight"><pre><span></span><span class="n">driver</span><span class="o">:</span>
+  <span class="n">name</span><span class="o">:</span> <span class="n">docker</span>
+  <span class="n">use_sudo</span><span class="o">:</span> <span class="kc">false</span>
+  <span class="n">privileged</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="n">forward</span><span class="o">:</span>
+    <span class="o">-</span> <span class="mi">80</span>
+</pre></div>
+
+
+<p>This is using the <a href="https://github.com/test-kitchen/kitchen-docker">kitchen-docker</a> driver.  If the user running kitchen does not have the correct privileges to run docker, then <code>use_sudo: true</code> should be set.  All of the containers that are being used here are using systemd as the exec command, so <code>privileged: true</code> needs to be set.  And then port 80 is forwarded to the host so that the verifier can run commands against it to check that wordpress has been setup</p>
+<p>For the platforms, the following are setup to run systemd on the container start.</p>
+<div class="highlight"><pre><span></span>platforms:
+  - name: centos
+    driver_config:
+      run_command: /usr/lib/systemd/systemd
+  - name: opensuse
+    driver_config:
+      run_command: /usr/lib/systemd/systemd
+      provision_command:
+        - systemctl enable sshd.service
+  - name: ubuntu
+    driver_config:
+      run_command: /lib/systemd/systemd
+  - name: debian
+    driver_config:
+      run_command: /lib/systemd/systemd
+</pre></div>
+
+
+<p>All of these distributions except for opensuse have sshd.service enabled when the package is installed, so we only have to have one provision command to enable sshd for opensuse.  The rest have a command to configure the driver run_command to the correct systemd binary for that distribution.</p>
+<p>For suites, there is only one suite.</p>
+<div class="highlight"><pre><span></span>suites:
+  - name: wordpress
+</pre></div>
+
+
+<p>If multiple sets of pillars or different versions of salt were needed to be tested, they would be configured here.</p>
+<div class="highlight"><pre><span></span>suites:
+  - name: nitrogen
+  - name: develop
+    provisioner:
+      salt_bootstrap_options: -X -p git -p curl -p sudo git develop
+</pre></div>
+
+
+<p>And there would be multiple suites with for each platform created and tested.</p>
+<p>And lastly for the verifier.</p>
+<div class="highlight"><pre><span></span><span class="n">verifier</span><span class="o">:</span>
+  <span class="n">name</span><span class="o">:</span> <span class="n">shell</span>
+  <span class="n">remote_exec</span><span class="o">:</span> <span class="kc">false</span>
+  <span class="n">command</span><span class="o">:</span> <span class="n">pytest</span> <span class="o">-</span><span class="n">v</span> <span class="n">tests</span><span class="sr">/integration/</span>
+</pre></div>
+
+
+<p>There are a couple base <a href="https://github.com/test-kitchen/test-kitchen/tree/master/lib/kitchen/verifier">verifiers</a>.  I usually use the shell verifier and use <a href="http://testinfra.readthedocs.io/en/latest/">testinfra</a> which has multiple connectors to run pytest type test functions inside of the container.</p>
+<p>Kitchen also has a <code>$KITCHEN_SUITE</code> variable that it sets, so if different tests files need to be run for each suite.</p>
+<div class="highlight"><pre><span></span><span class="n">verifier</span><span class="o">:</span>
+  <span class="n">name</span><span class="o">:</span> <span class="n">shell</span>
+  <span class="n">remote_exec</span><span class="o">:</span> <span class="kc">false</span>
+  <span class="n">command</span><span class="o">:</span> <span class="n">pytest</span> <span class="o">-</span><span class="n">v</span> <span class="n">tests</span><span class="sr">/integration/</span><span class="n">$KITCHEN_SUITE</span>
+</pre></div>
+
+
+<p>For the <a href="https://github.com/saltstack/salt-jenkins.git">salt-jenkins</a>, since we are setting up the containers to run the SaltStack testing suite, the verifier is setup to run inside of the container, and run the salt testing suite.</p>
+<div class="highlight"><pre><span></span><span class="x">verifier:</span>
+<span class="x">  name: shell</span>
+<span class="x">  remote_exec: true</span>
+<span class="x">  command: &#39;$(kitchen) /testing/tests/runtests.py -v --output-columns=80 --run-destructive</span><span class="cp">&lt;%=</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;TEST&quot;</span><span class="o">]</span> <span class="p">?</span> <span class="s2">&quot; -n </span><span class="si">#{</span><span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;TEST&quot;</span><span class="o">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span> <span class="cp">%&gt;</span><span class="x">&#39;</span>
+</pre></div>
+
+
+<p><code>remote_exec</code> will cause the command to be run inside of the container.  The <a href="https://github.com/saltstack/salt-jenkins/blob/2017.7/kitchen/kitchen.py">kitchen</a> command uses the installed salt to lookup if py3 was used or not, so that the correct python executable is used to run the test suite.  Then if the TEST environment variable is set, that test is run, otherwise the full test suite is run.</p>
+<h1>Configuring kitchen-salt</h1>
+<p>The documentation for kitchen-salt is located <a href="https://github.com/saltstack/kitchen-salt/blob/master/provisioner_options.md">here</a></p>
+<div class="highlight"><pre><span></span><span class="n">provisioner</span><span class="o">:</span>
+  <span class="n">name</span><span class="o">:</span> <span class="n">salt_solo</span>
+  <span class="n">salt_install</span><span class="o">:</span> <span class="n">bootstrap</span>
+  <span class="n">salt_version</span><span class="o">:</span> <span class="n">latest</span>
+  <span class="n">salt_bootstrap_url</span><span class="o">:</span> <span class="n">https</span><span class="o">://</span><span class="n">bootstrap</span><span class="o">.</span><span class="na">saltstack</span><span class="o">.</span><span class="na">com</span>
+  <span class="n">salt_bootstrap_options</span><span class="o">:</span> <span class="o">-</span><span class="n">X</span> <span class="o">-</span><span class="n">p</span> <span class="n">git</span> <span class="o">-</span><span class="n">p</span> <span class="n">curl</span> <span class="o">-</span><span class="n">p</span> <span class="n">sudo</span>
+  <span class="n">is_file_root</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="n">require_chef</span><span class="o">:</span> <span class="kc">false</span>
+  <span class="n">salt_copy_filter</span><span class="o">:</span>
+    <span class="o">-</span> <span class="o">.</span><span class="na">circleci</span><span class="o">/</span>
+    <span class="o">-</span> <span class="n">Dockerfile</span>
+    <span class="o">-</span> <span class="o">.</span><span class="na">drone</span><span class="o">.</span><span class="na">yml</span>
+    <span class="o">-</span> <span class="o">.</span><span class="na">git</span><span class="o">/</span>
+    <span class="o">-</span> <span class="o">.</span><span class="na">gitignore</span>
+    <span class="o">-</span> <span class="o">.</span><span class="na">kitchen</span><span class="o">/</span>
+    <span class="o">-</span> <span class="o">.</span><span class="na">kitchen</span><span class="o">.</span><span class="na">yml</span>
+    <span class="o">-</span> <span class="n">Gemfile</span>
+    <span class="o">-</span> <span class="n">Gemfile</span><span class="o">.</span><span class="na">lock</span>
+    <span class="o">-</span> <span class="n">requirements</span><span class="o">.</span><span class="na">txt</span>
+    <span class="o">-</span> <span class="n">tests</span><span class="o">/</span>
+    <span class="o">-</span> <span class="o">.</span><span class="na">travis</span><span class="o">.</span><span class="na">yml</span>
+  <span class="n">dependencies</span><span class="o">:</span>
+    <span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">apache</span>
+      <span class="n">repo</span><span class="o">:</span> <span class="n">git</span>
+      <span class="n">source</span><span class="o">:</span> <span class="n">https</span><span class="o">://</span><span class="n">github</span><span class="o">.</span><span class="na">com</span><span class="sr">/saltstack-formulas/</span><span class="n">apache</span><span class="o">-</span><span class="n">formula</span><span class="o">.</span><span class="na">git</span>
+    <span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">mysql</span>
+      <span class="n">repo</span><span class="o">:</span> <span class="n">git</span>
+      <span class="n">source</span><span class="o">:</span> <span class="n">https</span><span class="o">://</span><span class="n">github</span><span class="o">.</span><span class="na">com</span><span class="sr">/saltstack-formulas/</span><span class="n">mysql</span><span class="o">-</span><span class="n">formula</span><span class="o">.</span><span class="na">git</span>
+    <span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">php</span>
+      <span class="n">repo</span><span class="o">:</span> <span class="n">git</span>
+      <span class="n">source</span><span class="o">:</span> <span class="n">https</span><span class="o">://</span><span class="n">github</span><span class="o">.</span><span class="na">com</span><span class="sr">/saltstack-formulas/</span><span class="n">php</span><span class="o">-</span><span class="n">formula</span><span class="o">.</span><span class="na">git</span>
+  <span class="n">state_top</span><span class="o">:</span>
+    <span class="n">base</span><span class="o">:</span>
+      <span class="s2">&quot;*&quot;</span><span class="o">:</span>
+        <span class="o">-</span> <span class="n">wordpress</span>
+  <span class="n">pillars</span><span class="o">:</span>
+    <span class="n">top</span><span class="o">.</span><span class="na">sls</span><span class="o">:</span>
+      <span class="n">base</span><span class="o">:</span>
+        <span class="s2">&quot;*&quot;</span><span class="o">:</span>
+          <span class="o">-</span> <span class="n">wordpress</span>
+    <span class="n">wordpress</span><span class="o">.</span><span class="na">sls</span><span class="o">:</span>
+      <span class="n">mysql</span><span class="o">:</span>
+        <span class="n">database</span><span class="o">:</span>
+          <span class="o">-</span> <span class="n">wordpress</span>
+        <span class="n">user</span><span class="o">:</span>
+          <span class="n">wordpress</span><span class="o">:</span>
+            <span class="n">password</span><span class="o">:</span> <span class="n">quair9aiqueeShae4toh</span>
+            <span class="n">host</span><span class="o">:</span> <span class="n">localhost</span>
+            <span class="n">databases</span><span class="o">:</span>
+              <span class="o">-</span> <span class="n">database</span><span class="o">:</span> <span class="n">wordpress</span>
+                <span class="n">grants</span><span class="o">:</span>
+                  <span class="o">-</span> <span class="n">all</span> <span class="n">privileges</span>
+      <span class="n">wordpress</span><span class="o">:</span>
+        <span class="n">lookup</span><span class="o">:</span>
+          <span class="n">admin_user</span><span class="o">:</span> <span class="n">gtmanfred</span>
+          <span class="n">admin_email</span><span class="o">:</span> <span class="n">daniel</span><span class="err">@</span><span class="n">gtmanfred</span><span class="o">.</span><span class="na">com</span>
+          <span class="n">title</span><span class="o">:</span> <span class="s2">&quot;GtManfred&#39;s Blog&quot;</span>
+          <span class="n">url</span><span class="o">:</span> <span class="n">http</span><span class="o">://</span><span class="n">blog</span><span class="o">.</span><span class="na">manfred</span><span class="o">.</span><span class="na">io</span>
+</pre></div>
+
+
+<ul>
+<li><strong>name</strong>: The name of the provisioner is <code>salt_solo</code></li>
+<li><strong>salt_install</strong>: This defaults to <code>bootstrap</code> which installs using the salt bootstrap.  Other options are <code>apt</code> and <code>yum</code> which use the repo.saltstack.com repository.  <code>ppa</code> allows for specifying a ppa from which to install salt.  And <code>distrib</code> which just uses whatever version of salt is provided by the distribution repositories.</li>
+<li><strong>salt_bootstrap_options</strong>: These are the bootstrap options that are passed to the bootstrap script.  <code>-X</code> can be passed here to not start the salt services, because salt_solo runs salt-call and doesn't use the salt-minion process.</li>
+<li><strong>is_file_root</strong>: This is used to say just copy everything from the current directory to the tmp fileserver in the kitchen container.  If there were not a custom module and state for this formula, kitchen could be set to have <code>formula: wordpress</code> to copy the wordpress-formula to the kitchen environment.</li>
+<li><strong>salt_copy_filter</strong>: This is a list of files to not copy to the kitchen environment.</li>
+<li><strong>dependencies</strong>: This is the fun part.  If the formula depends on other formulas, they can be configured here.  The following types are supported:<ul>
+<li>path - use a local path</li>
+<li>git - clone a git repository</li>
+<li>apt - install an apt package</li>
+<li>yum - install a yum package</li>
+<li>spm - install a <a href="https://docs.saltstack.com/en/latest/topics/spm/">spm</a> package</li>
+</ul>
+</li>
+<li><strong>state_top</strong>: This is the top file that will be used to run at the end of the provisioner</li>
+<li><strong>pillars</strong>: This is a set of custom pillars for configuring the instance.  There are a couple other ways to provide pillars that are also useful.</li>
+</ul>
+<h1>Running test kitchen on pull requests.</h1>
+<p>Any of the major testing platforms should be usable.  If there are complicated setups needed, Jenkins is probably the best, unfortunately I do not know jenkins very well, so I have provided examples for the three I know how to use.</p>
+<ul>
+<li><a href="https://github.com/gtmanfred/wordpress-formula/blob/master/.travis.yml">TravisCI</a></li>
+<li><a href="https://github.com/gtmanfred/wordpress-formula/blob/master/.drone.yml">Drone</a></li>
+<li><a href="https://github.com/gtmanfred/wordpress-formula/blob/master/.circleci/config.yml">CircleCI</a></li>
+</ul>
+<p>My personal favorite is Drone.  You can setup each one of the tests suites to run with a mysql container if you did not have states that need mysql-server installed on the instance.  Also, for each job runner for Drone, you just need to setup another drone-agent on a server running docker, and then hook it into the drone-server, then each drone-agent can pick up a job and run it.</p>
+    </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "kitchen-salt.html";
+        var disqus_url = "https://blog.gtmanfred.com/kitchen-salt.html";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//gtmanfred.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="https://github.com/gtmanfred/">Git Repositories</a></li>
+                            <li><a href="/feeds/">Feeds</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42514099-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'gtmanfred';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Managing rackspace products in SaltStack</title>
+        <link rel="stylesheet" href="https://blog.gtmanfred.com/theme/css/main.css" />
+        <link href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="GTmanfred Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://blog.gtmanfred.com/">GTmanfred </a></h1>
+                <nav><ul>
+    
+                        <li><a href="https://blog.gtmanfred.com/pages/about.html">About</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/pelican.html">Pelican</a></li>
+                    <li class="active"><a href="https://blog.gtmanfred.com/category/salt.html">Salt</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/zsh.html">Zsh</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="https://blog.gtmanfred.com/pyrax-rackspace.html" rel="bookmark"
+           title="Permalink to Managing rackspace products in SaltStack">Managing rackspace products in SaltStack</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <span>Fri 19 September 2014</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/salt.html">salt</a><a href="https://blog.gtmanfred.com/tag/rackspace.html">rackspace</a><a href="https://blog.gtmanfred.com/tag/pyrax.html">pyrax</a></span>
+</footer><!-- /.post-info -->      <h1>How everything is setup now.</h1>
+<p>Currently we have been keeping all the individual drivers seperate, controlling 
+all the behavior so that you get the same experience no matter which provider 
+you use. I would like to keep doing this even though we are adding stuff that is
+more specific.</p>
+<p>The goal will be to continue to only use the CloudClient interface, and just run
+everything through that so that we can write the code once, and have it 
+available to all of the different cloud modules/runner/state/salt-cloud.</p>
+<h1>Getting Started</h1>
+<p>I want to start this one cleanly and not run into the problems that happened 
+with the novaclient driver.  Starting with salt.utils.openstack.pyrax, 
+__init__.py should look something like this</p>
+<h2>salt/utils/openstack/pyrax/__init__.py</h2>
+<div class="highlight"><pre><span></span>    <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">with_statement</span><span class="p">,</span> <span class="n">generators</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">pyrax</span>
+
+        <span class="c1"># import pyrax classes</span>
+        <span class="kn">from</span> <span class="nn">salt.utils.openstack.pyrax.authentication</span> <span class="kn">import</span> <span class="n">Auth</span>
+
+        <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;Auth&#39;</span> <span class="p">]</span>
+        <span class="n">HAS_PYRAX</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">HAS_PYRAX</span> <span class="o">=</span> <span class="bp">False</span>
+</pre></div>
+
+
+<p>This will keep everything imported when we just import
+salt.utils.openstack.pyrax but if pyrax is not installed, it doesn't try to 
+import it a bunch more times on all the other files.  </p>
+<p>Once this has begun, there will be the main class, that gets authenticated and 
+does the _get_conn just like all the other drivers do, but then, we can just 
+pass the authenticated object to all the new classes, instead of authenticating 
+on each new one.</p>
+<p>After these have gotten started, everything needs to then be referenced in salt.
+cloud.clouds.pyrax, and that just uses the classes from the utils directory.<br>
+This is the code I am writing right now, and once it is finished, it will make 
+it really easy for anyone to just add another class in another file and then 
+hook it into the salt-cloud pyrax driver.</p>
+<h1>What is next?</h1>
+<p>I have to write the authentication and servers class, since those are what 
+everything revolves around.  Once those are done, we can start expanding and 
+have everyone come in and start adding Cloud Things!</p>
+<p>From the point that it is up, everything should be easy enough to run through 
+the cloud.action module.  Using the cloud.action module, I want to make one 
+pyrax state that does all the things.</p>
+<p>I am definitely going to get the first pyrax authentication class and stuff done
+this weekend, and am going to start with it in my gtmanfred/salt repo in the 
+pyrax branch.  Look for that on Saturday or Sunday this weekend.</p>
+    </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "pyrax-rackspace.html";
+        var disqus_url = "https://blog.gtmanfred.com/pyrax-rackspace.html";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//gtmanfred.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="https://github.com/gtmanfred/">Git Repositories</a></li>
+                            <li><a href="/feeds/">Feeds</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42514099-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'gtmanfred';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

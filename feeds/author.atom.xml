@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>GTmanfred - @author@</title><link href="https://blog.gtmanfred.com/" rel="alternate"></link><link href="https://blog.gtmanfred.com/feeds/author.atom.xml" rel="self"></link><id>https://blog.gtmanfred.com/</id><updated>2017-10-04T16:17:16+00:00</updated><entry><title>Testing your salt states with kitchen-salt</title><link href="https://blog.gtmanfred.com/kitchen-salt.html" rel="alternate"></link><published>2017-10-04T16:17:16+00:00</published><updated>2017-10-04T16:17:16+00:00</updated><author><name>@author@</name></author><id>tag:blog.gtmanfred.com,2017-10-04:/kitchen-salt.html</id><summary type="html">&lt;p&gt;Test salt formulas and states&lt;/p&gt;</summary><content type="html">&lt;h1&gt;What is &lt;a href="https://github.com/test-kitchen/test-kitchen"&gt;Kitchen&lt;/a&gt; and why would someone use it.&lt;/h1&gt;
+&lt;p&gt;test-kitchen was originally written as a way to test chef cookbooks.  But the provisioners and drivers are pluggable, &lt;a href="https://github.com/saltstack/kitchen-salt"&gt;kitchen-salt&lt;/a&gt; enables salt to be the provisioner instead of chef.&lt;/p&gt;
+&lt;p&gt;The goal of this kitchen-salt is to make it easy to test salt states or formulas independently of a production environment.  It allows for doing quick checks of states and to make sure that upstream changes in packages will not affect deployments.  By using platforms, users can run checks on their states against the environment they are running in production as well as checking future releases of distributions before doing major upgrades.  It is also possible to test states against multiple versions of salt to make sure there are no major regressions.&lt;/p&gt;
+&lt;h1&gt;Example formula&lt;/h1&gt;
+&lt;p&gt;This article will be using my &lt;a href="https://github.com/gtmanfred/wordpress-formula"&gt;wordpress-formula&lt;/a&gt; to demo the major usage points of &lt;code&gt;kitchen-salt&lt;/code&gt;.&lt;/p&gt;
+&lt;h1&gt;Installing Kitchen&lt;/h1&gt;
+&lt;p&gt;Most distributions provide a &lt;code&gt;bundler&lt;/code&gt; gem in the repositories, but there are some that have a version of ruby that is too old to use kitchen.  The easiest way to use kitchen on each system is to use a ruby version manager like &lt;a href="https://rvm.io/"&gt;rvm&lt;/a&gt; or &lt;a href="http://rbenv.org/"&gt;rbenv&lt;/a&gt;.  &lt;code&gt;rbenv&lt;/code&gt; is very similar to &lt;code&gt;pyenv&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Once ruby bundler is installed, it can be used to install localized versions of the ruby packages for each repository, using the &lt;code&gt;bundle install&lt;/code&gt; command.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;bundle&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt;
+&lt;span class="n"&gt;The&lt;/span&gt; &lt;span class="n"&gt;latest&lt;/span&gt; &lt;span class="n"&gt;bundler&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="mf"&gt;1.16.0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pre&lt;/span&gt;&lt;span class="mf"&gt;.2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;but&lt;/span&gt; &lt;span class="n"&gt;you&lt;/span&gt; &lt;span class="n"&gt;are&lt;/span&gt; &lt;span class="n"&gt;currently&lt;/span&gt; &lt;span class="n"&gt;running&lt;/span&gt; &lt;span class="mf"&gt;1.15.4&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+&lt;span class="n"&gt;To&lt;/span&gt; &lt;span class="n"&gt;update&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;run&lt;/span&gt; &lt;span class="err"&gt;`&lt;/span&gt;&lt;span class="n"&gt;gem&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;bundler&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;pre&lt;/span&gt;&lt;span class="err"&gt;`&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;artifactory&lt;/span&gt; &lt;span class="mf"&gt;2.8.2&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;bundler&lt;/span&gt; &lt;span class="mf"&gt;1.15.4&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;mixlib&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;shellout&lt;/span&gt; &lt;span class="mf"&gt;2.3.2&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;mixlib&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;versioning&lt;/span&gt; &lt;span class="mf"&gt;1.2.2&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;thor&lt;/span&gt; &lt;span class="mf"&gt;0.19.1&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;net&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ssh&lt;/span&gt; &lt;span class="mf"&gt;4.2.0&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;safe_yaml&lt;/span&gt; &lt;span class="mf"&gt;1.0.4&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;mixlib&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="mf"&gt;2.1.12&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;net&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;scp&lt;/span&gt; &lt;span class="mf"&gt;1.2.1&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;net&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ssh&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;gateway&lt;/span&gt; &lt;span class="mf"&gt;1.3.0&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;kitchen&lt;/span&gt; &lt;span class="mf"&gt;1.17.0&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;kitchen&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;docker&lt;/span&gt; &lt;span class="mf"&gt;2.6.1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pre&lt;/span&gt; &lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="nl"&gt;https&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//github.com/test-kitchen/kitchen-docker.git (at master@9eabd01)&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;kitchen&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;salt&lt;/span&gt; &lt;span class="mf"&gt;0.0.29&lt;/span&gt;
+&lt;span class="n"&gt;Bundle&lt;/span&gt; &lt;span class="n"&gt;complete&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;Gemfile&lt;/span&gt; &lt;span class="n"&gt;dependencies&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;13&lt;/span&gt; &lt;span class="n"&gt;gems&lt;/span&gt; &lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="n"&gt;installed&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+&lt;span class="n"&gt;Use&lt;/span&gt; &lt;span class="err"&gt;`&lt;/span&gt;&lt;span class="n"&gt;bundle&lt;/span&gt; &lt;span class="n"&gt;info&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;gemname&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="err"&gt;`&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;see&lt;/span&gt; &lt;span class="n"&gt;where&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;bundled&lt;/span&gt; &lt;span class="n"&gt;gem&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="n"&gt;installed&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This will require having a separate Gemfile to hold the requirements for running test-kitchen.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;source &amp;quot;https://rubygems.org&amp;quot;
+
+gem &amp;quot;test-kitchen&amp;quot;
+gem &amp;quot;kitchen-salt&amp;quot;
+gem &amp;#39;kitchen-docker&amp;#39;, :git =&amp;gt; &amp;#39;https://github.com/test-kitchen/kitchen-docker.git&amp;#39;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Because I am also testing opensuse, right now the git version of kitchen-docker is required.&lt;/p&gt;
+&lt;h1&gt;Using kitchen&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ bundle &lt;span class="nb"&gt;exec&lt;/span&gt; kitchen &lt;span class="nb"&gt;help&lt;/span&gt;
+Commands:
+  kitchen console                                 &lt;span class="c1"&gt;# Kitchen Console!&lt;/span&gt;
+  kitchen converge &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;          &lt;span class="c1"&gt;# Change instance state to converge. Use a provisioner to configure one or more instances&lt;/span&gt;
+  kitchen create &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;            &lt;span class="c1"&gt;# Change instance state to create. Start one or more instances&lt;/span&gt;
+  kitchen destroy &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;           &lt;span class="c1"&gt;# Change instance state to destroy. Delete all information for one or more instances&lt;/span&gt;
+  kitchen diagnose &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;          &lt;span class="c1"&gt;# Show computed diagnostic configuration&lt;/span&gt;
+  kitchen driver                                  &lt;span class="c1"&gt;# Driver subcommands&lt;/span&gt;
+  kitchen driver create &lt;span class="o"&gt;[&lt;/span&gt;NAME&lt;span class="o"&gt;]&lt;/span&gt;                    &lt;span class="c1"&gt;# Create a new Kitchen Driver gem project&lt;/span&gt;
+  kitchen driver discover                         &lt;span class="c1"&gt;# Discover Test Kitchen drivers published on RubyGems&lt;/span&gt;
+  kitchen driver &lt;span class="nb"&gt;help&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;COMMAND&lt;span class="o"&gt;]&lt;/span&gt;                   &lt;span class="c1"&gt;# Describe subcommands or one specific subcommand&lt;/span&gt;
+  kitchen &lt;span class="nb"&gt;exec&lt;/span&gt; INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP -c REMOTE_COMMAND  &lt;span class="c1"&gt;# Execute command on one or more instance&lt;/span&gt;
+  kitchen &lt;span class="nb"&gt;help&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;COMMAND&lt;span class="o"&gt;]&lt;/span&gt;                          &lt;span class="c1"&gt;# Describe available commands or one specific command&lt;/span&gt;
+  kitchen init                                    &lt;span class="c1"&gt;# Adds some configuration to your cookbook so Kitchen can rock&lt;/span&gt;
+  kitchen list &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;              &lt;span class="c1"&gt;# Lists one or more instances&lt;/span&gt;
+  kitchen login INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP                   &lt;span class="c1"&gt;# Log in to one instance&lt;/span&gt;
+  kitchen package INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP                 &lt;span class="c1"&gt;# package an instance&lt;/span&gt;
+  kitchen setup &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;             &lt;span class="c1"&gt;# Change instance state to setup. Prepare to run automated tests. Install busser and related gems on one or more instances&lt;/span&gt;
+  kitchen &lt;span class="nb"&gt;test&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;              &lt;span class="c1"&gt;# Test (destroy, create, converge, setup, verify and destroy) one or more instances&lt;/span&gt;
+  kitchen verify &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;            &lt;span class="c1"&gt;# Change instance state to verify. Run automated tests on one or more instances&lt;/span&gt;
+  kitchen version                                 &lt;span class="c1"&gt;# Print Kitchen&amp;#39;s version information&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The kitchen commands I use the most are:
+  - &lt;strong&gt;list&lt;/strong&gt;: show the current state of each configured environment
+  - &lt;strong&gt;create&lt;/strong&gt;: create the test environment with ssh or winrm.
+  - &lt;strong&gt;converge&lt;/strong&gt;: run the provision command, in this case, salt_solo and the specified states
+  - &lt;strong&gt;verify&lt;/strong&gt;: run the verifier.
+  - &lt;strong&gt;login&lt;/strong&gt;: login to created environment
+  - &lt;strong&gt;destroy&lt;/strong&gt;: remove the created environment
+  - &lt;strong&gt;test&lt;/strong&gt;: run create, converge, verify, and then destroy if it all succeeds&lt;/p&gt;
+&lt;p&gt;For triaging github issues, I regularly use &lt;code&gt;bundle exec kitchen create &amp;lt;setup&amp;gt;&lt;/code&gt; and then salt bootstrap to install the salt version we are testing.&lt;/p&gt;
+&lt;p&gt;Then for running tests, to setup the environment I want to run the tests in I run &lt;code&gt;bundle exec kitchen converge &amp;lt;setup&amp;gt;&lt;/code&gt;&lt;/p&gt;
+&lt;h1&gt;Configuring test-kitchen&lt;/h1&gt;
+&lt;p&gt;There are 6 major parts of the test-kitchen configuration file.  This is &lt;code&gt;.kitchen.yml&lt;/code&gt; and should be in the directory inside of which the &lt;code&gt;kitchen&lt;/code&gt; command is going to be run.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;driver&lt;/strong&gt;:  This specifies the configuration of how the driver requirements.  Drivers are how the virtual machine is created. &lt;a href="https://docs.chef.io/kitchen.html#drivers"&gt;kitchen drivers&lt;/a&gt; (I prefer docker)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;verifier&lt;/strong&gt;: The command to run for tests to check that the converge ran successfully.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;platforms&lt;/strong&gt;: The different platforms/distributions to run on&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;transport&lt;/strong&gt;: The transport layer to use to talk to the vm.  This defaults to ssh, but winrm is also available.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;suites&lt;/strong&gt;: sets of different test runs.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;provisioner&lt;/strong&gt;: The plugin for provisioning the vm for the verifier to run against.  This is where kitchen-salt comes in.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For the driver on the wordpress-fomula, the following is set:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;driver&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;docker&lt;/span&gt;
+  &lt;span class="n"&gt;use_sudo&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+  &lt;span class="n"&gt;privileged&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+  &lt;span class="n"&gt;forward&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is using the &lt;a href="https://github.com/test-kitchen/kitchen-docker"&gt;kitchen-docker&lt;/a&gt; driver.  If the user running kitchen does not have the correct privileges to run docker, then &lt;code&gt;use_sudo: true&lt;/code&gt; should be set.  All of the containers that are being used here are using systemd as the exec command, so &lt;code&gt;privileged: true&lt;/code&gt; needs to be set.  And then port 80 is forwarded to the host so that the verifier can run commands against it to check that wordpress has been setup&lt;/p&gt;
+&lt;p&gt;For the platforms, the following are setup to run systemd on the container start.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;platforms:
+  - name: centos
+    driver_config:
+      run_command: /usr/lib/systemd/systemd
+  - name: opensuse
+    driver_config:
+      run_command: /usr/lib/systemd/systemd
+      provision_command:
+        - systemctl enable sshd.service
+  - name: ubuntu
+    driver_config:
+      run_command: /lib/systemd/systemd
+  - name: debian
+    driver_config:
+      run_command: /lib/systemd/systemd
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;All of these distributions except for opensuse have sshd.service enabled when the package is installed, so we only have to have one provision command to enable sshd for opensuse.  The rest have a command to configure the driver run_command to the correct systemd binary for that distribution.&lt;/p&gt;
+&lt;p&gt;For suites, there is only one suite.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;suites:
+  - name: wordpress
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If multiple sets of pillars or different versions of salt were needed to be tested, they would be configured here.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;suites:
+  - name: nitrogen
+  - name: develop
+    provisioner:
+      salt_bootstrap_options: -X -p git -p curl -p sudo git develop
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And there would be multiple suites with for each platform created and tested.&lt;/p&gt;
+&lt;p&gt;And lastly for the verifier.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;verifier&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;shell&lt;/span&gt;
+  &lt;span class="n"&gt;remote_exec&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+  &lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;pytest&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="n"&gt;tests&lt;/span&gt;&lt;span class="sr"&gt;/integration/&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There are a couple base &lt;a href="https://github.com/test-kitchen/test-kitchen/tree/master/lib/kitchen/verifier"&gt;verifiers&lt;/a&gt;.  I usually use the shell verifier and use &lt;a href="http://testinfra.readthedocs.io/en/latest/"&gt;testinfra&lt;/a&gt; which has multiple connectors to run pytest type test functions inside of the container.&lt;/p&gt;
+&lt;p&gt;Kitchen also has a &lt;code&gt;$KITCHEN_SUITE&lt;/code&gt; variable that it sets, so if different tests files need to be run for each suite.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;verifier&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;shell&lt;/span&gt;
+  &lt;span class="n"&gt;remote_exec&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+  &lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;pytest&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="n"&gt;tests&lt;/span&gt;&lt;span class="sr"&gt;/integration/&lt;/span&gt;&lt;span class="n"&gt;$KITCHEN_SUITE&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;For the &lt;a href="https://github.com/saltstack/salt-jenkins.git"&gt;salt-jenkins&lt;/a&gt;, since we are setting up the containers to run the SaltStack testing suite, the verifier is setup to run inside of the container, and run the salt testing suite.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="x"&gt;verifier:&lt;/span&gt;
+&lt;span class="x"&gt;  name: shell&lt;/span&gt;
+&lt;span class="x"&gt;  remote_exec: true&lt;/span&gt;
+&lt;span class="x"&gt;  command: &amp;#39;$(kitchen) /testing/tests/runtests.py -v --output-columns=80 --run-destructive&lt;/span&gt;&lt;span class="cp"&gt;&amp;lt;%=&lt;/span&gt; &lt;span class="no"&gt;ENV&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;TEST&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; -n &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="no"&gt;ENV&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;TEST&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class="cp"&gt;%&amp;gt;&lt;/span&gt;&lt;span class="x"&gt;&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;remote_exec&lt;/code&gt; will cause the command to be run inside of the container.  The &lt;a href="https://github.com/saltstack/salt-jenkins/blob/2017.7/kitchen/kitchen.py"&gt;kitchen&lt;/a&gt; command uses the installed salt to lookup if py3 was used or not, so that the correct python executable is used to run the test suite.  Then if the TEST environment variable is set, that test is run, otherwise the full test suite is run.&lt;/p&gt;
+&lt;h1&gt;Configuring kitchen-salt&lt;/h1&gt;
+&lt;p&gt;The documentation for kitchen-salt is located &lt;a href="https://github.com/saltstack/kitchen-salt/blob/master/provisioner_options.md"&gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;provisioner&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;salt_solo&lt;/span&gt;
+  &lt;span class="n"&gt;salt_install&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;
+  &lt;span class="n"&gt;salt_version&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;latest&lt;/span&gt;
+  &lt;span class="n"&gt;salt_bootstrap_url&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;saltstack&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;
+  &lt;span class="n"&gt;salt_bootstrap_options&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="n"&gt;curl&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="n"&gt;sudo&lt;/span&gt;
+  &lt;span class="n"&gt;is_file_root&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+  &lt;span class="n"&gt;require_chef&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+  &lt;span class="n"&gt;salt_copy_filter&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;circleci&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;Dockerfile&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;drone&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;yml&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;git&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;gitignore&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;kitchen&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;kitchen&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;yml&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;Gemfile&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;Gemfile&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;lock&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;requirements&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;txt&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;tests&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;travis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;yml&lt;/span&gt;
+  &lt;span class="n"&gt;dependencies&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;apache&lt;/span&gt;
+      &lt;span class="n"&gt;repo&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt;
+      &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;&lt;span class="sr"&gt;/saltstack-formulas/&lt;/span&gt;&lt;span class="n"&gt;apache&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;formula&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;git&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;mysql&lt;/span&gt;
+      &lt;span class="n"&gt;repo&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt;
+      &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;&lt;span class="sr"&gt;/saltstack-formulas/&lt;/span&gt;&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;formula&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;git&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;php&lt;/span&gt;
+      &lt;span class="n"&gt;repo&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt;
+      &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;&lt;span class="sr"&gt;/saltstack-formulas/&lt;/span&gt;&lt;span class="n"&gt;php&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;formula&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;git&lt;/span&gt;
+  &lt;span class="n"&gt;state_top&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;base&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="s2"&gt;&amp;quot;*&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;wordpress&lt;/span&gt;
+  &lt;span class="n"&gt;pillars&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;top&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;sls&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="n"&gt;base&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;*&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;wordpress&lt;/span&gt;
+    &lt;span class="n"&gt;wordpress&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;sls&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;wordpress&lt;/span&gt;
+        &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="n"&gt;wordpress&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+            &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;quair9aiqueeShae4toh&lt;/span&gt;
+            &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;localhost&lt;/span&gt;
+            &lt;span class="n"&gt;databases&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+              &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;wordpress&lt;/span&gt;
+                &lt;span class="n"&gt;grants&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+                  &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;all&lt;/span&gt; &lt;span class="n"&gt;privileges&lt;/span&gt;
+      &lt;span class="n"&gt;wordpress&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;lookup&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="n"&gt;admin_user&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;gtmanfred&lt;/span&gt;
+          &lt;span class="n"&gt;admin_email&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;daniel&lt;/span&gt;&lt;span class="err"&gt;@&lt;/span&gt;&lt;span class="n"&gt;gtmanfred&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;
+          &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;GtManfred&amp;#39;s Blog&amp;quot;&lt;/span&gt;
+          &lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;blog&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;manfred&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;io&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;name&lt;/strong&gt;: The name of the provisioner is &lt;code&gt;salt_solo&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;salt_install&lt;/strong&gt;: This defaults to &lt;code&gt;bootstrap&lt;/code&gt; which installs using the salt bootstrap.  Other options are &lt;code&gt;apt&lt;/code&gt; and &lt;code&gt;yum&lt;/code&gt; which use the repo.saltstack.com repository.  &lt;code&gt;ppa&lt;/code&gt; allows for specifying a ppa from which to install salt.  And &lt;code&gt;distrib&lt;/code&gt; which just uses whatever version of salt is provided by the distribution repositories.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;salt_bootstrap_options&lt;/strong&gt;: These are the bootstrap options that are passed to the bootstrap script.  &lt;code&gt;-X&lt;/code&gt; can be passed here to not start the salt services, because salt_solo runs salt-call and doesn't use the salt-minion process.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;is_file_root&lt;/strong&gt;: This is used to say just copy everything from the current directory to the tmp fileserver in the kitchen container.  If there were not a custom module and state for this formula, kitchen could be set to have &lt;code&gt;formula: wordpress&lt;/code&gt; to copy the wordpress-formula to the kitchen environment.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;salt_copy_filter&lt;/strong&gt;: This is a list of files to not copy to the kitchen environment.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;dependencies&lt;/strong&gt;: This is the fun part.  If the formula depends on other formulas, they can be configured here.  The following types are supported:&lt;ul&gt;
+&lt;li&gt;path - use a local path&lt;/li&gt;
+&lt;li&gt;git - clone a git repository&lt;/li&gt;
+&lt;li&gt;apt - install an apt package&lt;/li&gt;
+&lt;li&gt;yum - install a yum package&lt;/li&gt;
+&lt;li&gt;spm - install a &lt;a href="https://docs.saltstack.com/en/latest/topics/spm/"&gt;spm&lt;/a&gt; package&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;state_top&lt;/strong&gt;: This is the top file that will be used to run at the end of the provisioner&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;pillars&lt;/strong&gt;: This is a set of custom pillars for configuring the instance.  There are a couple other ways to provide pillars that are also useful.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;Running test kitchen on pull requests.&lt;/h1&gt;
+&lt;p&gt;Any of the major testing platforms should be usable.  If there are complicated setups needed, Jenkins is probably the best, unfortunately I do not know jenkins very well, so I have provided examples for the three I know how to use.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/gtmanfred/wordpress-formula/blob/master/.travis.yml"&gt;TravisCI&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/gtmanfred/wordpress-formula/blob/master/.drone.yml"&gt;Drone&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/gtmanfred/wordpress-formula/blob/master/.circleci/config.yml"&gt;CircleCI&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;My personal favorite is Drone.  You can setup each one of the tests suites to run with a mysql container if you did not have states that need mysql-server installed on the instance.  Also, for each job runner for Drone, you just need to setup another drone-agent on a server running docker, and then hook it into the drone-server, then each drone-agent can pick up a job and run it.&lt;/p&gt;</content><category term="salt"></category></entry></feed>

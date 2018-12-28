@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>GTmanfred - pelican</title>
+        <link rel="stylesheet" href="https://blog.gtmanfred.com/theme/css/main.css" />
+        <link href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="GTmanfred Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://blog.gtmanfred.com/">GTmanfred </a></h1>
+                <nav><ul>
+    
+                        <li><a href="https://blog.gtmanfred.com/pages/about.html">About</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/pelican.html">Pelican</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/salt.html">Salt</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/zsh.html">Zsh</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="https://blog.gtmanfred.com/setting-up-pelican-and-git.html">How I setup Pelican and Git</a></h1>
+<footer class="post-info">
+        <span>Sat 20 July 2013</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/pelican.html">pelican</a><a href="https://blog.gtmanfred.com/tag/git.html">git</a><a href="https://blog.gtmanfred.com/tag/publishing.html">publishing</a></span>
+</footer><!-- /.post-info --><h1>Getting Markdown and Git to work in Pelican</h1>
+<p><a href="https://github.com/getpelican/pelican-themes">get pelican</a></p>
+<p>Ok! so this was a fun experiment.  I wanted to be able to run git push and have everything be
+published automagically to the website.</p>
+<p>While I am posting this first blog post I am still testing out some kinks and getting
+everything to work correctly.  And as I say that... everything works... except pelican doesn't
+default to using .mkd files. Silly vim-markdown not recognizing the .md suffix.</p>
+<p><strong>OK here is where I got everything working correctly(and I broke it)</strong></p>
+<h3>Setting up the pelican user!</h3>
+<p>To keep everything clean on my server and also to prevent me from having to install a whole
+shitton of extra python packages, I am just using a virtualenv and managing everything from a
+seperate user.  In my pelican users home directory, there are 3 extra directories.</p>
+<h3>Blog Virtual Environment</h3>
+<p>First off is ~/blogenv/. In this directory we have our virtual environment.  Because I am
+using Arch Linux, and we default to python3, I was very happy to see pelican is compatible
+with python3.  Once you have whatever python-virtualenv package your distribution comes with,
+just make the virtual environment and install pelican.</p>
+<div class="highlight"><pre><span></span>virtualenv ~/blogenv
+source ~/blogenv/bin/activate
+pip install -e git://github.com/getpelican/pelican.git#egg=pelican
+</pre></div>
+
+
+<p>If you are wanting to use markdown, you will need to pip install it as well.</p>
+<div class="highlight"><pre><span></span>pip install Markdown
+</pre></div>
+
+
+<p>I prefer to use the git repository for pelican, feel free to use the version from pypi.  A
+nice tip, since we are only going to ever use this user for that virtual environment is to
+just add source ~/blogenv/bin/activate in your ~/.bashrc so that we always get the environment
+when using bash.</p>
+<h3>Start blog</h3>
+<p>Next we need to setup our blog environment.  This one is really simple, just run the
+pelican-quickstart command and answer all the questions that it asks.</p>
+<div class="highlight"><pre><span></span>pelican-quickstart -p ~/blog
+</pre></div>
+
+
+<p>If you really wanted, you could stop here.  You just write your blog posts in the content
+directory under ~/blog.  Once you have written something, run make in ~/blog and your html
+files will be put in ~/blog/output.  Then just host the blog with nginx or an equivalent HTTP
+server.</p>
+<div class="highlight"><pre><span></span>server {
+    listen 80;
+    server_name blog.gtmanfred.com blag.gtmanfred.com;
+    root /home/pelican/blog/output;
+    index index.html;
+    location ~ ^/feeds {
+        autoindex on
+    }
+}
+</pre></div>
+
+
+<h3>Setting up git</h3>
+<p>If you are like me, you like it when things are automated.  This is where git comes in to keep
+track of your blog posts and files.  This way we only have to keep track of a small number of
+files and don't have to worry about the rest of the pelican files if we don't want.</p>
+<p>Start out with making your blog git repository on your localmachine and initialize it.</p>
+<div class="highlight"><pre><span></span>mkdir ~/gitrepos/blogposts
+cd ~/gitrepos/blogposts
+git init
+</pre></div>
+
+
+<p>After this you will want to go ahead and copy over your pelicanconf.py from the ~/blog
+directory on the remote device to your local git repository.  Now git add it.</p>
+<div class="highlight"><pre><span></span>git add pelicanconf.py
+git commit -m &quot;First Commit -&amp;gt; Starting new blog!&quot;
+</pre></div>
+
+
+<p>Now we need to go back to the pelican user on your remote machine with the pelican
+subdirectory.  I personally kept with the blog directory naming theme and initialized a bare
+repo for my blog.</p>
+<div class="highlight"><pre><span></span>mkdir ~pelican/bloggit
+cd ~pelican/bloggit
+git init --bare
+</pre></div>
+
+
+<p>Now we can go ahead and setup out githook that is going to do all the work for us.  Copy the
+following into ~/bloggit/hooks/post-update.</p>
+<div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+<span class="nb">source</span> ~/blogenv/bin/activate
+<span class="nv">GIT_WORK_TREE</span><span class="o">=</span>/home/pelican/blog git checkout -f
+<span class="nb">pushd</span> ~/blog
+make publish
+<span class="nb">popd</span>
+</pre></div>
+
+
+<p>Be sure to <code>chmod +x</code> the file as well.</p>
+<p>I know what you are thinking! Why do we have to source bin/activate in the git hook if we are
+already sourcing it in .bash_profile? Well, this script won't read .bash_profile.  There are
+ways to make it read that file, such as adding --login after the bash call, but this is rather
+messy and and one extra line isn't a big deal.</p>
+<p>Now, back on your local machine, lets make a markdown file to publish our first blogpost.  In
+your git repository, make a contents directory and write a blog post.  Here is an example if
+you don't want to spend the time right now.</p>
+<p><a href="https://github.com/getpelican/pelican/blob/master/docs/getting_started.rst#file-metadata">From the pelican documentation</a></p>
+<div class="highlight"><pre><span></span><span class="n">Title</span><span class="o">:</span> <span class="n">My</span> <span class="kd">super</span> <span class="n">title</span>
+<span class="n">Date</span><span class="o">:</span> <span class="mi">2010</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">03</span> <span class="mi">10</span><span class="o">:</span><span class="mi">20</span>
+<span class="n">Category</span><span class="o">:</span> <span class="n">Python</span>
+<span class="n">Tags</span><span class="o">:</span> <span class="n">pelican</span><span class="o">,</span> <span class="n">publishing</span>
+<span class="n">Slug</span><span class="o">:</span> <span class="n">my</span><span class="o">-</span><span class="kd">super</span><span class="o">-</span><span class="n">post</span>
+<span class="n">Author</span><span class="o">:</span> <span class="n">Alexis</span> <span class="n">Metaireau</span>
+<span class="n">Summary</span><span class="o">:</span> <span class="n">Short</span> <span class="n">version</span> <span class="k">for</span> <span class="n">index</span> <span class="n">and</span> <span class="n">feeds</span>
+
+<span class="n">This</span> <span class="k">is</span> <span class="n">the</span> <span class="n">content</span> <span class="n">of</span> <span class="n">my</span> <span class="kd">super</span> <span class="n">blog</span> <span class="n">post</span><span class="o">.</span>
+</pre></div>
+
+
+<p>Place this in a file ending with .md for your git repository.  We now need to setup the remote
+git repository and push to it.</p>
+<div class="highlight"><pre><span></span>git remote add website pelican@blog.gtmanfred.com:bloggit
+git remote update
+git push -u website master
+</pre></div>
+
+
+<p>This should generate the blog posts and you should be able to use the same nginx.conf server
+from above.</p>
+<h3>I am a bit weird about my nginx configurations and /home</h3>
+<p>Now when I was writing this post I removed a few bits and pieces from my actual setup, just
+beacuse I am peculiar.  The Makefile for pelican recognizes the environment variable OUTPUTDIR
+for where you want output set to... so I set it to /srv/http/blog.gtmanfred.com.</p>
+<div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+<span class="nb">source</span> ~/blogenv/bin/activate
+<span class="nv">GIT_WORK_TREE</span><span class="o">=</span>/home/pelican/blog git checkout -f
+make -C ~/blog <span class="nv">OUTPUTDIR</span><span class="o">=</span>/srv/http/blog.gtmanfred.com/ publish
+</pre></div>
+
+
+<p>Again, be sure to <code>chmod +x</code> the hook.</p>
+<p>I also wanted to use <a href="https://github.com/plasticboy/vim-markdown">vim-markdown</a>, and I use
+pathogen, so I just cloned the git repo into ~/.config/vim/bundle (yes .config ... it is a
+long story).  Because <a href="https://github.com/plasticboy/vim-markdown">vim-markdown</a> only uses
+.mkd suffix, I had to add the following to pelicanconf.py.</p>
+<div class="highlight"><pre><span></span>MARKUP = (&quot;mkd&quot;,)
+</pre></div>
+
+
+<p>Don't forget the , because python is expecting a list.</p>
+<h3>Summary</h3>
+<p>I Hope to be doing a lot more of these blog posts now that I can remove the vim blogit plugin
+because Wordpress truely sucks.</p><p><a href="https://blog.gtmanfred.com/setting-up-pelican-and-git.html#disqus_thread">comments</a></p>                </article>
+<p class="paginator">
+    Page 1 / 1
+</p>
+            </aside><!-- /#featured -->
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="https://github.com/gtmanfred/">Git Repositories</a></li>
+                            <li><a href="/feeds/">Feeds</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42514099-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'gtmanfred';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

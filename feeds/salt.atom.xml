@@ -1,0 +1,874 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>GTmanfred - Salt</title><link href="https://blog.gtmanfred.com/" rel="alternate"></link><link href="https://blog.gtmanfred.com/feeds/salt.atom.xml" rel="self"></link><id>https://blog.gtmanfred.com/</id><updated>2017-10-04T16:17:16+00:00</updated><entry><title>Testing your salt states with kitchen-salt</title><link href="https://blog.gtmanfred.com/kitchen-salt.html" rel="alternate"></link><published>2017-10-04T16:17:16+00:00</published><updated>2017-10-04T16:17:16+00:00</updated><author><name>@author@</name></author><id>tag:blog.gtmanfred.com,2017-10-04:/kitchen-salt.html</id><summary type="html">&lt;p&gt;Test salt formulas and states&lt;/p&gt;</summary><content type="html">&lt;h1&gt;What is &lt;a href="https://github.com/test-kitchen/test-kitchen"&gt;Kitchen&lt;/a&gt; and why would someone use it.&lt;/h1&gt;
+&lt;p&gt;test-kitchen was originally written as a way to test chef cookbooks.  But the provisioners and drivers are pluggable, &lt;a href="https://github.com/saltstack/kitchen-salt"&gt;kitchen-salt&lt;/a&gt; enables salt to be the provisioner instead of chef.&lt;/p&gt;
+&lt;p&gt;The goal of this kitchen-salt is to make it easy to test salt states or formulas independently of a production environment.  It allows for doing quick checks of states and to make sure that upstream changes in packages will not affect deployments.  By using platforms, users can run checks on their states against the environment they are running in production as well as checking future releases of distributions before doing major upgrades.  It is also possible to test states against multiple versions of salt to make sure there are no major regressions.&lt;/p&gt;
+&lt;h1&gt;Example formula&lt;/h1&gt;
+&lt;p&gt;This article will be using my &lt;a href="https://github.com/gtmanfred/wordpress-formula"&gt;wordpress-formula&lt;/a&gt; to demo the major usage points of &lt;code&gt;kitchen-salt&lt;/code&gt;.&lt;/p&gt;
+&lt;h1&gt;Installing Kitchen&lt;/h1&gt;
+&lt;p&gt;Most distributions provide a &lt;code&gt;bundler&lt;/code&gt; gem in the repositories, but there are some that have a version of ruby that is too old to use kitchen.  The easiest way to use kitchen on each system is to use a ruby version manager like &lt;a href="https://rvm.io/"&gt;rvm&lt;/a&gt; or &lt;a href="http://rbenv.org/"&gt;rbenv&lt;/a&gt;.  &lt;code&gt;rbenv&lt;/code&gt; is very similar to &lt;code&gt;pyenv&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Once ruby bundler is installed, it can be used to install localized versions of the ruby packages for each repository, using the &lt;code&gt;bundle install&lt;/code&gt; command.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;bundle&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt;
+&lt;span class="n"&gt;The&lt;/span&gt; &lt;span class="n"&gt;latest&lt;/span&gt; &lt;span class="n"&gt;bundler&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="mf"&gt;1.16.0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pre&lt;/span&gt;&lt;span class="mf"&gt;.2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;but&lt;/span&gt; &lt;span class="n"&gt;you&lt;/span&gt; &lt;span class="n"&gt;are&lt;/span&gt; &lt;span class="n"&gt;currently&lt;/span&gt; &lt;span class="n"&gt;running&lt;/span&gt; &lt;span class="mf"&gt;1.15.4&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+&lt;span class="n"&gt;To&lt;/span&gt; &lt;span class="n"&gt;update&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;run&lt;/span&gt; &lt;span class="err"&gt;`&lt;/span&gt;&lt;span class="n"&gt;gem&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;bundler&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;pre&lt;/span&gt;&lt;span class="err"&gt;`&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;artifactory&lt;/span&gt; &lt;span class="mf"&gt;2.8.2&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;bundler&lt;/span&gt; &lt;span class="mf"&gt;1.15.4&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;mixlib&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;shellout&lt;/span&gt; &lt;span class="mf"&gt;2.3.2&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;mixlib&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;versioning&lt;/span&gt; &lt;span class="mf"&gt;1.2.2&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;thor&lt;/span&gt; &lt;span class="mf"&gt;0.19.1&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;net&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ssh&lt;/span&gt; &lt;span class="mf"&gt;4.2.0&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;safe_yaml&lt;/span&gt; &lt;span class="mf"&gt;1.0.4&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;mixlib&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="mf"&gt;2.1.12&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;net&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;scp&lt;/span&gt; &lt;span class="mf"&gt;1.2.1&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;net&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ssh&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;gateway&lt;/span&gt; &lt;span class="mf"&gt;1.3.0&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;kitchen&lt;/span&gt; &lt;span class="mf"&gt;1.17.0&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;kitchen&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;docker&lt;/span&gt; &lt;span class="mf"&gt;2.6.1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pre&lt;/span&gt; &lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="nl"&gt;https&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//github.com/test-kitchen/kitchen-docker.git (at master@9eabd01)&lt;/span&gt;
+&lt;span class="n"&gt;Using&lt;/span&gt; &lt;span class="n"&gt;kitchen&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;salt&lt;/span&gt; &lt;span class="mf"&gt;0.0.29&lt;/span&gt;
+&lt;span class="n"&gt;Bundle&lt;/span&gt; &lt;span class="n"&gt;complete&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;Gemfile&lt;/span&gt; &lt;span class="n"&gt;dependencies&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;13&lt;/span&gt; &lt;span class="n"&gt;gems&lt;/span&gt; &lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="n"&gt;installed&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+&lt;span class="n"&gt;Use&lt;/span&gt; &lt;span class="err"&gt;`&lt;/span&gt;&lt;span class="n"&gt;bundle&lt;/span&gt; &lt;span class="n"&gt;info&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;gemname&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="err"&gt;`&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;see&lt;/span&gt; &lt;span class="n"&gt;where&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;bundled&lt;/span&gt; &lt;span class="n"&gt;gem&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="n"&gt;installed&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This will require having a separate Gemfile to hold the requirements for running test-kitchen.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;source &amp;quot;https://rubygems.org&amp;quot;
+
+gem &amp;quot;test-kitchen&amp;quot;
+gem &amp;quot;kitchen-salt&amp;quot;
+gem &amp;#39;kitchen-docker&amp;#39;, :git =&amp;gt; &amp;#39;https://github.com/test-kitchen/kitchen-docker.git&amp;#39;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Because I am also testing opensuse, right now the git version of kitchen-docker is required.&lt;/p&gt;
+&lt;h1&gt;Using kitchen&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ bundle &lt;span class="nb"&gt;exec&lt;/span&gt; kitchen &lt;span class="nb"&gt;help&lt;/span&gt;
+Commands:
+  kitchen console                                 &lt;span class="c1"&gt;# Kitchen Console!&lt;/span&gt;
+  kitchen converge &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;          &lt;span class="c1"&gt;# Change instance state to converge. Use a provisioner to configure one or more instances&lt;/span&gt;
+  kitchen create &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;            &lt;span class="c1"&gt;# Change instance state to create. Start one or more instances&lt;/span&gt;
+  kitchen destroy &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;           &lt;span class="c1"&gt;# Change instance state to destroy. Delete all information for one or more instances&lt;/span&gt;
+  kitchen diagnose &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;          &lt;span class="c1"&gt;# Show computed diagnostic configuration&lt;/span&gt;
+  kitchen driver                                  &lt;span class="c1"&gt;# Driver subcommands&lt;/span&gt;
+  kitchen driver create &lt;span class="o"&gt;[&lt;/span&gt;NAME&lt;span class="o"&gt;]&lt;/span&gt;                    &lt;span class="c1"&gt;# Create a new Kitchen Driver gem project&lt;/span&gt;
+  kitchen driver discover                         &lt;span class="c1"&gt;# Discover Test Kitchen drivers published on RubyGems&lt;/span&gt;
+  kitchen driver &lt;span class="nb"&gt;help&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;COMMAND&lt;span class="o"&gt;]&lt;/span&gt;                   &lt;span class="c1"&gt;# Describe subcommands or one specific subcommand&lt;/span&gt;
+  kitchen &lt;span class="nb"&gt;exec&lt;/span&gt; INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP -c REMOTE_COMMAND  &lt;span class="c1"&gt;# Execute command on one or more instance&lt;/span&gt;
+  kitchen &lt;span class="nb"&gt;help&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;COMMAND&lt;span class="o"&gt;]&lt;/span&gt;                          &lt;span class="c1"&gt;# Describe available commands or one specific command&lt;/span&gt;
+  kitchen init                                    &lt;span class="c1"&gt;# Adds some configuration to your cookbook so Kitchen can rock&lt;/span&gt;
+  kitchen list &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;              &lt;span class="c1"&gt;# Lists one or more instances&lt;/span&gt;
+  kitchen login INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP                   &lt;span class="c1"&gt;# Log in to one instance&lt;/span&gt;
+  kitchen package INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP                 &lt;span class="c1"&gt;# package an instance&lt;/span&gt;
+  kitchen setup &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;             &lt;span class="c1"&gt;# Change instance state to setup. Prepare to run automated tests. Install busser and related gems on one or more instances&lt;/span&gt;
+  kitchen &lt;span class="nb"&gt;test&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;              &lt;span class="c1"&gt;# Test (destroy, create, converge, setup, verify and destroy) one or more instances&lt;/span&gt;
+  kitchen verify &lt;span class="o"&gt;[&lt;/span&gt;INSTANCE&lt;span class="p"&gt;|&lt;/span&gt;REGEXP&lt;span class="p"&gt;|&lt;/span&gt;all&lt;span class="o"&gt;]&lt;/span&gt;            &lt;span class="c1"&gt;# Change instance state to verify. Run automated tests on one or more instances&lt;/span&gt;
+  kitchen version                                 &lt;span class="c1"&gt;# Print Kitchen&amp;#39;s version information&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The kitchen commands I use the most are:
+  - &lt;strong&gt;list&lt;/strong&gt;: show the current state of each configured environment
+  - &lt;strong&gt;create&lt;/strong&gt;: create the test environment with ssh or winrm.
+  - &lt;strong&gt;converge&lt;/strong&gt;: run the provision command, in this case, salt_solo and the specified states
+  - &lt;strong&gt;verify&lt;/strong&gt;: run the verifier.
+  - &lt;strong&gt;login&lt;/strong&gt;: login to created environment
+  - &lt;strong&gt;destroy&lt;/strong&gt;: remove the created environment
+  - &lt;strong&gt;test&lt;/strong&gt;: run create, converge, verify, and then destroy if it all succeeds&lt;/p&gt;
+&lt;p&gt;For triaging github issues, I regularly use &lt;code&gt;bundle exec kitchen create &amp;lt;setup&amp;gt;&lt;/code&gt; and then salt bootstrap to install the salt version we are testing.&lt;/p&gt;
+&lt;p&gt;Then for running tests, to setup the environment I want to run the tests in I run &lt;code&gt;bundle exec kitchen converge &amp;lt;setup&amp;gt;&lt;/code&gt;&lt;/p&gt;
+&lt;h1&gt;Configuring test-kitchen&lt;/h1&gt;
+&lt;p&gt;There are 6 major parts of the test-kitchen configuration file.  This is &lt;code&gt;.kitchen.yml&lt;/code&gt; and should be in the directory inside of which the &lt;code&gt;kitchen&lt;/code&gt; command is going to be run.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;driver&lt;/strong&gt;:  This specifies the configuration of how the driver requirements.  Drivers are how the virtual machine is created. &lt;a href="https://docs.chef.io/kitchen.html#drivers"&gt;kitchen drivers&lt;/a&gt; (I prefer docker)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;verifier&lt;/strong&gt;: The command to run for tests to check that the converge ran successfully.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;platforms&lt;/strong&gt;: The different platforms/distributions to run on&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;transport&lt;/strong&gt;: The transport layer to use to talk to the vm.  This defaults to ssh, but winrm is also available.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;suites&lt;/strong&gt;: sets of different test runs.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;provisioner&lt;/strong&gt;: The plugin for provisioning the vm for the verifier to run against.  This is where kitchen-salt comes in.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For the driver on the wordpress-fomula, the following is set:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;driver&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;docker&lt;/span&gt;
+  &lt;span class="n"&gt;use_sudo&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+  &lt;span class="n"&gt;privileged&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+  &lt;span class="n"&gt;forward&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is using the &lt;a href="https://github.com/test-kitchen/kitchen-docker"&gt;kitchen-docker&lt;/a&gt; driver.  If the user running kitchen does not have the correct privileges to run docker, then &lt;code&gt;use_sudo: true&lt;/code&gt; should be set.  All of the containers that are being used here are using systemd as the exec command, so &lt;code&gt;privileged: true&lt;/code&gt; needs to be set.  And then port 80 is forwarded to the host so that the verifier can run commands against it to check that wordpress has been setup&lt;/p&gt;
+&lt;p&gt;For the platforms, the following are setup to run systemd on the container start.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;platforms:
+  - name: centos
+    driver_config:
+      run_command: /usr/lib/systemd/systemd
+  - name: opensuse
+    driver_config:
+      run_command: /usr/lib/systemd/systemd
+      provision_command:
+        - systemctl enable sshd.service
+  - name: ubuntu
+    driver_config:
+      run_command: /lib/systemd/systemd
+  - name: debian
+    driver_config:
+      run_command: /lib/systemd/systemd
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;All of these distributions except for opensuse have sshd.service enabled when the package is installed, so we only have to have one provision command to enable sshd for opensuse.  The rest have a command to configure the driver run_command to the correct systemd binary for that distribution.&lt;/p&gt;
+&lt;p&gt;For suites, there is only one suite.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;suites:
+  - name: wordpress
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If multiple sets of pillars or different versions of salt were needed to be tested, they would be configured here.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;suites:
+  - name: nitrogen
+  - name: develop
+    provisioner:
+      salt_bootstrap_options: -X -p git -p curl -p sudo git develop
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And there would be multiple suites with for each platform created and tested.&lt;/p&gt;
+&lt;p&gt;And lastly for the verifier.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;verifier&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;shell&lt;/span&gt;
+  &lt;span class="n"&gt;remote_exec&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+  &lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;pytest&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="n"&gt;tests&lt;/span&gt;&lt;span class="sr"&gt;/integration/&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There are a couple base &lt;a href="https://github.com/test-kitchen/test-kitchen/tree/master/lib/kitchen/verifier"&gt;verifiers&lt;/a&gt;.  I usually use the shell verifier and use &lt;a href="http://testinfra.readthedocs.io/en/latest/"&gt;testinfra&lt;/a&gt; which has multiple connectors to run pytest type test functions inside of the container.&lt;/p&gt;
+&lt;p&gt;Kitchen also has a &lt;code&gt;$KITCHEN_SUITE&lt;/code&gt; variable that it sets, so if different tests files need to be run for each suite.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;verifier&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;shell&lt;/span&gt;
+  &lt;span class="n"&gt;remote_exec&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+  &lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;pytest&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="n"&gt;tests&lt;/span&gt;&lt;span class="sr"&gt;/integration/&lt;/span&gt;&lt;span class="n"&gt;$KITCHEN_SUITE&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;For the &lt;a href="https://github.com/saltstack/salt-jenkins.git"&gt;salt-jenkins&lt;/a&gt;, since we are setting up the containers to run the SaltStack testing suite, the verifier is setup to run inside of the container, and run the salt testing suite.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="x"&gt;verifier:&lt;/span&gt;
+&lt;span class="x"&gt;  name: shell&lt;/span&gt;
+&lt;span class="x"&gt;  remote_exec: true&lt;/span&gt;
+&lt;span class="x"&gt;  command: &amp;#39;$(kitchen) /testing/tests/runtests.py -v --output-columns=80 --run-destructive&lt;/span&gt;&lt;span class="cp"&gt;&amp;lt;%=&lt;/span&gt; &lt;span class="no"&gt;ENV&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;TEST&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; -n &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="no"&gt;ENV&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;TEST&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class="cp"&gt;%&amp;gt;&lt;/span&gt;&lt;span class="x"&gt;&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;remote_exec&lt;/code&gt; will cause the command to be run inside of the container.  The &lt;a href="https://github.com/saltstack/salt-jenkins/blob/2017.7/kitchen/kitchen.py"&gt;kitchen&lt;/a&gt; command uses the installed salt to lookup if py3 was used or not, so that the correct python executable is used to run the test suite.  Then if the TEST environment variable is set, that test is run, otherwise the full test suite is run.&lt;/p&gt;
+&lt;h1&gt;Configuring kitchen-salt&lt;/h1&gt;
+&lt;p&gt;The documentation for kitchen-salt is located &lt;a href="https://github.com/saltstack/kitchen-salt/blob/master/provisioner_options.md"&gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;provisioner&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;salt_solo&lt;/span&gt;
+  &lt;span class="n"&gt;salt_install&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;
+  &lt;span class="n"&gt;salt_version&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;latest&lt;/span&gt;
+  &lt;span class="n"&gt;salt_bootstrap_url&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;saltstack&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;
+  &lt;span class="n"&gt;salt_bootstrap_options&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="n"&gt;curl&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="n"&gt;sudo&lt;/span&gt;
+  &lt;span class="n"&gt;is_file_root&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+  &lt;span class="n"&gt;require_chef&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+  &lt;span class="n"&gt;salt_copy_filter&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;circleci&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;Dockerfile&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;drone&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;yml&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;git&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;gitignore&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;kitchen&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;kitchen&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;yml&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;Gemfile&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;Gemfile&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;lock&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;requirements&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;txt&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;tests&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;travis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;yml&lt;/span&gt;
+  &lt;span class="n"&gt;dependencies&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;apache&lt;/span&gt;
+      &lt;span class="n"&gt;repo&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt;
+      &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;&lt;span class="sr"&gt;/saltstack-formulas/&lt;/span&gt;&lt;span class="n"&gt;apache&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;formula&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;git&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;mysql&lt;/span&gt;
+      &lt;span class="n"&gt;repo&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt;
+      &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;&lt;span class="sr"&gt;/saltstack-formulas/&lt;/span&gt;&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;formula&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;git&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;php&lt;/span&gt;
+      &lt;span class="n"&gt;repo&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt;
+      &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;&lt;span class="sr"&gt;/saltstack-formulas/&lt;/span&gt;&lt;span class="n"&gt;php&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;formula&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;git&lt;/span&gt;
+  &lt;span class="n"&gt;state_top&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;base&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="s2"&gt;&amp;quot;*&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;wordpress&lt;/span&gt;
+  &lt;span class="n"&gt;pillars&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;top&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;sls&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="n"&gt;base&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;*&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;wordpress&lt;/span&gt;
+    &lt;span class="n"&gt;wordpress&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;sls&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;wordpress&lt;/span&gt;
+        &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="n"&gt;wordpress&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+            &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;quair9aiqueeShae4toh&lt;/span&gt;
+            &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;localhost&lt;/span&gt;
+            &lt;span class="n"&gt;databases&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+              &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;wordpress&lt;/span&gt;
+                &lt;span class="n"&gt;grants&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+                  &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;all&lt;/span&gt; &lt;span class="n"&gt;privileges&lt;/span&gt;
+      &lt;span class="n"&gt;wordpress&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;lookup&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="n"&gt;admin_user&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;gtmanfred&lt;/span&gt;
+          &lt;span class="n"&gt;admin_email&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;daniel&lt;/span&gt;&lt;span class="err"&gt;@&lt;/span&gt;&lt;span class="n"&gt;gtmanfred&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;
+          &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;GtManfred&amp;#39;s Blog&amp;quot;&lt;/span&gt;
+          &lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;blog&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;manfred&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;io&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;name&lt;/strong&gt;: The name of the provisioner is &lt;code&gt;salt_solo&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;salt_install&lt;/strong&gt;: This defaults to &lt;code&gt;bootstrap&lt;/code&gt; which installs using the salt bootstrap.  Other options are &lt;code&gt;apt&lt;/code&gt; and &lt;code&gt;yum&lt;/code&gt; which use the repo.saltstack.com repository.  &lt;code&gt;ppa&lt;/code&gt; allows for specifying a ppa from which to install salt.  And &lt;code&gt;distrib&lt;/code&gt; which just uses whatever version of salt is provided by the distribution repositories.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;salt_bootstrap_options&lt;/strong&gt;: These are the bootstrap options that are passed to the bootstrap script.  &lt;code&gt;-X&lt;/code&gt; can be passed here to not start the salt services, because salt_solo runs salt-call and doesn't use the salt-minion process.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;is_file_root&lt;/strong&gt;: This is used to say just copy everything from the current directory to the tmp fileserver in the kitchen container.  If there were not a custom module and state for this formula, kitchen could be set to have &lt;code&gt;formula: wordpress&lt;/code&gt; to copy the wordpress-formula to the kitchen environment.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;salt_copy_filter&lt;/strong&gt;: This is a list of files to not copy to the kitchen environment.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;dependencies&lt;/strong&gt;: This is the fun part.  If the formula depends on other formulas, they can be configured here.  The following types are supported:&lt;ul&gt;
+&lt;li&gt;path - use a local path&lt;/li&gt;
+&lt;li&gt;git - clone a git repository&lt;/li&gt;
+&lt;li&gt;apt - install an apt package&lt;/li&gt;
+&lt;li&gt;yum - install a yum package&lt;/li&gt;
+&lt;li&gt;spm - install a &lt;a href="https://docs.saltstack.com/en/latest/topics/spm/"&gt;spm&lt;/a&gt; package&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;state_top&lt;/strong&gt;: This is the top file that will be used to run at the end of the provisioner&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;pillars&lt;/strong&gt;: This is a set of custom pillars for configuring the instance.  There are a couple other ways to provide pillars that are also useful.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;Running test kitchen on pull requests.&lt;/h1&gt;
+&lt;p&gt;Any of the major testing platforms should be usable.  If there are complicated setups needed, Jenkins is probably the best, unfortunately I do not know jenkins very well, so I have provided examples for the three I know how to use.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/gtmanfred/wordpress-formula/blob/master/.travis.yml"&gt;TravisCI&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/gtmanfred/wordpress-formula/blob/master/.drone.yml"&gt;Drone&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/gtmanfred/wordpress-formula/blob/master/.circleci/config.yml"&gt;CircleCI&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;My personal favorite is Drone.  You can setup each one of the tests suites to run with a mysql container if you did not have states that need mysql-server installed on the instance.  Also, for each job runner for Drone, you just need to setup another drone-agent on a server running docker, and then hook it into the drone-server, then each drone-agent can pick up a job and run it.&lt;/p&gt;</content><category term="salt"></category></entry><entry><title>Using salt to build docker containers</title><link href="https://blog.gtmanfred.com/docker-and-salt.html" rel="alternate"></link><published>2017-02-17T01:09:54+00:00</published><updated>2017-02-17T01:09:54+00:00</updated><author><name>Daniel Wallace</name></author><id>tag:blog.gtmanfred.com,2017-02-17:/docker-and-salt.html</id><summary type="html">&lt;p&gt;Building docker containers using salt!&lt;/p&gt;</summary><content type="html">&lt;h1&gt;How docker works now.&lt;/h1&gt;
+&lt;p&gt;When you build a docker container using only docker tools, what you are actually doing is building a bunch of layers. Great. Layers is a good idea.  You get to build a bunch of docker images that have a lot of similar layers, so you only have to build the changes when you update containers.  But what you end up with is this really hard to read ugly Dockerfile that is hard to leave because it tries to put a bunch of commands on the same line.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# from https://www.drupal.org/requirements/php#drupalversions
+FROM php:7.0-apache
+
+RUN a2enmod rewrite
+
+# install the PHP extensions we need
+RUN apt-get update &lt;span class="err"&gt;&amp;amp;&amp;amp;&lt;/span&gt; apt-get install -y libpng12-dev libjpeg-dev libpq-dev \
+    &lt;span class="err"&gt;&amp;amp;&amp;amp;&lt;/span&gt; rm -rf /var/lib/apt/lists/* \
+    &lt;span class="err"&gt;&amp;amp;&amp;amp;&lt;/span&gt; docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+    &lt;span class="err"&gt;&amp;amp;&amp;amp;&lt;/span&gt; docker-php-ext-install gd mbstring opcache pdo pdo_mysql pdo_pgsql zip
+
+# set recommended PHP.ini settings
+# see https://secure.php.net/manual/en/opcache.installation.php
+RUN { \
+        echo &amp;#39;opcache.memory_consumption=128&amp;#39;; \
+        echo &amp;#39;opcache.interned_strings_buffer=8&amp;#39;; \
+        echo &amp;#39;opcache.max_accelerated_files=4000&amp;#39;; \
+        echo &amp;#39;opcache.revalidate_freq=60&amp;#39;; \
+        echo &amp;#39;opcache.fast_shutdown=1&amp;#39;; \
+        echo &amp;#39;opcache.enable_cli=1&amp;#39;; \
+    } &amp;gt; /usr/local/etc/php/conf.d/opcache-recommended.ini
+
+WORKDIR /var/www/html
+
+# https://www.drupal.org/node/3060/release
+ENV DRUPAL_VERSION 8.2.6
+ENV DRUPAL_MD5 57526a827771ea8a06db1792f1602a85
+
+RUN curl -fSL &amp;quot;https://ftp.drupal.org/files/projects/drupal-&lt;span class="cp"&gt;${&lt;/span&gt;&lt;span class="n"&gt;DRUPAL_VERSION&lt;/span&gt;&lt;span class="cp"&gt;}&lt;/span&gt;.tar.gz&amp;quot; -o drupal.tar.gz \
+    &lt;span class="err"&gt;&amp;amp;&amp;amp;&lt;/span&gt; echo &amp;quot;&lt;span class="cp"&gt;${&lt;/span&gt;&lt;span class="n"&gt;DRUPAL_MD5&lt;/span&gt;&lt;span class="cp"&gt;}&lt;/span&gt; *drupal.tar.gz&amp;quot; | md5sum -c - \
+    &lt;span class="err"&gt;&amp;amp;&amp;amp;&lt;/span&gt; tar -xz --strip-components=1 -f drupal.tar.gz \
+    &lt;span class="err"&gt;&amp;amp;&amp;amp;&lt;/span&gt; rm drupal.tar.gz \
+    &lt;span class="err"&gt;&amp;amp;&amp;amp;&lt;/span&gt; chown -R www-data:www-data sites modules themes
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here is a &lt;a href="https://github.com/docker-library/mysql/blob/master/5.7/Dockerfile"&gt;Dockerfile&lt;/a&gt; that is used to build a mysqld container.  The RUN command in the middle is just really convuluted and I just can't imagine trying to write a container like this.  But what if you could use salt to configure your docker container to do the same thing.&lt;/p&gt;
+&lt;h1&gt;Using Salt States&lt;/h1&gt;
+&lt;p&gt;NOTE: This is all to be added in the Nitrogen release of salt, but you should be able to drop-in the dockerng state and module from develop once &lt;a href="https://github.com/saltstack/salt/pull/39467"&gt;this PR is merged&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;It is worth mentioning that this is a contrived example, because one of the requirements to use &lt;code&gt;dockerng.call&lt;/code&gt; is to have python installed in the docker container.  So for the salt example you will need to build a slightly modified parent container using the following command.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;docker run --name temp php:7.0-apache bash -c 'apt-get update &amp;amp;&amp;amp; apt-get install -y python' &amp;amp;&amp;amp; docker commit temp php:7.0-apache-python &amp;amp;&amp;amp; docker rm temp&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Now, this shouldn't be a problem when building images.  This just allows for managing the layers.  If I were to do this, I would take the debian image, and use salt states to setup apache and the base stuff for building the modules and things and then run the following state.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;Build Drupal Image&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+  &lt;span class="nt"&gt;dockerng.image_present&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;myapp/drupal&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;base&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;php:7.0-apache-python&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;sls&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;docker.drupal&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Then this would build the image with my &lt;code&gt;salt://docker/drupal.sls&lt;/code&gt; state.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p p-Indicator"&gt;{&lt;/span&gt;&lt;span class="err"&gt;%&lt;/span&gt;&lt;span class="nv"&gt;- set exts = (&amp;#39;gd&amp;#39;&lt;/span&gt;&lt;span class="p p-Indicator"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;mbstring&amp;#39;&lt;/span&gt;&lt;span class="p p-Indicator"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;opcache&amp;#39;&lt;/span&gt;&lt;span class="p p-Indicator"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;pdo&amp;#39;&lt;/span&gt;&lt;span class="p p-Indicator"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;pdo_mysql&amp;#39;&lt;/span&gt;&lt;span class="p p-Indicator"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;pdo_pgsql&amp;#39;&lt;/span&gt;&lt;span class="p p-Indicator"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;zip&amp;#39;&lt;/span&gt;&lt;span class="nv"&gt;) %&lt;/span&gt;&lt;span class="p p-Indicator"&gt;}&lt;/span&gt;
+&lt;span class="p p-Indicator"&gt;{&lt;/span&gt;&lt;span class="err"&gt;%&lt;/span&gt;&lt;span class="nv"&gt;- set DRUPAL_VERSION = &amp;#39;8.2.6&amp;#39; %&lt;/span&gt;&lt;span class="p p-Indicator"&gt;}&lt;/span&gt;
+&lt;span class="p p-Indicator"&gt;{&lt;/span&gt;&lt;span class="err"&gt;%&lt;/span&gt;&lt;span class="nv"&gt;- set DRUPAL_MD5 = &amp;#39;57526a827771ea8a06db1792f1602a85&amp;#39; %&lt;/span&gt;&lt;span class="p p-Indicator"&gt;}&lt;/span&gt;
+
+&lt;span class="nt"&gt;enable rewrite module&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+  &lt;span class="nt"&gt;apache_module.enabled&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;rewrite&lt;/span&gt;
+
+&lt;span class="nt"&gt;install extensions&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+  &lt;span class="nt"&gt;pkg.latest&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;names&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+      &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;libpng12-dev&lt;/span&gt;
+      &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;libjpeg-dev&lt;/span&gt;
+      &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;libpq-dev&lt;/span&gt;
+
+  &lt;span class="nt"&gt;cmd.run&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;names&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+      &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;prereq&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+          &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;cmd&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;docker-php-ext-install gd&lt;/span&gt;
+      &lt;span class="p p-Indicator"&gt;{&lt;/span&gt;&lt;span class="err"&gt;%&lt;/span&gt;&lt;span class="nv"&gt;- for ext in exts %&lt;/span&gt;&lt;span class="p p-Indicator"&gt;}&lt;/span&gt;
+      &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;docker-php-ext-install {{ext}}&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt;
+        &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;creates&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;/usr/local/etc/php/conf.d/{{ext}}.ini&lt;/span&gt;
+      &lt;span class="p p-Indicator"&gt;{&lt;/span&gt;&lt;span class="err"&gt;%&lt;/span&gt;&lt;span class="nv"&gt;- endfor %&lt;/span&gt;&lt;span class="p p-Indicator"&gt;}&lt;/span&gt;
+
+&lt;span class="nt"&gt;configure opcache&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+  &lt;span class="nt"&gt;file.managed&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;/usr/local/etc/php/conf.d/opcache-recommended.ini&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;contents&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p p-Indicator"&gt;|&lt;/span&gt;
+        &lt;span class="no"&gt;opcache.interned_strings_buffer=8&lt;/span&gt;
+        &lt;span class="no"&gt;opcache.max_accelerated_files=4000&lt;/span&gt;
+        &lt;span class="no"&gt;opcache.revalidate_freq=60&lt;/span&gt;
+        &lt;span class="no"&gt;opcache.fast_shutdown=1&lt;/span&gt;
+        &lt;span class="no"&gt;opcache.enable_cli=1&lt;/span&gt;
+
+&lt;span class="nt"&gt;get drupal&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+  &lt;span class="nt"&gt;archive.extracted&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;/var/www/html&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;source&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;https://ftp.drupal.org/files/projects/drupal-{{DRUPAL_VERSION}}.tar.gz&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;source_hash&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;md5={{DRUPAL_MD5}}&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;user&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;www-data&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;group&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;www-data&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;enforce_toplevel&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;False&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;options&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;--strip-components=1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And we are done.  In my honest opinion, this is significantly easier to read.  First we enable the rewrite module.  Then we install the packages for compiling the different php extensions.  Then we use the built in &lt;code&gt;docker-php-ext-*&lt;/code&gt; to build the different php modules.  And we put the opcache recommended plugins in place.  Lastly we download and extract the drupal tarball and put it in the correct place.&lt;/p&gt;
+&lt;p&gt;There is one caveat, right now we do not have the ability to build in the WORKDIR and ENV variables, so those will have to be provided when the container is started.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;Start Drupal Container&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+  &lt;span class="nt"&gt;dockerng.running&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;drupal&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;image&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;myapp/drupal:latest&lt;/span&gt;
+    &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="nt"&gt;working_dir&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;/var/www/html&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I am going to look into adding those for the &lt;code&gt;dockerng.create&lt;/code&gt; command that is used to create the starting container for the sls_build so that they can be saved for the image.&lt;/p&gt;</content><category term="docker"></category><category term="salt"></category></entry><entry><title>What do I need to know if I want to start contributing to SaltStack?</title><link href="https://blog.gtmanfred.com/contributing-to-salt-part-1.html" rel="alternate"></link><published>2016-11-03T23:02:14+00:00</published><updated>2016-11-03T23:02:14+00:00</updated><author><name>Daniel Wallace</name></author><id>tag:blog.gtmanfred.com,2016-11-03:/contributing-to-salt-part-1.html</id><summary type="html">&lt;p&gt;A summary of thing things that I have learned since I began contributing to SaltStack.&lt;/p&gt;</summary><content type="html">&lt;h1&gt;How I came to work on SaltStack&lt;/h1&gt;
+&lt;p&gt;I was working at Rackspace doing Linux support in the Hybrid segment.  I did a lot of work with supporting Rackconnect v2/v3 and Rackspace Public cloud as well as the dedicated part of the house.  I started down the road to server automation and orchestration the way I think a lot of people do.  At some point, I started to think... there has to be a better way.&lt;/p&gt;
+&lt;p&gt;I began with learning chef.  Rackspace's devops offering had just begun and there was a lot of people using chef and poo pooing puppet in places that I was looking.  I had never used ruby before, so I did some ruby practice on &lt;a href="https://www.codecademy.com/learn/ruby"&gt;codecademy&lt;/a&gt; and I learned the basics of different blocks in ruby.  I then setup &lt;a href="https://github.com/gtmanfred/chef-repo"&gt;wordpress&lt;/a&gt;.  As can be seen from that repository, it has been a very long time since I did chef.  I played with chef for about 6 months, and then I decided to try using Ansible and see what that was all about.  I liked the idea of pushing instead of pulling and the easy deployment method was nice.  But after about a month of using Ansible, &lt;a href="https://twitter.com/techhat"&gt;Joseph Hall&lt;/a&gt; came to Rackspace right after the first SaltConf in 2014 and gave a 3 day class on salt.  And I was in love.  I loved the extensibility of salt, the reactor, the api, salt-cloud being built in.  It was all just perfect for me.  And by the end of the second day of the class, I had submitted my &lt;a href="https://github.com/saltstack/salt/pull/10184"&gt;first pull request to saltstack&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;My favorite thing I think about contributing to salt is how open it is to the community and how hard we all try to be welcoming to anyone new.  We kind of have a &lt;a href="https://en.wikipedia.org/wiki/The_No_Asshole_Rule"&gt;No Jerks Allowed Rule&lt;/a&gt;, and try to be as polite and welcoming as possible.&lt;/p&gt;
+&lt;p&gt;Anyway, lets get started.  This is going to be just as much as I can think of on how to go about contributing to salt.&lt;/p&gt;
+&lt;h1&gt;Getting setup&lt;/h1&gt;
+&lt;p&gt;I probably run my testing setup a little different than everyone else.  Anyway you can get salt running to do testing is good.  If it works for you, do it.&lt;/p&gt;
+&lt;p&gt;I create a server in VMWare Fusion using CentOS.  Then I install &lt;code&gt;epel-release&lt;/code&gt; and then &lt;code&gt;python-pip&lt;/code&gt; and I do a &lt;code&gt;pip install -e git://github.com/gtmanfred/salt.git@&amp;lt;branch&amp;gt;#egg=salt&lt;/code&gt;.  This will give me everything I need to install to get salt running.  Since it is also &lt;code&gt;-e&lt;/code&gt; the git install is editable, so the changes take effect immediately and I can edit right there in ./src/salt.  From here for all my changes, I can just commit right there to save for later.&lt;/p&gt;
+&lt;p&gt;Recently I have been trying to switch to using &lt;a href="https://atom.io"&gt;atom&lt;/a&gt; as my editor.  I really like it.  What I have been using is the &lt;a href="https://atom.io/packages/remote-ftp"&gt;remote ftp plugin&lt;/a&gt;.  This allows for the remote directory to be setup to ~/src/salt, and then I just have that in the .ftpconfig and once connected, there is a second project window that shows the remote ftp location with all the files, and I can treat it as if it was the local file.  Then once all the files are done, I can sync from the remote down to the local and make my pull request.&lt;/p&gt;
+&lt;p&gt;Either way, get a working environment going.&lt;/p&gt;
+&lt;p&gt;Here is the salt document on &lt;a href="https://docs.saltstack.com/en/latest/topics/development/hacking.html"&gt;getting started with the development&lt;/a&gt;.  You can ignore parts in there about M2Crypto and swig.  There are no currently supported salt versions that use M2Crypto.&lt;/p&gt;
+&lt;p&gt;Another thing you could do if you were so inclined, would be to copy the module you are going to be modifying to &lt;code&gt;/srv/salt/_modules&lt;/code&gt; or whatever &lt;a href="https://docs.saltstack.com/en/latest/ref/file_server/dynamic-modules.html"&gt;dynamic directory&lt;/a&gt; where it belongs.  You will then need to run &lt;code&gt;salt-call saltutil.sync_all&lt;/code&gt; to sync modules to the minion or &lt;code&gt;salt-run saltutil.sync_all&lt;/code&gt; for the master.&lt;/p&gt;
+&lt;h1&gt;Writing a ... template&lt;/h1&gt;
+&lt;p&gt;The first thing that I do any time I make a new file for a salt module is to add the following template.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# -*- coding: utf-8 -*-&lt;/span&gt;
+&lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;:depends: none&lt;/span&gt;
+&lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;__future__&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;absolute_import&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Import python libraries&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Import Salt libraries&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__virtual__&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here are the things that are going on above.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;We require the &lt;code&gt;# -*- coding: utf-8 -*-&lt;/code&gt; at the top of all files.&lt;/li&gt;
+&lt;li&gt;Each file requires a docstring at the to to list any depends and then basic configuration for usage such as s3 credentials.  It is also good to use the &lt;code&gt;:depends:&lt;/code&gt; key if there are any required packages that need to be installed for the module to be used.&lt;/li&gt;
+&lt;li&gt;I pretty much always import absolute_import.  This is just useful to have and will cause less weird issues later.  Plus it is the default behavior in python3, so there is nothing bad that could come from it.&lt;/li&gt;
+&lt;li&gt;Then We have the two import options.  Anything that gets import from salt, like &lt;code&gt;salt.utils&lt;/code&gt; gets put under the Import Salt libraries, and all other imports get put under python libraries.&lt;/li&gt;
+&lt;li&gt;Then we have the &lt;code&gt;__virtual__&lt;/code&gt; functions which we will go over later when we talk about the anatomy of a module.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1&gt;Execution Modules&lt;/h1&gt;
+&lt;p&gt;Now lets move to &lt;a href="https://docs.saltstack.com/en/latest/ref/modules/"&gt;writing a module&lt;/a&gt;.  I am going to demo with a contrived example of a redis module, and then go over every line.&lt;/p&gt;
+&lt;p&gt;Here is a simplified &lt;code&gt;salt/modules/redismod.py&lt;/code&gt; file.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# -*- coding: utf-8 -*-&lt;/span&gt;
+&lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;Redis module for interactive with basic redis commands.&lt;/span&gt;
+
+&lt;span class="sd"&gt;.. versionadded:: Nitrogen&lt;/span&gt;
+
+&lt;span class="sd"&gt;:depends: redis&lt;/span&gt;
+
+&lt;span class="sd"&gt;Example configuration&lt;/span&gt;
+
+&lt;span class="sd"&gt;.. code-block:: yaml&lt;/span&gt;
+&lt;span class="sd"&gt;    redis:&lt;/span&gt;
+&lt;span class="sd"&gt;      host: 127.0.0.1&lt;/span&gt;
+&lt;span class="sd"&gt;      port: 6379&lt;/span&gt;
+&lt;span class="sd"&gt;      database: 0&lt;/span&gt;
+&lt;span class="sd"&gt;      password: None&lt;/span&gt;
+&lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;__future__&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;absolute_import&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Import python libraries&lt;/span&gt;
+&lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;redis&lt;/span&gt;
+    &lt;span class="n"&gt;HAS_REDIS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+&lt;span class="k"&gt;except&lt;/span&gt; &lt;span class="ne"&gt;ImportError&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;HAS_REDIS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;False&lt;/span&gt;
+
+&lt;span class="n"&gt;__virtualname__&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;redis&amp;#39;&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__virtual__&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;    Only load this module if redis python module is installed&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;HAS_REDIS&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;__virtualname__&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;The redis execution module failed to load: redis python module is not available&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;_connect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;    Return redis client instance&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;host&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;config.option&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.host&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;port&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;config.option&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.port&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;database&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;config.option&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.database&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;password&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;config.option&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.password&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;_&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;__context__&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;__context__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;StrictRedis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;__context__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;    Get Redis key value&lt;/span&gt;
+
+&lt;span class="sd"&gt;    CLI Example:&lt;/span&gt;
+
+&lt;span class="sd"&gt;    .. code-block:: bash&lt;/span&gt;
+
+&lt;span class="sd"&gt;        salt &amp;#39;*&amp;#39; redis.get foo&lt;/span&gt;
+&lt;span class="sd"&gt;        salt &amp;#39;*&amp;#39; redis.get bar host=127.0.0.1 port=21345 database=1&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;_connect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;    Set Redis key value&lt;/span&gt;
+
+&lt;span class="sd"&gt;    CLI Example:&lt;/span&gt;
+
+&lt;span class="sd"&gt;    .. code-block:: bash&lt;/span&gt;
+
+&lt;span class="sd"&gt;        salt &amp;#39;*&amp;#39; redis.set foo bar&lt;/span&gt;
+&lt;span class="sd"&gt;        salt &amp;#39;*&amp;#39; redis.set spam eggs host=127.0.0.1 port=21345 database=1&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;_connect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;delete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;    Delete Redis key value&lt;/span&gt;
+
+&lt;span class="sd"&gt;    CLI Example:&lt;/span&gt;
+
+&lt;span class="sd"&gt;    .. code-block:: bash&lt;/span&gt;
+
+&lt;span class="sd"&gt;        salt &amp;#39;*&amp;#39; redis.delete foo bar&lt;/span&gt;
+&lt;span class="sd"&gt;        salt &amp;#39;*&amp;#39; redis.delete spam host=127.0.0.1 port=21345 database=1&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;_connect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;delete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There, that is a moderately simple example where we can talk about every thing going on.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;You will notice the coding line at the top like in the template&lt;/li&gt;
+&lt;li&gt;Next we have the docstring.&lt;ul&gt;
+&lt;li&gt;There is a brief description&lt;/li&gt;
+&lt;li&gt;a versionadded string.  Please include these if you make new modules, so that when referencing back we can see when the module was added.  Also, if it is an untagged release, use the codename, otherwise use the point release where it was added.  We update the code names on all versonadded added and versionchanged strings when we tag them with a release date.&lt;/li&gt;
+&lt;li&gt;A depends string, to let the user know that the redis python module is required.&lt;/li&gt;
+&lt;li&gt;An example configuration if you one is possible to be used.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Then we have the imports.  We catch the import error on redis, and set HAS_REDIS as False if it can't be imported so that we can reference it in the &lt;code&gt;__virtual__&lt;/code&gt; function and know if the module should be available or not.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;__virtualname__&lt;/code&gt; is used to change the name the module should be loaded under.  If &lt;code&gt;__virtualname__&lt;/code&gt; isn't set and returned by the &lt;code&gt;__virtual__&lt;/code&gt; function then the module would be called using &lt;code&gt;redismod.set&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;__virtual__&lt;/code&gt; function is used to decide if the module can be used or not.&lt;ul&gt;
+&lt;li&gt;If it can be used and it has a &lt;code&gt;__virtualname__&lt;/code&gt; variable, return that variable.  Otherwise if it is to be named after the name of the file, just return &lt;code&gt;True&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;If this function can't be used, return a two entry tuple where the first index is &lt;code&gt;False&lt;/code&gt; and the second is a string with the reason it could not be loaded so that the user does not have to go code diving.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Now the connect function.&lt;ul&gt;
+&lt;li&gt;If you include something like this, please be sure to also include the ability to connect to the module by passing arguments from the command-line and not only having to modify configuration files.&lt;/li&gt;
+&lt;li&gt;It is important to note, while python allows for any "private" functions to be importable and used, salt does not.  The &lt;code&gt;_connect&lt;/code&gt; function is not usable from the command-line, or from the &lt;code&gt;__salt__&lt;/code&gt; dictionary&lt;/li&gt;
+&lt;li&gt;There are a lot of includes that salt provides into different portions of salt.  These are usually called &lt;a href="https://docs.saltstack.com/en/latest/topics/development/dunder_dictionaries.html"&gt;dunder dictionaries&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Using &lt;code&gt;config.get&lt;/code&gt; lets the configuration be put in the minion config, grains, or pillars.  There is a &lt;a href="https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.config.html#salt.modules.config.get"&gt;heirarchy&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;The lastly we have &lt;code&gt;__context__&lt;/code&gt;.  This is a really usefull for connections, because you only have to setup the connection one time, and then you can continually just return it and use it every time the module is used, instead of having to reinitialize the connection.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Lastly we have the functions that are available.&lt;ul&gt;
+&lt;li&gt;You want a doc string that has a description, then a code example.  The code example is required.  This is the doc string that gets showed when you run &lt;code&gt;salt-call sys.doc &amp;lt;module.function&amp;gt;&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Then just all the logic.&lt;/li&gt;
+&lt;li&gt;If you have stuff that is being used a lot in multiple functions.  Maybe split it out into another function for everything else to use, and if that function shouldn't be used from the command-line, be sure to prefix it with an underscore.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;And that is your basic anatomy of a salt execution module.&lt;/p&gt;
+&lt;h1&gt;State Modules&lt;/h1&gt;
+&lt;p&gt;Now lets move on to &lt;a href="https://docs.saltstack.com/en/latest/ref/states/writing.html"&gt;writing state modules&lt;/a&gt;.  State modules are where all the idempotence, configuration, and statefullness comes in.  I am going to use the above module in order to make sure that certain keys are present or absent in the redis server.&lt;/p&gt;
+&lt;p&gt;Here is my simplified &lt;code&gt;salt/states/redismod.py&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# -*- coding: utf-8 -*-&lt;/span&gt;
+&lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;Management of  Redis servers&lt;/span&gt;
+&lt;span class="sd"&gt;============================&lt;/span&gt;
+
+&lt;span class="sd"&gt;.. versionadded:: Nitrogen&lt;/span&gt;
+
+&lt;span class="sd"&gt;:depends: redis&lt;/span&gt;
+&lt;span class="sd"&gt;:configuration: see :py:mod:`salt.modules.redis` for setup instructions&lt;/span&gt;
+
+&lt;span class="sd"&gt;Example States&lt;/span&gt;
+
+&lt;span class="sd"&gt;.. code-block:: yaml&lt;/span&gt;
+
+&lt;span class="sd"&gt;    set redis key:&lt;/span&gt;
+&lt;span class="sd"&gt;      redis.present:&lt;/span&gt;
+&lt;span class="sd"&gt;        - name: key&lt;/span&gt;
+&lt;span class="sd"&gt;        - value: value&lt;/span&gt;
+
+&lt;span class="sd"&gt;    set redis key with host args:&lt;/span&gt;
+&lt;span class="sd"&gt;      redis.absent:&lt;/span&gt;
+&lt;span class="sd"&gt;        - name: key&lt;/span&gt;
+&lt;span class="sd"&gt;        - host: 127.0.0.1&lt;/span&gt;
+&lt;span class="sd"&gt;        - port: 1234&lt;/span&gt;
+&lt;span class="sd"&gt;        - database: 3&lt;/span&gt;
+&lt;span class="sd"&gt;        - password: somepass&lt;/span&gt;
+&lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;__future__&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;absolute_import&lt;/span&gt;
+
+&lt;span class="n"&gt;__virtualname__&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;redis&amp;#39;&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__virtual__&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;redis.set&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;__virtualname__&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;The redis execution module failed to load: redis python module is not available&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;present&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;    Ensure key and value pair exists&lt;/span&gt;
+
+&lt;span class="sd"&gt;    name&lt;/span&gt;
+&lt;span class="sd"&gt;        Key to ensure it exists&lt;/span&gt;
+
+&lt;span class="sd"&gt;    value&lt;/span&gt;
+&lt;span class="sd"&gt;        Value the key should be set to&lt;/span&gt;
+
+&lt;span class="sd"&gt;    host&lt;/span&gt;
+&lt;span class="sd"&gt;        Host to use for connection&lt;/span&gt;
+
+&lt;span class="sd"&gt;    port&lt;/span&gt;
+&lt;span class="sd"&gt;        Port to use for connection&lt;/span&gt;
+
+&lt;span class="sd"&gt;    database&lt;/span&gt;
+&lt;span class="sd"&gt;        Database key should be in&lt;/span&gt;
+
+&lt;span class="sd"&gt;    password&lt;/span&gt;
+&lt;span class="sd"&gt;        Password to use for connection&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class="n"&gt;ret&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+           &lt;span class="s1"&gt;&amp;#39;changes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{},&lt;/span&gt;
+           &lt;span class="s1"&gt;&amp;#39;result&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="bp"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+           &lt;span class="s1"&gt;&amp;#39;comment&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Failed to set key {key} to value {value}&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)}&lt;/span&gt;
+
+    &lt;span class="n"&gt;connection&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;host&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;port&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;database&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;password&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="n"&gt;current&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.get&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;result&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;comment&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Key {key} is already value correct&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__opts__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;test&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;result&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;changes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="s1"&gt;&amp;#39;old&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="s1"&gt;&amp;#39;new&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;pchanges&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;changes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;comment&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Key {key} will be updated.&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;
+
+    &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.set&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;old&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.get&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;result&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;comment&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Key {key} was updated.&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;changes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="s1"&gt;&amp;#39;old&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;old&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="s1"&gt;&amp;#39;new&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;absent&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;    Ensure key is not set.&lt;/span&gt;
+
+&lt;span class="sd"&gt;    name&lt;/span&gt;
+&lt;span class="sd"&gt;        Key to ensure it does not exist&lt;/span&gt;
+
+&lt;span class="sd"&gt;    host&lt;/span&gt;
+&lt;span class="sd"&gt;        Host to use for connection&lt;/span&gt;
+
+&lt;span class="sd"&gt;    port&lt;/span&gt;
+&lt;span class="sd"&gt;        Port to use for connection&lt;/span&gt;
+
+&lt;span class="sd"&gt;    database&lt;/span&gt;
+&lt;span class="sd"&gt;        Database key should be in&lt;/span&gt;
+
+&lt;span class="sd"&gt;    password&lt;/span&gt;
+&lt;span class="sd"&gt;        Password to use for connection&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class="n"&gt;ret&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+           &lt;span class="s1"&gt;&amp;#39;changes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{},&lt;/span&gt;
+           &lt;span class="s1"&gt;&amp;#39;result&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="bp"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+           &lt;span class="s1"&gt;&amp;#39;comment&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Failed to delete key {key}&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)}&lt;/span&gt;
+
+    &lt;span class="n"&gt;connection&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;host&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;port&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;database&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;password&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="n"&gt;current&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.get&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;result&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;comment&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Key {key} is already absent&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__opts__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;test&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;result&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;changes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="s1"&gt;&amp;#39;old&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="s1"&gt;&amp;#39;new&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;pchanges&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;changes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;comment&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Key {key} will be deleted.&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;
+
+    &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.delete&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;old&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;__salt__&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;redis.get&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;result&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;comment&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Key {key} was deleted.&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;changes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="s1"&gt;&amp;#39;old&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;old&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="s1"&gt;&amp;#39;new&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;ret&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And lets review, this will mostly be the same as the execution module with one major difference that we use the execution module in the state.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Same coding line&lt;/li&gt;
+&lt;li&gt;Include depends and configuration information.  If the configuration is stored with the module, you can link to the module using py mod link like i did above.&lt;/li&gt;
+&lt;li&gt;Include any complex information about the state in the top doc string.  It is important to also include an example state up here.  But if you have more complicated states, it would be good to include examples in each function to show how they should be used.&lt;/li&gt;
+&lt;li&gt;Changes to see if the &lt;code&gt;redis.set_key&lt;/code&gt; module is loaded in the &lt;code&gt;__salt__&lt;/code&gt; dunder.  If it is not loaded, we know we can't do any work in this state, and we should return &lt;code&gt;False&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Now we get to &lt;a href="https://docs.saltstack.com/en/latest/ref/states/writing.html"&gt;writing a state&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;We have a &lt;a href="https://docs.saltstack.com/en/latest/ref/states/writing.html#return-data"&gt;return dictionary&lt;/a&gt; and it always includes the following:&lt;ul&gt;
+&lt;li&gt;name: the string name of the state&lt;/li&gt;
+&lt;li&gt;changes: a dictionary of things that were or could be changed&lt;/li&gt;
+&lt;li&gt;pchanges: a dictionary of potential changes that is used if &lt;code&gt;test=True&lt;/code&gt; is passed&lt;/li&gt;
+&lt;li&gt;result: True, False, None&lt;/li&gt;
+&lt;li&gt;comment: a string describing what happened in the state.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;I always start with a default &lt;code&gt;ret&lt;/code&gt; variable that describes what happens when the state fails, so I can just return it on failure at the end.&lt;/li&gt;
+&lt;li&gt;Then the first thing to do is check if the state is already as it should be.  In the case of &lt;code&gt;present&lt;/code&gt; we check if the key is already set to the desired value.  For &lt;code&gt;absent&lt;/code&gt; we check if the key is set to &lt;code&gt;None&lt;/code&gt; which indicates that it is a &lt;code&gt;null&lt;/code&gt; value which is what redis considers deleted.  If it is already set, we set results to True, and set the comment to reflect that it is True, and return the dictionary.&lt;/li&gt;
+&lt;li&gt;There is also a &lt;a href="https://docs.saltstack.com/en/latest/ref/states/writing.html#test-state"&gt;testing run portion of the state&lt;/a&gt; we should check if &lt;code&gt;__opts__['test'] is True&lt;/code&gt; which would signify that &lt;code&gt;test=True&lt;/code&gt; was passed on the command-line.  Then we should only set changes to reflect what is going to change, and return with &lt;code&gt;result&lt;/code&gt; set to &lt;code&gt;None&lt;/code&gt; to signify that it should be a successful change, but changes are required.&lt;/li&gt;
+&lt;li&gt;Last, we make the change, then check if the change took affect.  If it did, result should be True, and we return with the correct stuff in changes and an updated comment.&lt;/li&gt;
+&lt;li&gt;Otherwise we return with our False dictionary we setup at the beginning.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;One other thing to remember about is the mod_init and mod_watch functions.  These can be used to change the way the module behaves when initially called.  The &lt;code&gt;mod_watch&lt;/code&gt; is the part that is actually called when you &lt;code&gt;watch&lt;/code&gt; or &lt;code&gt;listen&lt;/code&gt; to a state in your &lt;a href="https://docs.saltstack.com/en/latest/ref/states/requisites.html"&gt;requisites&lt;/a&gt;.&lt;/p&gt;
+&lt;h1&gt;Running pylint on your changes&lt;/h1&gt;
+&lt;p&gt;We run pylint on every change, so it is a good thing to know about because you can start adjusting yourself to write more inline with what pylint wants.  The only big thing that I will say you should know is that our line limit is actually 119 instead of 80.&lt;/p&gt;
+&lt;p&gt;Now, to run pylint, you are going to need a few things.  You should install all the dependencies for salt, and you should install the stuff for dev_python27.txt.  But then you also need to update to the newest version of SaltPylint and SaltTesting.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip install -r requirements/dev_python27.txt -r requirements/raet.txt -r requirements/zeromq.txt
+pip install --upgrade SaltPyLint SaltTesting
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And then you can run pylint on your code before submitting a PR.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pylint --rcfile&lt;span class="o"&gt;=&lt;/span&gt;.testing.pylintrc --disable&lt;span class="o"&gt;=&lt;/span&gt;W1307,E1322 salt/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;Getting the docs working&lt;/h1&gt;
+&lt;p&gt;Unfortunately, if you write a new module, sphinx is unable to discover than and just import the docstrings for you, so we will need to create a few files to reference the ones above.&lt;/p&gt;
+&lt;p&gt;First, we autoload the docstrings for the actual doc file.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;doc/ref/modules/all/salt.modules.redismod.rst&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;==================
+salt.modules.redis
+==================
+
+.. automodule:: salt.modules.redismod
+    :members:
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;doc/ref/states/all/salt.states.redismod.rst&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;==================
+salt.states.redis
+==================
+
+.. automodule:: salt.states.redismod
+    :members:
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Then they will get compiled, then we have to add the following references to the correct index files and just add &lt;code&gt;redis&lt;/code&gt; to &lt;code&gt;doc/ref/modules/all/index.rst&lt;/code&gt; and &lt;code&gt;doc/ref/states/all/index.rst&lt;/code&gt; so that they will be visible in the index pages for all execution modules and all state modules.&lt;/p&gt;
+&lt;h1&gt;Creating a pull request&lt;/h1&gt;
+&lt;p&gt;We love pull requests.  Just look at the &lt;a href="https://github.com/saltstack/salt/pulls"&gt;github repository&lt;/a&gt;, there have been 23,296 pull request, almost all of which I would bet are accepted, and almost none have been closed with saying we can't accept that.  There have been &lt;a href="https://github.com/saltstack/salt/graphs/contributors"&gt;1642 contributors&lt;/a&gt; as of this writing!&lt;/p&gt;
+&lt;p&gt;Here are things to remember when opening a pull request.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If it is a new feature, add it to develop.  We include a very easy way to take the changes and import them into a running system, we don't want to break other peoples deploys by adding new features into point releases.&lt;/li&gt;
+&lt;li&gt;If it is a bug fix, go back to the latest supported release, and add it there.  Right now, unless it is a CVE change, the oldest supported release for commits is &lt;a href="https://saltstack.com/product-support-lifecycle/"&gt;2016.3&lt;/a&gt;, everything else is in phase 3 or extended life support. (We are working very hard to get Carbon out the door right now.)&lt;/li&gt;
+&lt;li&gt;Please fill out the form!  As much of the form in the pull request that makes sense, provide us with as much information about the change you are making.  I am bad about it to, sometimes I just think &lt;a href="https://twitter.com/cachedout"&gt;Mike Place&lt;/a&gt; or &lt;a href="https://twitter.com/rallytime_nt"&gt;Nicole Thomas&lt;/a&gt; are mind readers and can just get what I mean, but the definitely can't.  So let them know in detail what you are actually changing.&lt;/li&gt;
+&lt;li&gt;I will cover this in a later part, but please! provide unittests if at all possible! (though not required)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;End of Part 1&lt;/h1&gt;
+&lt;p&gt;This was a lot longer than I thought it was going to be.  I am going to try and continue next week and talk about beacons and engines and some specifics to look for there.  Hopefully this will be helpful for some reason.  It basically just became a link dump to a lot of useful information in our documentation since it can be sometimes hard to find.&lt;/p&gt;
+&lt;p&gt;Leave any comments if you have any thing that you would like to be covered&lt;/p&gt;</content><category term="salt"></category></entry><entry><title>Using webhooks and the reactor with masterless minions</title><link href="https://blog.gtmanfred.com/masterless-reactor.html" rel="alternate"></link><published>2016-10-14T17:17:00-05:00</published><updated>2016-10-14T17:17:00-05:00</updated><author><name>Daniel Wallace</name></author><id>tag:blog.gtmanfred.com,2016-10-14:/masterless-reactor.html</id><summary type="html">&lt;p&gt;Discussing new capabilities in salt for using webhooks with masterless minions&lt;/p&gt;</summary><content type="html">&lt;h1&gt;Getting Started&lt;/h1&gt;
+&lt;p&gt;This requires at least the 2016.11.0 release of saltstack.&lt;/p&gt;
+&lt;p&gt;http://repo.saltstack.com/&lt;/p&gt;
+&lt;p&gt;Then just &lt;code&gt;yum install -y salt-minion&lt;/code&gt;&lt;/p&gt;
+&lt;h1&gt;Modules from Nitrogen&lt;/h1&gt;
+&lt;p&gt;You will also need a few new modules and a new engine that will be in the Nitrogen release.&lt;/p&gt;
+&lt;p&gt;In &lt;code&gt;/srv/salt/_modules&lt;/code&gt; you will need the following two modules: &lt;a href="https://github.com/gtmanfred/salt/blob/hashutil/salt/modules/hashutil.py"&gt;new hashutil module&lt;/a&gt; and &lt;a href="https://github.com/gtmanfred/salt/blob/event_send/salt/modules/event.py"&gt;new event module&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;And the thing that makes it all possible the new webhook engine needs to be put in &lt;code&gt;/srv/salt/_engines&lt;/code&gt;: &lt;a href="https://github.com/gtmanfred/salt/blob/webhook/salt/engines/webhook.py"&gt;Webhook engine&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Once these are all in place, run &lt;code&gt;salt-call saltutil.sync_all&lt;/code&gt; to make sure they get put in the extmods directory and are usable.&lt;/p&gt;
+&lt;h1&gt;Configuration&lt;/h1&gt;
+&lt;p&gt;My configurations are located &lt;a href="https://github.com/gtmanfred/blog-sls"&gt;here&lt;/a&gt; but I will highlight some of the specifics here.&lt;/p&gt;
+&lt;p&gt;First, we want to make the minion a masterless minion, and to never query the master for anything.  So to &lt;code&gt;/etc/salt/minion.d/local.conf&lt;/code&gt; add&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;True&lt;/span&gt;
+&lt;span class="n"&gt;file_client&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;local&lt;/span&gt;
+&lt;span class="n"&gt;master_type&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;disable&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Any one of the settings could be used, I like to use all three just to make certain.&lt;/p&gt;
+&lt;p&gt;Second, we need to setup the ssl keys so that we can have a secure connection.  To do this, you can run the following command to create a generic ssl certificate, if you want to have verification in there, you can make a nice one for the domain and everything, but we just want to have the traffice encrypted, so use &lt;code&gt;salt-call --local tls.create_self_signed_cert&lt;/code&gt;.  Now that we have an ssl certificate pair, we can setup the webhook engine.  I put the following in &lt;code&gt;/etc/salt/minion.d/engines.conf&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;engines:
+  - webhook:
+      address: None
+      port: 5000
+      ssl_crt: /etc/pki/tls/certs/localhost.crt
+      ssl_key: /etc/pki/tls/certs/localhost.key
+  - reactor: {}
+
+reactor:
+  - &amp;#39;salt/engines/hook/update/blog/gtmanfred.com&amp;#39;:
+    - salt://reactor/blog.gtmanfred.com.sls
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This will enable the webhook on all ips on port 5000 with the listed ssl certificate.  It will also enable the reactor to be able to act upon the one tag in the event stream, which we will get to later.&lt;/p&gt;
+&lt;p&gt;Now we need to setup the github webhook so we can see the events in the event stream.  Go to your blog's github repository, and go to the settings.  Then select webhooks, and create a new one.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Configure Github" src="https://blog.gtmanfred.com/images/blog.png"&gt;&lt;/p&gt;
+&lt;p&gt;For the "Payload URL" you are going to set https and then the ip address/domain and port to access, followed by the uri which should match what your are going to trigger on for the reactor.  As you can see in the picture above, I have &lt;code&gt;/update/blog/gtmanfred.com&lt;/code&gt; as my URI, and this matches what follows the prefix &lt;code&gt;salt/engines/hook&lt;/code&gt; in the reactor config above.  Be sure to add a secret! And don't forget it! We will be verifying that in a later step.  Then customize which events you would like to trigger on and save. I am going to rebuild the blog on each push, so I am only sending push events.&lt;/p&gt;
+&lt;p&gt;BE SURE TO DISABLE SSL VERIFICATION IF YOU DON'T USE A SIGNED KEY!&lt;/p&gt;
+&lt;p&gt;Before you forget that secret key, we should save it somewhere.  I use sdb in salt so that I can save my states and reactors in public github, but hide the secret key in sdb.  Create &lt;code&gt;/etc/salt/minion.d/sdb.conf&lt;/code&gt; with the following.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;secrets&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;driver&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;sqlite3&lt;/span&gt;
+  &lt;span class="n"&gt;database&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="sr"&gt;/var/lib/s&lt;/span&gt;&lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;sqlite&lt;/span&gt;
+  &lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;sdb&lt;/span&gt;
+  &lt;span class="n"&gt;create_table&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;True&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now run &lt;code&gt;salt-call --local sdb.set sdb://secrets/github_secret &amp;lt;secretkey&amp;gt;&lt;/code&gt; to save the key.&lt;/p&gt;
+&lt;p&gt;Now the last step, creating the reactor file in the salt fileserver.  Mine is in /srv/salt/reactor/blog.gtmanfred.com.sls, so I just have to reference it with salt://reactor/blog.gtmanfred.com.sls (and can also use the reactor files from gitfs).&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;{%- if salt.hashutil.github_signature(data[&amp;#39;body&amp;#39;], salt.sdb.get(&amp;#39;sdb://secrets/github_secret&amp;#39;), data[&amp;#39;headers&amp;#39;][&amp;#39;X-Hub-Signature&amp;#39;]) %}
+highstate_run:
+  caller.state.apply:
+    - args: []
+{%- endif %}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Lets walk through this.  We are going to take the &lt;code&gt;data['body']&lt;/code&gt; from the github post, and our secret, and the &lt;code&gt;X-Hub-Signature&lt;/code&gt; and run it through the github_signature function to verify if the signature is the result of signing the body with your secret key.  If True comes back, we can be sure this came from github, and then our minion runs a highstate on itself.  If it is False, nothing is rendered and no event is run.&lt;/p&gt;</content><category term="salt"></category><category term="masterless"></category><category term="webhooks"></category><category term="github"></category></entry><entry><title>Managing rackspace products in SaltStack</title><link href="https://blog.gtmanfred.com/pyrax-rackspace.html" rel="alternate"></link><published>2014-09-19T18:33:00-05:00</published><updated>2014-09-19T18:33:00-05:00</updated><author><name>Daniel Wallace</name></author><id>tag:blog.gtmanfred.com,2014-09-19:/pyrax-rackspace.html</id><summary type="html">&lt;p&gt;How rackspace products should be organized in the SaltStack infrastructure.&lt;/p&gt;</summary><content type="html">&lt;h1&gt;How everything is setup now.&lt;/h1&gt;
+&lt;p&gt;Currently we have been keeping all the individual drivers seperate, controlling 
+all the behavior so that you get the same experience no matter which provider 
+you use. I would like to keep doing this even though we are adding stuff that is
+more specific.&lt;/p&gt;
+&lt;p&gt;The goal will be to continue to only use the CloudClient interface, and just run
+everything through that so that we can write the code once, and have it 
+available to all of the different cloud modules/runner/state/salt-cloud.&lt;/p&gt;
+&lt;h1&gt;Getting Started&lt;/h1&gt;
+&lt;p&gt;I want to start this one cleanly and not run into the problems that happened 
+with the novaclient driver.  Starting with salt.utils.openstack.pyrax, 
+__init__.py should look something like this&lt;/p&gt;
+&lt;h2&gt;salt/utils/openstack/pyrax/__init__.py&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;__future__&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;print_function&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;with_statement&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;generators&lt;/span&gt;
+
+    &lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pyrax&lt;/span&gt;
+
+        &lt;span class="c1"&gt;# import pyrax classes&lt;/span&gt;
+        &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;salt.utils.openstack.pyrax.authentication&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Auth&lt;/span&gt;
+
+        &lt;span class="n"&gt;__all__&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Auth&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;HAS_PYRAX&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+    &lt;span class="k"&gt;except&lt;/span&gt; &lt;span class="ne"&gt;ImportError&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;HAS_PYRAX&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;False&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This will keep everything imported when we just import
+salt.utils.openstack.pyrax but if pyrax is not installed, it doesn't try to 
+import it a bunch more times on all the other files.  &lt;/p&gt;
+&lt;p&gt;Once this has begun, there will be the main class, that gets authenticated and 
+does the _get_conn just like all the other drivers do, but then, we can just 
+pass the authenticated object to all the new classes, instead of authenticating 
+on each new one.&lt;/p&gt;
+&lt;p&gt;After these have gotten started, everything needs to then be referenced in salt.
+cloud.clouds.pyrax, and that just uses the classes from the utils directory.&lt;br&gt;
+This is the code I am writing right now, and once it is finished, it will make 
+it really easy for anyone to just add another class in another file and then 
+hook it into the salt-cloud pyrax driver.&lt;/p&gt;
+&lt;h1&gt;What is next?&lt;/h1&gt;
+&lt;p&gt;I have to write the authentication and servers class, since those are what 
+everything revolves around.  Once those are done, we can start expanding and 
+have everyone come in and start adding Cloud Things!&lt;/p&gt;
+&lt;p&gt;From the point that it is up, everything should be easy enough to run through 
+the cloud.action module.  Using the cloud.action module, I want to make one 
+pyrax state that does all the things.&lt;/p&gt;
+&lt;p&gt;I am definitely going to get the first pyrax authentication class and stuff done
+this weekend, and am going to start with it in my gtmanfred/salt repo in the 
+pyrax branch.  Look for that on Saturday or Sunday this weekend.&lt;/p&gt;</content><category term="salt"></category><category term="rackspace"></category><category term="pyrax"></category></entry><entry><title>Trying salt webhooks</title><link href="https://blog.gtmanfred.com/web-hooks.html" rel="alternate"></link><published>2014-08-29T12:29:00-05:00</published><updated>2014-08-29T12:29:00-05:00</updated><author><name>Daniel Wallace</name></author><id>tag:blog.gtmanfred.com,2014-08-29:/web-hooks.html</id><summary type="html">&lt;p&gt;Test post for webhooks&lt;/p&gt;</summary><content type="html">&lt;h1&gt;Test post&lt;/h1&gt;
+&lt;p&gt;does it work?&lt;/p&gt;
+&lt;p&gt;It does.&lt;/p&gt;</content><category term="salt"></category></entry></feed>

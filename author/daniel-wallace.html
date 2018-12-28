@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>GTmanfred - Daniel Wallace</title>
+        <link rel="stylesheet" href="https://blog.gtmanfred.com/theme/css/main.css" />
+        <link href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="GTmanfred Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://blog.gtmanfred.com/">GTmanfred </a></h1>
+                <nav><ul>
+    
+                        <li><a href="https://blog.gtmanfred.com/pages/about.html">About</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/pelican.html">Pelican</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/salt.html">Salt</a></li>
+                    <li><a href="https://blog.gtmanfred.com/category/zsh.html">Zsh</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="https://blog.gtmanfred.com/docker-and-salt.html">Using salt to build docker containers</a></h1>
+<footer class="post-info">
+        <span>Fri 17 February 2017</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/docker.html">docker</a><a href="https://blog.gtmanfred.com/tag/salt.html">salt</a></span>
+</footer><!-- /.post-info --><h1>How docker works now.</h1>
+<p>When you build a docker container using only docker tools, what you are actually doing is building a bunch of layers. Great. Layers is a good idea.  You get to build a bunch of docker images that have a lot of similar layers, so you only have to build the changes when you update containers.  But what you end up with is this really hard to read ugly Dockerfile that is hard to leave because it tries to put a bunch of commands on the same line.</p>
+<div class="highlight"><pre><span></span># from https://www.drupal.org/requirements/php#drupalversions
+FROM php:7.0-apache
+
+RUN a2enmod rewrite
+
+# install the PHP extensions we need
+RUN apt-get update <span class="err">&amp;&amp;</span> apt-get install -y libpng12-dev libjpeg-dev libpq-dev \
+    <span class="err">&amp;&amp;</span> rm -rf /var/lib/apt/lists/* \
+    <span class="err">&amp;&amp;</span> docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+    <span class="err">&amp;&amp;</span> docker-php-ext-install gd mbstring opcache pdo pdo_mysql pdo_pgsql zip
+
+# set recommended PHP.ini settings
+# see https://secure.php.net/manual/en/opcache.installation.php
+RUN { \
+        echo &#39;opcache.memory_consumption=128&#39;; \
+        echo &#39;opcache.interned_strings_buffer=8&#39;; \
+        echo &#39;opcache.max_accelerated_files=4000&#39;; \
+        echo &#39;opcache.revalidate_freq=60&#39;; \
+        echo &#39;opcache.fast_shutdown=1&#39;; \
+        echo &#39;opcache.enable_cli=1&#39;; \
+    } &gt; /usr/local/etc/php/conf.d/opcache-recommended.ini
+
+WORKDIR /var/www/html
+
+# https://www.drupal.org/node/3060/release
+ENV DRUPAL_VERSION 8.2.6
+ENV DRUPAL_MD5 57526a827771ea8a06db1792f1602a85
+
+RUN curl -fSL &quot;https://ftp.drupal.org/files/projects/drupal-<span class="cp">${</span><span class="n">DRUPAL_VERSION</span><span class="cp">}</span>.tar.gz&quot; -o drupal.tar.gz \
+    <span class="err">&amp;&amp;</span> echo &quot;<span class="cp">${</span><span class="n">DRUPAL_MD5</span><span class="cp">}</span> *drupal.tar.gz&quot; | md5sum -c - \
+    <span class="err">&amp;&amp;</span> tar -xz --strip-components=1 -f drupal.tar.gz \
+    <span class="err">&amp;&amp;</span> rm drupal.tar.gz \
+    <span class="err">&amp;&amp;</span> chown -R www-data:www-data sites modules themes
+</pre></div>
+
+
+<p>Here is a <a href="https://github.com/docker-library/mysql/blob/master/5.7/Dockerfile">Dockerfile</a> that is used to build a mysqld container.  The RUN command in the middle is just really convuluted and I just can't imagine trying to write a container like this.  But what if you could use salt to configure your docker container to do the same thing.</p>
+<h1>Using Salt States</h1>
+<p>NOTE: This is all to be added in the Nitrogen release of salt, but you should be able to drop-in the dockerng state and module from develop once <a href="https://github.com/saltstack/salt/pull/39467">this PR is merged</a>.</p>
+<p>It is worth mentioning that this is a contrived example, because one of the requirements to use <code>dockerng.call</code> is to have python installed in the docker container.  So for the salt example you will need to build a slightly modified parent container using the following command.</p>
+<p><code>docker run --name temp php:7.0-apache bash -c 'apt-get update &amp;&amp; apt-get install -y python' &amp;&amp; docker commit temp php:7.0-apache-python &amp;&amp; docker rm temp</code></p>
+<p>Now, this shouldn't be a problem when building images.  This just allows for managing the layers.  If I were to do this, I would take the debian image, and use salt states to setup apache and the base stuff for building the modules and things and then run the following state.</p>
+<div class="highlight"><pre><span></span><span class="nt">Build Drupal Image</span><span class="p">:</span>
+  <span class="nt">dockerng.image_present</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">myapp/drupal</span>
+    <span class="p p-Indicator">-</span> <span class="nt">base</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">php:7.0-apache-python</span>
+    <span class="p p-Indicator">-</span> <span class="nt">sls</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.drupal</span>
+</pre></div>
+
+
+<p>Then this would build the image with my <code>salt://docker/drupal.sls</code> state.</p>
+<div class="highlight"><pre><span></span><span class="p p-Indicator">{</span><span class="err">%</span><span class="nv">- set exts = (&#39;gd&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;mbstring&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;opcache&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;pdo&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;pdo_mysql&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;pdo_pgsql&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;zip&#39;</span><span class="nv">) %</span><span class="p p-Indicator">}</span>
+<span class="p p-Indicator">{</span><span class="err">%</span><span class="nv">- set DRUPAL_VERSION = &#39;8.2.6&#39; %</span><span class="p p-Indicator">}</span>
+<span class="p p-Indicator">{</span><span class="err">%</span><span class="nv">- set DRUPAL_MD5 = &#39;57526a827771ea8a06db1792f1602a85&#39; %</span><span class="p p-Indicator">}</span>
+
+<span class="nt">enable rewrite module</span><span class="p">:</span>
+  <span class="nt">apache_module.enabled</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rewrite</span>
+
+<span class="nt">install extensions</span><span class="p">:</span>
+  <span class="nt">pkg.latest</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">names</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">libpng12-dev</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">libjpeg-dev</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">libpq-dev</span>
+
+  <span class="nt">cmd.run</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">names</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="nt">prereq</span><span class="p">:</span>
+          <span class="p p-Indicator">-</span> <span class="nt">cmd</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker-php-ext-install gd</span>
+      <span class="p p-Indicator">{</span><span class="err">%</span><span class="nv">- for ext in exts %</span><span class="p p-Indicator">}</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">docker-php-ext-install {{ext}}</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="nt">creates</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/local/etc/php/conf.d/{{ext}}.ini</span>
+      <span class="p p-Indicator">{</span><span class="err">%</span><span class="nv">- endfor %</span><span class="p p-Indicator">}</span>
+
+<span class="nt">configure opcache</span><span class="p">:</span>
+  <span class="nt">file.managed</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/local/etc/php/conf.d/opcache-recommended.ini</span>
+    <span class="p p-Indicator">-</span> <span class="nt">contents</span><span class="p">:</span> <span class="p p-Indicator">|</span>
+        <span class="no">opcache.interned_strings_buffer=8</span>
+        <span class="no">opcache.max_accelerated_files=4000</span>
+        <span class="no">opcache.revalidate_freq=60</span>
+        <span class="no">opcache.fast_shutdown=1</span>
+        <span class="no">opcache.enable_cli=1</span>
+
+<span class="nt">get drupal</span><span class="p">:</span>
+  <span class="nt">archive.extracted</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/www/html</span>
+    <span class="p p-Indicator">-</span> <span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://ftp.drupal.org/files/projects/drupal-{{DRUPAL_VERSION}}.tar.gz</span>
+    <span class="p p-Indicator">-</span> <span class="nt">source_hash</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">md5={{DRUPAL_MD5}}</span>
+    <span class="p p-Indicator">-</span> <span class="nt">user</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">www-data</span>
+    <span class="p p-Indicator">-</span> <span class="nt">group</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">www-data</span>
+    <span class="p p-Indicator">-</span> <span class="nt">enforce_toplevel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+    <span class="p p-Indicator">-</span> <span class="nt">options</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">--strip-components=1</span>
+</pre></div>
+
+
+<p>And we are done.  In my honest opinion, this is significantly easier to read.  First we enable the rewrite module.  Then we install the packages for compiling the different php extensions.  Then we use the built in <code>docker-php-ext-*</code> to build the different php modules.  And we put the opcache recommended plugins in place.  Lastly we download and extract the drupal tarball and put it in the correct place.</p>
+<p>There is one caveat, right now we do not have the ability to build in the WORKDIR and ENV variables, so those will have to be provided when the container is started.</p>
+<div class="highlight"><pre><span></span><span class="nt">Start Drupal Container</span><span class="p">:</span>
+  <span class="nt">dockerng.running</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">drupal</span>
+    <span class="p p-Indicator">-</span> <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">myapp/drupal:latest</span>
+    <span class="p p-Indicator">-</span> <span class="nt">working_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/www/html</span>
+</pre></div>
+
+
+<p>I am going to look into adding those for the <code>dockerng.create</code> command that is used to create the starting container for the sls_build so that they can be saved for the image.</p><p><a href="https://blog.gtmanfred.com/docker-and-salt.html#disqus_thread">comments</a></p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://blog.gtmanfred.com/contributing-to-salt-part-1.html" rel="bookmark"
+                           title="Permalink to What do I need to know if I want to start contributing to SaltStack?">What do I need to know if I want to start contributing to SaltStack?</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <span>Thu 03 November 2016</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/salt.html">salt</a></span>
+</footer><!-- /.post-info -->                <p>A summary of thing things that I have learned since I began contributing to SaltStack.</p>
+                <a class="readmore" href="https://blog.gtmanfred.com/contributing-to-salt-part-1.html">read more</a>
+<p><a href="https://blog.gtmanfred.com/contributing-to-salt-part-1.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://blog.gtmanfred.com/masterless-reactor.html" rel="bookmark"
+                           title="Permalink to Using webhooks and the reactor with masterless minions">Using webhooks and the reactor with masterless minions</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <span>Fri 14 October 2016</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/salt.html">salt</a><a href="https://blog.gtmanfred.com/tag/masterless.html">masterless</a><a href="https://blog.gtmanfred.com/tag/webhooks.html">webhooks</a><a href="https://blog.gtmanfred.com/tag/github.html">github</a></span>
+</footer><!-- /.post-info -->                <p>Discussing new capabilities in salt for using webhooks with masterless minions</p>
+                <a class="readmore" href="https://blog.gtmanfred.com/masterless-reactor.html">read more</a>
+<p><a href="https://blog.gtmanfred.com/masterless-reactor.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://blog.gtmanfred.com/intro-zsh.html" rel="bookmark"
+                           title="Permalink to Getting Started with Zshell">Getting Started with Zshell</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <span>Tue 08 September 2015</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/zsh.html">zsh</a><a href="https://blog.gtmanfred.com/tag/shell.html">shell</a></span>
+</footer><!-- /.post-info -->                <p>An introduction to getting started with Zshell</p>
+                <a class="readmore" href="https://blog.gtmanfred.com/intro-zsh.html">read more</a>
+<p><a href="https://blog.gtmanfred.com/intro-zsh.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://blog.gtmanfred.com/pyrax-rackspace.html" rel="bookmark"
+                           title="Permalink to Managing rackspace products in SaltStack">Managing rackspace products in SaltStack</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <span>Fri 19 September 2014</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/salt.html">salt</a><a href="https://blog.gtmanfred.com/tag/rackspace.html">rackspace</a><a href="https://blog.gtmanfred.com/tag/pyrax.html">pyrax</a></span>
+</footer><!-- /.post-info -->                <p>How rackspace products should be organized in the SaltStack infrastructure.</p>
+                <a class="readmore" href="https://blog.gtmanfred.com/pyrax-rackspace.html">read more</a>
+<p><a href="https://blog.gtmanfred.com/pyrax-rackspace.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://blog.gtmanfred.com/web-hooks.html" rel="bookmark"
+                           title="Permalink to Trying salt webhooks">Trying salt webhooks</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <span>Fri 29 August 2014</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/salt.html">salt</a></span>
+</footer><!-- /.post-info -->                <p>Test post for webhooks</p>
+                <a class="readmore" href="https://blog.gtmanfred.com/web-hooks.html">read more</a>
+<p><a href="https://blog.gtmanfred.com/web-hooks.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://blog.gtmanfred.com/paste-site.html" rel="bookmark"
+                           title="Permalink to Why the hell would I want my own paste site? ¯\(°_o)/¯">Why the hell would I want my own paste site? ¯\(°_o)/¯</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <span>Mon 12 August 2013</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/pastebin.html">pastebin</a></span>
+</footer><!-- /.post-info -->                <p>Probley because KaiSforza was complaining about it.</p>
+                <a class="readmore" href="https://blog.gtmanfred.com/paste-site.html">read more</a>
+<p><a href="https://blog.gtmanfred.com/paste-site.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://blog.gtmanfred.com/setting-up-pelican-and-git.html" rel="bookmark"
+                           title="Permalink to How I setup Pelican and Git">How I setup Pelican and Git</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <span>Sat 20 July 2013</span>
+<span>| tags: <a href="https://blog.gtmanfred.com/tag/pelican.html">pelican</a><a href="https://blog.gtmanfred.com/tag/git.html">git</a><a href="https://blog.gtmanfred.com/tag/publishing.html">publishing</a></span>
+</footer><!-- /.post-info -->                <p>why won't it work...</p>
+                <a class="readmore" href="https://blog.gtmanfred.com/setting-up-pelican-and-git.html">read more</a>
+<p><a href="https://blog.gtmanfred.com/setting-up-pelican-and-git.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+            </ol><!-- /#posts-list -->
+<p class="paginator">
+    Page 1 / 1
+</p>
+            </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="https://github.com/gtmanfred/">Git Repositories</a></li>
+                            <li><a href="/feeds/">Feeds</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://blog.gtmanfred.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42514099-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'gtmanfred';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>
