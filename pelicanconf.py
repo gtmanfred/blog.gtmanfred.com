@@ -14,10 +14,10 @@ TIMEZONE = 'America/Chicago'
 DEFAULT_LANG = 'en'
 LOCALE = 'en_US.utf8'
 
-THEME = "themes/bootstrap3"
+THEME = "themes/flex"
 JINJA_ENVIRONMENT = {'extensions': ['jinja2.ext.i18n']}
 PLUGIN_PATHS = ['plugins']
-PLUGINS = ['i18n_subsites']
+PLUGINS = ['i18n_subsites', 'post_stats']
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = 'feeds/all.atom.xml'

@@ -4,3 +4,6 @@
 [submodule "themes/bootstrap3"]
 	path = themes/bootstrap3
 	url = git://github.com/gtmanfred/bootstrap3
+[submodule "themes/flex"]
+	path = themes/flex
+	url = git://github.com/alexandrevicenzi/Flex
