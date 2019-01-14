@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 AUTHOR = 'Daniel Wallace'
 SITENAME = 'GTmanfred'
 SITEURL = 'https://blog.gtmanfred.com'
+SITELOGO = SITEURL + '/images/profile.png'
 
 PATH = 'content'
 STATIC_PATHS = ['images']
@@ -21,13 +22,13 @@ PLUGINS = ['i18n_subsites', 'post_stats']
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = 'feeds/all.atom.xml'
-#CATEGORY_FEED_ATOM = 'feeds/{slug}.atom.xml'
+CATEGORY_FEED_ATOM = 'feeds/{slug}.atom.xml'
 TRANSLATION_FEED_ATOM = None
 
 # Blogroll
 LINKS = (
     ('Git Repositories', 'https://github.com/gtmanfred/'),
-    ('Feeds', '/feeds/'),
+    ('Feed', FEED_ALL_ATOM),
 )
 STATIC_PATHS = ['robots.txt', 'keybase.txt']
 DEFAULT_PAGINATION = 10
