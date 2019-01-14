@@ -33,6 +33,15 @@
   ga('send', 'pageview');
 </script>
 <!-- End Google Analytics -->
+    <!-- Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#C9FF9F">
+    <!-- Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#C9FF9F">
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Microsoft EDGE -->
+    <meta name="msapplication-TileColor" content="#C9FF9F">
 
 <meta name="author" content="Daniel Wallace" />
 <meta name="description" content="Building docker containers using salt!" />
@@ -50,7 +59,7 @@
 <meta property="article:section" content="Salt"/>
 <meta property="article:tag" content="docker"/>
 <meta property="article:tag" content="salt"/>
-<meta property="og:image" content="">
+<meta property="og:image" content="https://blog.gtmanfred.com/images/profile.png">
 
   <title>GTmanfred &ndash; Using salt to build docker containers</title>
 
@@ -59,7 +68,7 @@
   <aside>
     <div>
       <a href="https://blog.gtmanfred.com">
-        <img src="https://blog.gtmanfred.com/theme/img/profile.png" alt="" title="">
+        <img src="https://blog.gtmanfred.com/images/profile.png" alt="" title="">
       </a>
       <h1><a href="https://blog.gtmanfred.com"></a></h1>
 
@@ -68,12 +77,35 @@
         <ul class="list">
           <li><a href="https://blog.gtmanfred.com/pages/about.html#about">About</a></li>
 
-          <li><a href="https://github.com/gtmanfred/" target="_blank">Git Repositories</a></li>
-          <li><a href="/feeds/" target="_blank">Feeds</a></li>
         </ul>
       </nav>
 
       <ul class="social">
+          <li>
+            <a  class="sc-linkedin" href="https://br.linkedin.com/in/danielwallace90/en" target="_blank">
+            <i class="fab fa-linkedin">
+            </i>
+          </a></li>
+          <li>
+            <a  class="sc-github" href="https://github.com/gtmanfred" target="_blank">
+            <i class="fab fa-github">
+            </i>
+          </a></li>
+          <li>
+            <a  class="sc-twitter" href="https://twitter.com/gtmanfred" target="_blank">
+            <i class="fab fa-twitter">
+            </i>
+          </a></li>
+          <li>
+            <a  class="sc-reddit" href="https://reddit.com/u/gtmanfred" target="_blank">
+            <i class="fab fa-reddit">
+            </i>
+          </a></li>
+          <li>
+            <a  class="sc-rss" href="/feeds/all.atom.xml" target="_blank">
+            <i class="fas fa-rss">
+            </i>
+          </a></li>
       </ul>
     </div>
 
@@ -81,6 +113,13 @@
   </aside>
   <main>
 
+    <nav>
+      <a href="https://blog.gtmanfred.com">Home</a>
+
+
+      <a href="https://blog.gtmanfred.com/feeds/all.atom.xml">Atom</a>
+
+    </nav>
 
 <article class="single">
   <header>
@@ -248,7 +287,7 @@ RUN curl -fSL &quot;https://ftp.drupal.org/files/projects/drupal-<span class="cp
   "@type" : "Blog",
   "name": " GTmanfred ",
   "url" : "https://blog.gtmanfred.com",
-  "image": "",
+  "image": "https://blog.gtmanfred.com/images/profile.png",
   "description": ""
 }
 </script>
