@@ -27,7 +27,12 @@ TRANSLATION_FEED_ATOM = None
 
 # Blogroll
 
-STATIC_PATHS = ['robots.txt', 'keybase.txt', 'images/profile.png']
+STATIC_PATHS = ['images/profile.png']
+EXTRA_PATH_METADATA = {
+    'extra/robots.txt': {'path': 'robots.txt'}
+    'extra/keybase.txt': {'path': 'keybase.txt'}
+    'extra/custom.css': {'path': 'static/custom.css'},
+}
 DEFAULT_PAGINATION = 10
 MARKUP = ('mkd', )
 
@@ -37,7 +42,7 @@ MARKUP = ('mkd', )
 DISQUS_SITENAME = "gtmanfred"
 GOOGLE_ANALYTICS = "UA-42514099-1"
 
-BROWSER_COLOR = '#C9FF9F'
+BROWSER_COLOR = '#333'
 
 SOCIAL = (('linkedin', 'https://br.linkedin.com/in/danielwallace90/en'),
           ('github', 'https://github.com/gtmanfred'),
