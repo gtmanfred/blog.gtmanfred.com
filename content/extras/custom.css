@@ -1,8 +1,8 @@
 a {
-  color: #67B12D;
+  color: darkgreen;
 }
-a.hover
-a.active
+a:hover
+a:active
 {
-  color: #C9FF9F;
+  color: limegreen;
 }
