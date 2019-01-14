@@ -15,4 +15,5 @@ a.btn:hover,
 a.btn:active
 {
   background-color: limegreen;
+  color: black;
 }
