@@ -1,8 +1,12 @@
-a {
+a
+a.btn
+{
   color: darkgreen;
 }
 a:hover
 a:active
+a.btn:hover
+a.btn:active
 {
   color: limegreen;
 }
