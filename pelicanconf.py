@@ -27,11 +27,11 @@ TRANSLATION_FEED_ATOM = None
 
 # Blogroll
 
-STATIC_PATHS = ['images/profile.png']
+STATIC_PATHS = ['images', 'extras']
 EXTRA_PATH_METADATA = {
-    'extra/robots.txt': {'path': 'robots.txt'}
-    'extra/keybase.txt': {'path': 'keybase.txt'}
-    'extra/custom.css': {'path': 'static/custom.css'},
+    'extras/robots.txt': {'path': 'robots.txt'},
+    'extras/keybase.txt': {'path': 'keybase.txt'},
+    'extras/custom.css': {'path': 'static/custom.css'},
 }
 DEFAULT_PAGINATION = 10
 MARKUP = ('mkd', )
