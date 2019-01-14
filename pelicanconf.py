@@ -33,8 +33,10 @@ EXTRA_PATH_METADATA = {
     'extras/keybase.txt': {'path': 'keybase.txt'},
     'extras/custom.css': {'path': 'static/custom.css'},
 }
+
 DEFAULT_PAGINATION = 10
 MARKUP = ('mkd', )
+CUSTOM_CSS = 'static/custom.css'
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
