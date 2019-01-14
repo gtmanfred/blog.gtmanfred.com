@@ -26,10 +26,7 @@ CATEGORY_FEED_ATOM = 'feeds/{slug}.atom.xml'
 TRANSLATION_FEED_ATOM = None
 
 # Blogroll
-LINKS = (
-    ('Git Repositories', 'https://github.com/gtmanfred/'),
-    ('Feed', FEED_ALL_ATOM),
-)
+
 STATIC_PATHS = ['robots.txt', 'keybase.txt']
 DEFAULT_PAGINATION = 10
 MARKUP = ('mkd', )
@@ -41,3 +38,11 @@ DISQUS_SITENAME = "gtmanfred"
 GOOGLE_ANALYTICS = "UA-42514099-1"
 
 BROWSER_COLOR = '#C9FF9F'
+
+SOCIAL = (('linkedin', 'https://br.linkedin.com/in/danielwallace90/en'),
+          ('github', 'https://github.com/gtmanfred'),
+          ('twitter', 'https://twitter.com/gtmanfred'),
+          ('reddit', 'https://reddit.com/u/gtmanfred'),
+          ('rss', '/feeds/all.atom.xml'))
+
+MAIN_MENU = True
