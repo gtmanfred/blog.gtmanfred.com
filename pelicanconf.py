@@ -27,7 +27,7 @@ TRANSLATION_FEED_ATOM = None
 
 # Blogroll
 
-STATIC_PATHS = ['robots.txt', 'keybase.txt']
+STATIC_PATHS = ['robots.txt', 'keybase.txt', 'images/profile.png']
 DEFAULT_PAGINATION = 10
 MARKUP = ('mkd', )
 
