@@ -31,6 +31,7 @@ STATIC_PATHS = ['images', 'extras']
 EXTRA_PATH_METADATA = {
     'extras/robots.txt': {'path': 'robots.txt'},
     'extras/keybase.txt': {'path': 'keybase.txt'},
+    'extras/public.gpg': {'path': 'public.gpg'},
     'extras/custom.css': {'path': 'static/custom.css'},
 }
 
