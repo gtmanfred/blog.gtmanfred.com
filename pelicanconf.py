@@ -47,10 +47,15 @@ GOOGLE_ANALYTICS = "UA-42514099-1"
 
 BROWSER_COLOR = '#333'
 
-SOCIAL = (('linkedin', 'https://br.linkedin.com/in/danielwallace90/en'),
-          ('github', 'https://github.com/gtmanfred'),
-          ('twitter', 'https://twitter.com/gtmanfred'),
-          ('reddit', 'https://reddit.com/u/gtmanfred'),
-          ('rss', '/feeds/all.atom.xml'))
+SOCIAL = (
+    ('linkedin', 'https://br.linkedin.com/in/danielwallace90/en'),
+    ('github', 'https://github.com/gtmanfred'),
+    ('twitter', 'https://twitter.com/gtmanfred'),
+    ('reddit', 'https://reddit.com/u/gtmanfred'),
+    ('rss', '/feeds/all.atom.xml'),
+)
+LINKS = (
+    ('talks', '/talks'),
+)
 
 MAIN_MENU = True
