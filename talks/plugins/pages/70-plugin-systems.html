@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Plugin Systems &#8212; Plugins: Using importlib 1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Time to build an application" href="60-self-describing-api.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="plugin-systems">
+<h1>Plugin Systems<a class="headerlink" href="#plugin-systems" title="Permalink to this headline">¶</a></h1>
+<p>Now that we can load modules and attach them to our application singletons we
+just need to be able to figure out where those handlers/tasks are.</p>
+<div class="section" id="pkg-resources-entry-points">
+<h2><code class="docutils literal notranslate"><span class="pre">pkg_resources</span></code> entry points<a class="headerlink" href="#pkg-resources-entry-points" title="Permalink to this headline">¶</a></h2>
+<p>Entry Points are defined in the setup.py file.</p>
+<p>They point to modules that will be loaded.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">setuptools</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span>
+    <span class="n">summary</span><span class="o">=</span><span class="s1">&#39;test plugin&#39;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s1">&#39;0.0.1a&#39;</span><span class="p">,</span>
+    <span class="n">long_description</span><span class="o">=</span><span class="s1">&#39;short&#39;</span><span class="p">,</span>
+    <span class="n">author</span><span class="o">=</span><span class="s1">&#39;Daniel Wallace&#39;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s1">&#39;daniel@gtmanfred.com&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://github.com/.../...&#39;</span><span class="p">,</span>
+    <span class="n">packages</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,],</span>
+    <span class="n">entry_points</span><span class="o">=</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">        [test.loader]</span>
+<span class="s1">        test.plugins = test.handlers</span>
+<span class="s1">    &#39;&#39;&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Once you have an entry point to iterate over, instead of having to hard code a
+path, just use the path of your entry point.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pkg_resources</span>
+
+<span class="k">for</span> <span class="n">handler_dir</span> <span class="ow">in</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">iter_entry_points</span><span class="p">(</span><span class="s1">&#39;test.plugins&#39;</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">handler_dir</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="stevedore">
+<h2><code class="docutils literal notranslate"><span class="pre">stevedore</span></code><a class="headerlink" href="#stevedore" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://docs.openstack.org/stevedore/latest/">stevedore</a> is another
+entry_points plugin loader that can be used to iterate and is slightly faster
+than pkg_resources and has some extra stuff that it can keep track of.</p>
+</div>
+<div class="section" id="config-management">
+<h2>Config Management<a class="headerlink" href="#config-management" title="Permalink to this headline">¶</a></h2>
+<p>If you want some fun importlib stuff to look at, <a class="reference external" href="https://github.com/saltstack/salt/tree/develop/salt/loader.py">SaltStack</a> and <a class="reference external" href="https://github.com/ansible/ansible/blob/devel/lib/ansible/executor/module_common.py">Ansible</a> both
+do some fun stuff with importlib.</p>
+</div>
+<div class="section" id="pop">
+<h2><code class="docutils literal notranslate"><span class="pre">pop</span></code><a class="headerlink" href="#pop" title="Permalink to this headline">¶</a></h2>
+<p>SaltStack is also manages a new opensource loader system with a hub, which is
+really interesting.  It is called <a class="reference internal" href="#pop">pop</a></p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Plugins: Using importlib</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Summary</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="10-introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20-importlib.html">What is in Importlib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="30-import-system.html">The Import System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="40-finders-and-loaders.html">Finders and Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="50-loading-application.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="60-self-describing-api.html">Time to build an application</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Plugin Systems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pkg-resources-entry-points"><code class="docutils literal notranslate"><span class="pre">pkg_resources</span></code> entry points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stevedore"><code class="docutils literal notranslate"><span class="pre">stevedore</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#config-management">Config Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pop"><code class="docutils literal notranslate"><span class="pre">pop</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="60-self-describing-api.html" title="previous chapter">Time to build an application</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Daniel Wallace.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/70-plugin-systems.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

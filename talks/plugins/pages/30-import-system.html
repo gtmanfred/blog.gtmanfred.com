@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>The Import System &#8212; Plugins: Using importlib 1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Finders and Loaders" href="40-finders-and-loaders.html" />
+    <link rel="prev" title="What is in Importlib" href="20-importlib.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="the-import-system">
+<h1>The Import System<a class="headerlink" href="#the-import-system" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="import-hooks">
+<h2>Import Hooks<a class="headerlink" href="#import-hooks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-meta-path">
+<h3>The Meta Path<a class="headerlink" href="#the-meta-path" title="Permalink to this headline">¶</a></h3>
+<p>There are 3 Meta Path finders by default</p>
+<ul class="simple">
+<li><p>Built-ins</p></li>
+<li><p>Frozen</p></li>
+<li><p>Path Entry</p></li>
+</ul>
+<p>These are defined in <cite>sys.meta_path</cite></p>
+<p>Each Finder has a <cite>find_spec</cite> method that finds a spec for loading the modules
+that it finds.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib.machinery</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># For illustrative purposes only.</span>
+<span class="n">SpamMetaPathFinder</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">PathFinder</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">meta_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SpamMetaPathFinder</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="find-spec">
+<h4><code class="docutils literal notranslate"><span class="pre">find_spec</span></code><a class="headerlink" href="#find-spec" title="Permalink to this headline">¶</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">find_spec</span></code> method returns a module spec, which defines information
+about the module that will be loaded.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">find_spec</span><span class="p">(</span><span class="n">fullname</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+   <span class="k">return</span> <span class="bp">None</span>
+</pre></div>
+</div>
+<p>If a spec is not found, it should return <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># import [fullname]</span>
+<span class="kn">import</span> <span class="nn">spam.eggs</span>
+
+<span class="c1"># from [package] import [fullname]</span>
+<span class="kn">from</span> <span class="nn">bacon</span> <span class="kn">import</span> <span class="n">spam</span><span class="o">.</span><span class="n">egs</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">fullname</span></code></dt><dd><p>The full name of the module that is being imported</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">path</span></code></dt><dd><p>The value of <code class="docutils literal notranslate"><span class="pre">__path__</span></code> to look in.  If looking for a top level module,
+path will be <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">target</span></code></dt><dd><p>A module object that the finder may use to make a more educated guess about
+what spec to return.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="path-entry-hooks">
+<h3>Path Entry Hooks<a class="headerlink" href="#path-entry-hooks" title="Permalink to this headline">¶</a></h3>
+<p>Path Finders are called Finders in the same sense as MetaFinders, but they rely
+entirely on the Path Entry Finder to be in <code class="docutils literal notranslate"><span class="pre">sys.meta_hooks</span></code> for them to be
+accessed.</p>
+<p>Path finders also have a <code class="docutils literal notranslate"><span class="pre">find_spec</span></code> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib.machinery</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">SpamPathEntryFinder</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">FileFinder</span>
+<span class="n">loader_details</span> <span class="o">=</span> <span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">SourceFileLoader</span><span class="p">,</span>
+                  <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">SOURCE_SUFFIXES</span><span class="p">)</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path_hooks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SpamPathEntryFinder</span><span class="o">.</span><span class="n">path_hook</span><span class="p">(</span><span class="n">loader_details</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h4><code class="docutils literal notranslate"><span class="pre">find_spec</span></code><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>The find spec for Path Entry Finders is slightly different, because the
+PathFinder class defines a path at instantiation, a path is not needed by
+<code class="docutils literal notranslate"><span class="pre">find_spec</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">find_spec</span><span class="p">(</span><span class="n">fullname</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+   <span class="k">return</span> <span class="bp">None</span>
+</pre></div>
+</div>
+<p>If a spec is not found, it should return <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">fullname</span></code></dt><dd><p>The full name of the module that is being imported</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">target</span></code></dt><dd><p>A module object that the finder may use to make a more educated guess about
+what spec to return.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Plugins: Using importlib</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Summary</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="10-introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20-importlib.html">What is in Importlib</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The Import System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#import-hooks">Import Hooks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-meta-path">The Meta Path</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#find-spec"><code class="docutils literal notranslate"><span class="pre">find_spec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#path-entry-hooks">Path Entry Hooks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">find_spec</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="40-finders-and-loaders.html">Finders and Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="50-loading-application.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="60-self-describing-api.html">Time to build an application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="70-plugin-systems.html">Plugin Systems</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="20-importlib.html" title="previous chapter">What is in Importlib</a></li>
+      <li>Next: <a href="40-finders-and-loaders.html" title="next chapter">Finders and Loaders</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Daniel Wallace.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/30-import-system.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

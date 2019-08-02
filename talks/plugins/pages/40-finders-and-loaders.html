@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Finders and Loaders &#8212; Plugins: Using importlib 1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Examples" href="50-loading-application.html" />
+    <link rel="prev" title="The Import System" href="30-import-system.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="finders-and-loaders">
+<h1>Finders and Loaders<a class="headerlink" href="#finders-and-loaders" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="abstract-classes">
+<h2>Abstract Classes<a class="headerlink" href="#abstract-classes" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="finders">
+<h2>Finders<a class="headerlink" href="#finders" title="Permalink to this headline">¶</a></h2>
+<p>There are two basic Abstract Finder Classes in <code class="docutils literal notranslate"><span class="pre">importlib</span></code>. They correspond
+to the two types of import hooks.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">importlib.machinery.MetaPathFinder</span></code></dt><dd><p>For creating a <code class="docutils literal notranslate"><span class="pre">sys.meta_path</span></code> hook</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">importlib.machinery.PathEntryFinder</span></code></dt><dd><p>For creating a <code class="docutils literal notranslate"><span class="pre">sys.path_hooks</span></code> hook</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="loaders">
+<h2>Loaders<a class="headerlink" href="#loaders" title="Permalink to this headline">¶</a></h2>
+<p>Once a finder has found a spec, it needs to be converted to a module, and then
+loaded.</p>
+<p>Loaders really have two functions <code class="docutils literal notranslate"><span class="pre">create_module</span></code> and <code class="docutils literal notranslate"><span class="pre">exec_module</span></code>.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">create_module</span></code></dt><dd><p>Most loaders will not have a <code class="docutils literal notranslate"><span class="pre">create_module</span></code> method that does anything.
+If they do not need to do anything special, they can just return <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+and the default module creation from <code class="docutils literal notranslate"><span class="pre">importlib.utils.module_from_spec</span></code>
+will be used.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">exec_module</span></code></dt><dd><p>This method excutes the module in its own namespace when a module is
+imported or reloaded.</p>
+</dd>
+</dl>
+<p>There are 5 abstract Loaders in the <code class="docutils literal notranslate"><span class="pre">importlib.machinery</span></code>:</p>
+<p>Loader hierarchy:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Loader</span>
+<span class="o">+--</span> <span class="n">ResourceLoader</span> <span class="o">--------+</span>
+<span class="o">+--</span> <span class="n">InspectLoader</span>          <span class="o">|</span>
+    <span class="o">+--</span> <span class="n">ExecutionLoader</span> <span class="o">--+</span>
+        <span class="o">+--</span> <span class="n">FileLoader</span>
+        <span class="o">+--</span> <span class="n">SourceLoader</span>
+</pre></div>
+</div>
+<p>There are two that we are going to use.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">FileLoader</span></code></dt><dd><p>An abstract base class which inherits from <code class="docutils literal notranslate"><span class="pre">ResourceLoader</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ExecutionLoader</span></code>, providing concrete implementations of
+<code class="docutils literal notranslate"><span class="pre">ResourceLoader.get_data()</span></code> and <code class="docutils literal notranslate"><span class="pre">ExecutionLoader.get_filename()</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">SourceLoader</span></code></dt><dd><p>An abstract base class for implementing source (and optionally bytecode)
+file loading. The class inherits from both <code class="docutils literal notranslate"><span class="pre">ResourceLoader</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ExecutionLoader</span></code>, requiring the implementation of:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ResourceLoader.get_data</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExecutionLoader.get_filename</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p>When these are used together they are a decent reference implementation that
+can import modules.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">importlib.machinery</span> <span class="kn">import</span> <span class="n">FileFinder</span><span class="p">,</span> <span class="n">SOURCE_SUFFIXES</span><span class="p">,</span> <span class="n">SourceFileLoader</span>
+<span class="kn">from</span> <span class="nn">importlib._bootstrap</span> <span class="kn">import</span> <span class="n">_init_module_attrs</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">finder</span> <span class="o">=</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/lib/python3.7/&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">SourceFileLoader</span><span class="p">,</span> <span class="n">SOURCE_SUFFIXES</span><span class="p">))</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s1">&#39;os&#39;</span><span class="p">)</span>
+
+<span class="n">module</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="s1">&#39;create_module&#39;</span><span class="p">):</span>
+    <span class="c1"># It is assumed &#39;exec_module&#39; will also be defined on the loader.</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">create_module</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">module</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">ModuleType</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="c1"># The import-related module attributes get set here:</span>
+<span class="n">_init_module_attrs</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">submodule_search_locations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c1"># namespace package</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># unsupported</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span>
+<span class="k">elif</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="s1">&#39;exec_module&#39;</span><span class="p">):</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="c1"># Set __loader__ and __package__ if missing.</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">raise</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Plugins: Using importlib</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Summary</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="10-introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20-importlib.html">What is in Importlib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="30-import-system.html">The Import System</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Finders and Loaders</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#abstract-classes">Abstract Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finders">Finders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loaders">Loaders</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="50-loading-application.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="60-self-describing-api.html">Time to build an application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="70-plugin-systems.html">Plugin Systems</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="30-import-system.html" title="previous chapter">The Import System</a></li>
+      <li>Next: <a href="50-loading-application.html" title="next chapter">Examples</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Daniel Wallace.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/40-finders-and-loaders.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
