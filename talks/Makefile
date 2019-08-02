@@ -1,4 +1,5 @@
 build:
+	pip install sphinx
 	for talk in $(shell find . -maxdepth 1 -mindepth 1 -type d); do \
 		make -C $$talk html; \
 	done
