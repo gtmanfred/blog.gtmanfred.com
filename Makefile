@@ -8,7 +8,7 @@ build: pelican sphinx
 
 publish: build
 	mkdir output/talks/
-	for talk in $(shell find talks/* -type d -depth 0); do \
+	for talk in $(shell find talks/ -maxdepth 1 -mindepth 1 -type d); do \
 		mv $$talk/_build/html output/$$talk; \
 	done
 

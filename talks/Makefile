@@ -1,5 +1,5 @@
 build:
-	for talk in $(shell find . -type d -depth 1); do \
+	for talk in $(shell find . -maxdepth 1 -mindepth 1 -type d); do \
 		make -C $$talk html; \
 	done
 
