@@ -2,13 +2,15 @@ sudo: false
 language: python
 cache: pip
 python:
-  - 3.7-dev
+- 3.7-dev
 install:
-  - pip install pipenv
-  - pipenv install --dev
+- pip install pipenv
+- pipenv install --dev
 script:
-  - git submodule update --init
-  - pipenv run pelican content -vvv -o output -s pelicanconf.py
+- git submodule update --init
+- make clean build
+after_success:
+- make publish
 
 deploy:
   provider: pages
