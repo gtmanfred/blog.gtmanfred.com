@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
+import pathlib
+import os
+
 AUTHOR = 'Daniel Wallace'
 SITENAME = 'GTmanfred'
 SITEURL = 'https://blog.gtmanfred.com'
@@ -54,8 +57,11 @@ SOCIAL = (
     ('reddit', 'https://reddit.com/u/gtmanfred'),
     ('rss', '/feeds/all.atom.xml'),
 )
-LINKS = (
-    ('talks', '/talks'),
-)
+
+LINKS = []
+for talk in pathlib.Path('talks/').iterdir():
+    if not talk.is_dir():
+        continue
+    LINKS.append((f'{os.path.basename(talk)} talk', talk))
 
 MAIN_MENU = True
