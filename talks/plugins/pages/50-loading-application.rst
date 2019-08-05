@@ -3,7 +3,7 @@ Examples
 ========
 
 
-Importing Programatifcally
+Importing Programatically
 ==========================
 
 .. code-block:: python
