@@ -23,7 +23,20 @@ Application Loader
     Handler = collections.namedtuple('Handler', ['name', 'klass'])
 
 
-    class HandlerLoader(importlib.abc.FileLoader, importlib.abc.SourceLoader):
+    class HandlerLoader(importlib.abc.SourceLoader):
+
+        def __init__(self, fullname, path):
+            """Cache the module name and the path to the file found by the
+            finder."""
+            self.name = fullname
+            self.path = path
+
+        def get_filename(self, fullname):
+            return self.path
+
+        def get_data(self, path):
+            with open(path, 'rb') as codefile:
+                return codefile.read()
 
         @staticmethod
         def create_resource(blueprint):
@@ -79,7 +92,7 @@ Handler
 
 .. code-block::
 
-    class Ping(object):
+    class Ping:
 
         uri = '/ping'
 

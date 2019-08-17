@@ -21,11 +21,11 @@ They point to modules that will be loaded.
         long_description='short',
         author='Daniel Wallace',
         author_email='daniel@gtmanfred.com',
-        url='https://github.com/.../...',
+        url='https://github.com/gtmanfred/...',
         packages=['test',],
         entry_points='''
             [test.loader]
-            test.plugins = test.handlers
+            test.dirs = test.handlers
         ''',
     )
 
@@ -36,16 +36,21 @@ path, just use the path of your entry point.
 
     import pkg_resources
 
-    for handler_dir in pkg_resources.iter_entry_points('test.plugins'):
-        path = os.path.dirname(handler_dir.__file__)
+    for entry in pkg_resources.iter_entry_points('test.loader', name='test.dirs':
+        directory = entry.load()
+        if not directory.__file__:
+            # namespace package
+            path = directory.__path__._path[0]
+        else:
+            path = directory.__file__
         ...
 
 ``stevedore``
 =============
 
-stevedore_ is another
-entry_points plugin loader that can be used to iterate and is slightly faster
-than pkg_resources and has some extra stuff that it can keep track of.
+stevedore_ is another entry_points plugin loader that can be used to iterate
+and is slightly faster than pkg_resources and has some extra stuff that it can
+keep track of.
 
 Config Management
 =================
