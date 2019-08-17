@@ -48,7 +48,7 @@ If a spec is not found, it should return ``None``.
         import spam.eggs
 
         # from [package] import [fullname]
-        from bacon import spam.egs
+        from bacon import spam.eggs
 
 ``fullname``
     The full name of the module that is being imported

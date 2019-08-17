@@ -32,3 +32,19 @@ The above functions import modules and put them in ``sys.modules``.
     The default module creation
       - Load module and apply ``type(sys)(spec)`` to it
       - Set all the required module attributes
+
+Word to know
+------------
+
+spec
+
+    A specification for a module’s import-system-related state.  This
+    includes stuff such as:
+
+        * name (__name__)
+        * loader (__loader__)
+        * origin (__file__)
+        * submodule_search_locations (__path__)
+        * parent (__package__)
+
+    Reference implementation `importlib.machinery.ModuleSpec`
