@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Using Pytest Fixtures &#8212; Intro to pytest 1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Other Stuff" href="50-other-pytest-modules.html" />
+    <link rel="prev" title="How to write tests for pytest" href="30-how-to-write-tests-for-pytest.html" />
+
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-42514099-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="using-pytest-fixtures">
+<h1>Using Pytest Fixtures<a class="headerlink" href="#using-pytest-fixtures" title="Permalink to this headline">¶</a></h1>
+<p>Lots of projects now provide their own pytest fixtures for testing applications
+that use their libraries. Here are some that I use often:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pypi.org/project/pytest-flask/">Pytest-Flask</a></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/pytest-django/">Pytest-Django</a></p></li>
+<li><p><a class="reference external" href="https://docs.celeryproject.org/en/stable/userguide/testing.html">Celery</a></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/pytest-redis/">Redis</a></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/pytest-moto/">Moto</a></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/pytest-docker/">Pytest-Docker</a></p></li>
+</ul>
+<p>Pytest fixtures can provide commonly used objects or push app contexts.</p>
+<div class="section" id="scope-of-fixtures">
+<h2>Scope of Fixtures<a class="headerlink" href="#scope-of-fixtures" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="session">
+<h3>Session<a class="headerlink" href="#session" title="Permalink to this headline">¶</a></h3>
+<p>Lives for the entire session.</p>
+<p>Can depend on:</p>
+<ul class="simple">
+<li><p>Session</p></li>
+</ul>
+</div>
+<div class="section" id="module">
+<h3>Module<a class="headerlink" href="#module" title="Permalink to this headline">¶</a></h3>
+<p>Lives for the module</p>
+<p>Can depend on:</p>
+<ul class="simple">
+<li><p>Module</p></li>
+<li><p>Session</p></li>
+</ul>
+</div>
+<div class="section" id="function">
+<h3>Function<a class="headerlink" href="#function" title="Permalink to this headline">¶</a></h3>
+<p>This is the default.</p>
+<p>Recreated for every function.</p>
+<p>Can Depend on:</p>
+<ul class="simple">
+<li><p>Function</p></li>
+<li><p>Module</p></li>
+<li><p>Session</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="basic-fixtures">
+<h2>Basic Fixtures<a class="headerlink" href="#basic-fixtures" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="writing-a-fixture-for-an-http-client">
+<h3>Writing a fixture for an http client<a class="headerlink" href="#writing-a-fixture-for-an-http-client" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">import</span> <span class="nn">urllib3</span>
+
+<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">http</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">urllib3</span><span class="o">.</span><span class="n">PoolManager</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">test_petstore_inventory</span><span class="p">(</span><span class="n">http</span><span class="p">):</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://petstore.swagger.io/v2/store/inventory&#39;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">data</span><span class="p">)[</span><span class="s1">&#39; not available&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-yield-fixtures-to-replace-setup-teardown">
+<h3>Using yield fixtures to replace setup/teardown<a class="headerlink" href="#using-yield-fixtures-to-replace-setup-teardown" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">docker</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">docker_client</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">postgres</span><span class="p">(</span><span class="n">docker_client</span><span class="p">):</span>
+    <span class="n">container</span> <span class="o">=</span> <span class="n">docker_client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;postgres:9.6&quot;</span><span class="p">,</span> <span class="n">detach</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">container</span>
+    <span class="n">container</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="n">container</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">test_db</span><span class="p">(</span><span class="n">postgres</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="s1">&#39;postgres:9.6&#39;</span> <span class="ow">in</span> <span class="n">postgres</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">tags</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Intro to pytest</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Summary</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="10-introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20-how-to-run-tests.html">How to run pytest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="30-how-to-write-tests-for-pytest.html">How to write tests for pytest</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using Pytest Fixtures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#scope-of-fixtures">Scope of Fixtures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#session">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module">Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-fixtures">Basic Fixtures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#writing-a-fixture-for-an-http-client">Writing a fixture for an http client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-yield-fixtures-to-replace-setup-teardown">Using yield fixtures to replace setup/teardown</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="50-other-pytest-modules.html">Other Stuff</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="30-how-to-write-tests-for-pytest.html" title="previous chapter">How to write tests for pytest</a></li>
+      <li>Next: <a href="50-other-pytest-modules.html" title="next chapter">Other Stuff</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy;2020, Daniel Wallace.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/40-Using-pytest-fixtures.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+<div class="footer">This page uses <a href="https://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

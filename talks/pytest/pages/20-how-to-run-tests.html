@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>How to run pytest &#8212; Intro to pytest 1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="How to write tests for pytest" href="30-how-to-write-tests-for-pytest.html" />
+    <link rel="prev" title="Introduction" href="10-introduction.html" />
+
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-42514099-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="how-to-run-pytest">
+<h1>How to run pytest<a class="headerlink" href="#how-to-run-pytest" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="install-pytest">
+<h2>Install pytest<a class="headerlink" href="#install-pytest" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash-5.0$ pip install pytest
+Looking in indexes: https://daniel.wallace%40plangrid.com:****@plangrid.artifactoryonline.com/plangrid/api/pypi/pypi/simple
+Collecting pytest
+Downloading https://plangrid.artifactoryonline.com/plangrid/api/pypi/pypi/packages/packages/a5/c0/34033b2df7718b91c667bd259d5ce632ec3720198b7068c0ba6f6104ff89/pytest-5.3.5-py3-none-any.whl <span class="o">(</span>235kB<span class="o">)</span>
+    <span class="p">|</span>████████████████████████████████<span class="p">|</span> 235kB 987kB/s
+Requirement already satisfied: attrs&gt;<span class="o">=</span><span class="m">17</span>.4.0 in /Users/dwallace/.pyenv/versions/3.8.1/lib/python3.8/site-packages <span class="o">(</span>from pytest<span class="o">)</span> <span class="o">(</span><span class="m">19</span>.3.0<span class="o">)</span>
+Requirement already satisfied: packaging in /Users/dwallace/.pyenv/versions/3.8.1/lib/python3.8/site-packages <span class="o">(</span>from pytest<span class="o">)</span> <span class="o">(</span><span class="m">20</span>.1<span class="o">)</span>
+Collecting more-itertools&gt;<span class="o">=</span><span class="m">4</span>.0.0 <span class="o">(</span>from pytest<span class="o">)</span>
+Using cached https://plangrid.artifactoryonline.com/plangrid/api/pypi/pypi/packages/packages/72/96/4297306cc270eef1e3461da034a3bebe7c84eff052326b130824e98fc3fb/more_itertools-8.2.0-py3-none-any.whl
+Collecting py&gt;<span class="o">=</span><span class="m">1</span>.5.0 <span class="o">(</span>from pytest<span class="o">)</span>
+Using cached https://plangrid.artifactoryonline.com/plangrid/api/pypi/pypi/packages/packages/99/8d/21e1767c009211a62a8e3067280bfce76e89c9f876180308515942304d2d/py-1.8.1-py2.py3-none-any.whl
+Collecting wcwidth <span class="o">(</span>from pytest<span class="o">)</span>
+Using cached https://plangrid.artifactoryonline.com/plangrid/api/pypi/pypi/packages/packages/58/b4/4850a0ccc6f567cc0ebe7060d20ffd4258b8210efadc259da62dc6ed9c65/wcwidth-0.1.8-py2.py3-none-any.whl
+Collecting pluggy&lt;<span class="m">1</span>.0,&gt;<span class="o">=</span><span class="m">0</span>.12 <span class="o">(</span>from pytest<span class="o">)</span>
+Using cached https://plangrid.artifactoryonline.com/plangrid/api/pypi/pypi/packages/packages/a0/28/85c7aa31b80d150b772fbe4a229487bc6644da9ccb7e427dd8cc60cb8a62/pluggy-0.13.1-py2.py3-none-any.whl
+Requirement already satisfied: pyparsing&gt;<span class="o">=</span><span class="m">2</span>.0.2 in /Users/dwallace/.pyenv/versions/3.8.1/lib/python3.8/site-packages <span class="o">(</span>from packaging-&gt;pytest<span class="o">)</span> <span class="o">(</span><span class="m">2</span>.4.6<span class="o">)</span>
+Requirement already satisfied: six in /Users/dwallace/.pyenv/versions/3.8.1/lib/python3.8/site-packages <span class="o">(</span>from packaging-&gt;pytest<span class="o">)</span> <span class="o">(</span><span class="m">1</span>.13.0<span class="o">)</span>
+Installing collected packages: more-itertools, py, wcwidth, pluggy, pytest
+Successfully installed more-itertools-8.2.0 pluggy-0.13.1 py-1.8.1 pytest-5.3.5 wcwidth-0.1.8
+WARNING: You are using pip version <span class="m">19</span>.2.3, however version <span class="m">20</span>.0.2 is available.
+You should consider upgrading via the <span class="s1">&#39;pip install --upgrade pip&#39;</span> command.
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-pytest">
+<h2>Running pytest<a class="headerlink" href="#running-pytest" title="Permalink to this headline">¶</a></h2>
+<p>Pytest looks for files that meet the format <code class="docutils literal notranslate"><span class="pre">test_*.py</span></code> or <code class="docutils literal notranslate"><span class="pre">*_test.py</span></code>.
+Then it looks for any function in that file that starts with <code class="docutils literal notranslate"><span class="pre">test*</span></code>, and any
+method that starts with <code class="docutils literal notranslate"><span class="pre">test*</span></code> on a class that starts with <code class="docutils literal notranslate"><span class="pre">Test</span></code>. This
+allows pytest to also run UnitTest style test classes.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash-5.0$ <span class="nv">pytest</span>
+<span class="o">=============================</span> <span class="nb">test</span> session <span class="nv">starts</span> <span class="o">==============================</span>
+platform darwin -- Python <span class="m">3</span>.8.1, pytest-5.3.5, py-1.8.1, pluggy-0.13.1
+rootdir: /Users/dwallace/workspace/blog.gtmanfred.com/talks/pytest/test
+collected <span class="m">5</span> items
+
+test_api.py .                                                            <span class="o">[</span> <span class="m">20</span>%<span class="o">]</span>
+test_basicmath.py ....                                                   <span class="o">[</span><span class="m">100</span>%<span class="o">]</span>
+
+<span class="o">==============================</span> <span class="m">5</span> passed in <span class="m">0</span>.01s <span class="o">===============================</span>
+</pre></div>
+</div>
+<div class="section" id="specify-certain-tests-to-run">
+<h3>Specify certain tests to run<a class="headerlink" href="#specify-certain-tests-to-run" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash-5.0$ tail -c +0 test_*.py
+<span class="o">==</span>&gt; test_api.py &lt;<span class="o">==</span>
+def test_google_com<span class="o">()</span>:
+    assert <span class="nv">True</span>
+
+<span class="o">==</span>&gt; test_basicmath.py &lt;<span class="o">==</span>
+def test_addition<span class="o">()</span>:
+    assert <span class="m">1</span> + <span class="nv">1</span> <span class="o">==</span> <span class="m">2</span>
+
+
+def test_subtraction<span class="o">()</span>:
+    assert <span class="m">1</span> - <span class="nv">1</span> <span class="o">==</span> <span class="m">0</span>
+
+
+def test_multiplication<span class="o">()</span>:
+    assert  <span class="m">2</span> * <span class="nv">3</span> <span class="o">==</span> <span class="m">6</span>
+
+
+def test_division<span class="o">()</span>:
+    assert <span class="m">7</span> / <span class="nv">2</span> <span class="o">==</span> <span class="m">3</span>.5
+    assert <span class="m">7</span> // <span class="nv">2</span> <span class="o">==</span> <span class="m">3</span>
+bash-5.0$ pytest -k <span class="nv">basicmath</span>
+<span class="o">=============================</span> <span class="nb">test</span> session <span class="nv">starts</span> <span class="o">==============================</span>
+platform darwin -- Python <span class="m">3</span>.8.1, pytest-5.3.5, py-1.8.1, pluggy-0.13.1
+rootdir: /Users/dwallace/workspace/blog.gtmanfred.com/talks/pytest/test
+collected <span class="m">5</span> items / <span class="m">1</span> deselected / <span class="m">4</span> selected
+
+test_basicmath.py ....                                                   <span class="o">[</span><span class="m">100</span>%<span class="o">]</span>
+
+<span class="o">=======================</span> <span class="m">4</span> passed, <span class="m">1</span> deselected in <span class="m">0</span>.01s <span class="o">========================</span>
+bash-5.0$ pytest -k <span class="nv">subtraction</span>
+<span class="o">=============================</span> <span class="nb">test</span> session <span class="nv">starts</span> <span class="o">==============================</span>
+platform darwin -- Python <span class="m">3</span>.8.1, pytest-5.3.5, py-1.8.1, pluggy-0.13.1
+rootdir: /Users/dwallace/workspace/blog.gtmanfred.com/talks/pytest/test
+collected <span class="m">5</span> items / <span class="m">4</span> deselected / <span class="m">1</span> selected
+
+test_basicmath.py .                                                      <span class="o">[</span><span class="m">100</span>%<span class="o">]</span>
+
+<span class="o">=======================</span> <span class="m">1</span> passed, <span class="m">4</span> deselected in <span class="m">0</span>.01s <span class="o">========================</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Intro to pytest</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Summary</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="10-introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to run pytest</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#install-pytest">Install pytest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-pytest">Running pytest</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#specify-certain-tests-to-run">Specify certain tests to run</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="30-how-to-write-tests-for-pytest.html">How to write tests for pytest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="40-Using-pytest-fixtures.html">Using Pytest Fixtures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="50-other-pytest-modules.html">Other Stuff</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="10-introduction.html" title="previous chapter">Introduction</a></li>
+      <li>Next: <a href="30-how-to-write-tests-for-pytest.html" title="next chapter">How to write tests for pytest</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy;2020, Daniel Wallace.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/20-how-to-run-tests.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+<div class="footer">This page uses <a href="https://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

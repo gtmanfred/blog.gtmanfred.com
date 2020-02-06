@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Welcome to Pytest Talk’s documentation! &#8212; Intro to pytest 1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Introduction" href="pages/10-introduction.html" />
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-42514099-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-pytest-talk-s-documentation">
+<h1>Welcome to Pytest Talk’s documentation!<a class="headerlink" href="#welcome-to-pytest-talk-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound" id="mastertoc">
+<p class="caption"><span class="caption-text">Summary</span><a class="headerlink" href="#mastertoc" title="Permalink to this toctree">¶</a></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pages/10-introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pages/10-introduction.html#who-am-i">Who am I</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/10-introduction.html#what-is-the-goal-of-this-talk">What is the goal of this talk?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pages/20-how-to-run-tests.html">How to run pytest</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pages/20-how-to-run-tests.html#install-pytest">Install pytest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/20-how-to-run-tests.html#running-pytest">Running pytest</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pages/20-how-to-run-tests.html#specify-certain-tests-to-run">Specify certain tests to run</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pages/30-how-to-write-tests-for-pytest.html">How to write tests for pytest</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pages/30-how-to-write-tests-for-pytest.html#pytest-and-the-assert-statement">Pytest and the Assert Statement</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pages/30-how-to-write-tests-for-pytest.html#simple-test-case">Simple Test Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pages/30-how-to-write-tests-for-pytest.html#test-function-output">Test Function Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pages/30-how-to-write-tests-for-pytest.html#test-an-api">Test an API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pages/30-how-to-write-tests-for-pytest.html#test-exceptions">Test Exceptions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pages/40-Using-pytest-fixtures.html">Using Pytest Fixtures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pages/40-Using-pytest-fixtures.html#scope-of-fixtures">Scope of Fixtures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pages/40-Using-pytest-fixtures.html#session">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pages/40-Using-pytest-fixtures.html#module">Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pages/40-Using-pytest-fixtures.html#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pages/40-Using-pytest-fixtures.html#basic-fixtures">Basic Fixtures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pages/40-Using-pytest-fixtures.html#writing-a-fixture-for-an-http-client">Writing a fixture for an http client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pages/40-Using-pytest-fixtures.html#using-yield-fixtures-to-replace-setup-teardown">Using yield fixtures to replace setup/teardown</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pages/50-other-pytest-modules.html">Other Stuff</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pages/50-other-pytest-modules.html#useful-modules">Useful Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/50-other-pytest-modules.html#useful-info">Useful Info</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Intro to pytest</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Summary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pages/10-introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/20-how-to-run-tests.html">How to run pytest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/30-how-to-write-tests-for-pytest.html">How to write tests for pytest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/40-Using-pytest-fixtures.html">Using Pytest Fixtures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/50-other-pytest-modules.html">Other Stuff</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="pages/10-introduction.html" title="next chapter">Introduction</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy;2020, Daniel Wallace.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+<div class="footer">This page uses <a href="https://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

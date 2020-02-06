@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>How to write tests for pytest &#8212; Intro to pytest 1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using Pytest Fixtures" href="40-Using-pytest-fixtures.html" />
+    <link rel="prev" title="How to run pytest" href="20-how-to-run-tests.html" />
+
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-42514099-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="how-to-write-tests-for-pytest">
+<h1>How to write tests for pytest<a class="headerlink" href="#how-to-write-tests-for-pytest" title="Permalink to this headline">¶</a></h1>
+<p>While you can use the <code class="docutils literal notranslate"><span class="pre">unittest.TestCase</span></code> class for writing tests for pytest,
+I strongly recommend using functions as they are widely considered to be more
+pythonic.</p>
+<p>From the docs:</p>
+<blockquote>
+<div><p>The Python unit testing framework, sometimes referred to as “PyUnit,”
+is a Python language version of JUnit, by Kent Beck and Erich Gamma.
+JUnit is, in turn, a Java version of Kent’s Smalltalk testing framework.
+Each is the de facto standard unit testing framework for its respective
+language.</p>
+</div></blockquote>
+<p>Be more pythonic, not like java.</p>
+<div class="section" id="pytest-and-the-assert-statement">
+<h2>Pytest and the Assert Statement<a class="headerlink" href="#pytest-and-the-assert-statement" title="Permalink to this headline">¶</a></h2>
+<p>Pytest allows you to use the standard python assert for verifying expectations
+and values in Python tests.</p>
+<div class="section" id="simple-test-case">
+<h3>Simple Test Case<a class="headerlink" href="#simple-test-case" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_addition</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="test-function-output">
+<h3>Test Function Output<a class="headerlink" href="#test-function-output" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">f</span><span class="p">():</span>
+    <span class="k">return</span> <span class="mi">4</span>
+
+<span class="k">def</span> <span class="nf">test_f</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">f</span><span class="p">()</span> <span class="o">==</span> <span class="mi">4</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="test-an-api">
+<h3>Test an API<a class="headerlink" href="#test-an-api" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">urllib3</span>
+
+<span class="k">def</span> <span class="nf">test_petstore_inventory</span><span class="p">():</span>
+    <span class="n">http</span> <span class="o">=</span> <span class="n">urllib3</span><span class="o">.</span><span class="n">PoolManager</span><span class="p">()</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://petstore.swagger.io/v2/store/inventory&#39;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">data</span><span class="p">)[</span><span class="s1">&#39; not available&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="test-exceptions">
+<h3>Test Exceptions<a class="headerlink" href="#test-exceptions" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="k">def</span> <span class="nf">raise_exception</span><span class="p">():</span>
+    <span class="k">raise</span> <span class="n">ConnectionError</span><span class="p">(</span><span class="s1">&#39;failed to connect&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test_for_connection_failure</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ConnectionError</span><span class="p">)</span> <span class="k">as</span> <span class="n">excinfo</span><span class="p">:</span>
+        <span class="n">raise_exception</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="s1">&#39;failed to connect&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">excinfo</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Intro to pytest</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Summary</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="10-introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="20-how-to-run-tests.html">How to run pytest</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to write tests for pytest</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pytest-and-the-assert-statement">Pytest and the Assert Statement</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#simple-test-case">Simple Test Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-function-output">Test Function Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-an-api">Test an API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-exceptions">Test Exceptions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="40-Using-pytest-fixtures.html">Using Pytest Fixtures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="50-other-pytest-modules.html">Other Stuff</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="20-how-to-run-tests.html" title="previous chapter">How to run pytest</a></li>
+      <li>Next: <a href="40-Using-pytest-fixtures.html" title="next chapter">Using Pytest Fixtures</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy;2020, Daniel Wallace.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/30-how-to-write-tests-for-pytest.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+<div class="footer">This page uses <a href="https://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
