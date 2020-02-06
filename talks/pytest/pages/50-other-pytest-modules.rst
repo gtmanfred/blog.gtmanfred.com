@@ -25,7 +25,7 @@ If you choose not to switch to Pytest, here are some options:
 * `Ward <https://github.com/darrenburns/ward>`_
 * `PTR <https://github.com/facebookincubator/ptr>`_
 * `UnitTest <https://docs.python.org/3/library/unittest.html#test-discovery>`_
-
+* `StestR <https://pypi.org/project/stestr/>`_ * used by OpenStack
 
 Catch warnings as errors in test suite
 ======================================
