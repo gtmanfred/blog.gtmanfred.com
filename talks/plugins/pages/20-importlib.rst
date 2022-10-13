@@ -33,8 +33,8 @@ The above functions import modules and put them in ``sys.modules``.
       - Load module and apply ``type(sys)(spec)`` to it
       - Set all the required module attributes
 
-Word to know
-------------
+Words to know
+-------------
 
 spec
 
@@ -48,3 +48,8 @@ spec
         * parent (__package__)
 
     Reference implementation `importlib.machinery.ModuleSpec`
+
+module
+
+    A usable object that has been imported into the python namespace.
+    A spec loader is used to instantiate (exec) a module object.

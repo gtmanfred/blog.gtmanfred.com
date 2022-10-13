@@ -88,3 +88,8 @@ Approximate ``importlib.import_module``
         if path is not None:
             setattr(parent_module, child_name, module)
         return module
+
+Other Examples
+==============
+
+* `strip-hints <https://github.com/abarker/strip-hints/blob/master/src/strip_hints/import_hooks_py3.py>`_

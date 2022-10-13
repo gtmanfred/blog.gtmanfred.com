@@ -13,7 +13,7 @@ Previous Work:
   - Rackspace
   - SaltStack
 
-Currently: Autodesk - Senior Software Engineer
+Currently: Autodesk - Senior Principal Engineer
 
 What is the goal of this talk?
 ==============================
@@ -21,8 +21,7 @@ What is the goal of this talk?
 Goals for talk:
   - Have a better idea of how ``import`` inside of python works
   - Be able to describe how to augment the import structure in python
-  - Provide a framework to get junior developers into the environment and
-    writing code sooner
+  - Use importlib and some other fun python stuff to build a framework for building simple app handlers.
 
 Make this work:
 
