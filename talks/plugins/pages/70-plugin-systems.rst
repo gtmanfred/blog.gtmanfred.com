@@ -32,6 +32,8 @@ They point to modules that will be loaded.
 Once you have an entry point to iterate over, instead of having to hard code a
 path, just use the path of your entry point.
 
+Before python 3.8
+
 .. code-block:: python
 
     import pkg_resources
@@ -44,6 +46,23 @@ path, just use the path of your entry point.
         else:
             path = directory.__file__
         ...
+
+
+After python 3.8
+
+.. code-block:: python
+
+   from importlib.metadata import entry_points
+
+   for entry in entry_points(group='test.loader', name='test.dirs'):
+        directory = entry.load()
+        if not directory.__file__:
+            # namespace package
+            path = directory.__path__._path[0]
+        else:
+            path = directory.__file__
+        ...
+
 
 ``stevedore``
 =============
