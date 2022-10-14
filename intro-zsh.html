@@ -78,8 +78,8 @@
         <ul class="list">
           <li><a href="https://blog.gtmanfred.com/pages/about.html#about">About</a></li>
 
-          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
           <li><a href="talks/pytest" target="_blank">pytest talk</a></li>
+          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
         </ul>
       </nav>
 
@@ -156,14 +156,13 @@ parameter expamsion stuff does.</p>
 <p>The one I use the most is probably <code>(f)</code>, which will split output of a parameter
 on newlines. The below takes the output from <code>ls -l</code> and then splits it on
 newline, and then grabs the 4th line from the output.</p>
-<div class="highlight"><pre><span></span>└─╼ <span class="nb">echo</span> <span class="si">${</span><span class="s2">&quot;</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">[4]</span><span class="si">}</span>
+<div class="highlight"><pre><span></span><code>└─╼ <span class="nb">echo</span> <span class="si">${</span><span class="s2">&quot;</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">[4]</span><span class="si">}</span>
 -rw-r--r--  <span class="m">1</span> daniel daniel   <span class="m">1770341</span> Jun  <span class="m">2</span>  <span class="m">2014</span> <span class="m">2014</span>-06-02-182425_1918x1079_scrot.png
-</pre></div>
-
+</code></pre></div>
 
 <p>You can also do matching. The below uses the <code>(M)</code> to tell the expansion to only
 show lines that start with 'drwx'.</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ print -l -- <span class="si">${</span><span class="p">(M)</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="p">:#drwx*</span><span class="si">}</span>
 drwxr-xr-x <span class="m">18</span> daniel daniel      <span class="m">4096</span> Aug <span class="m">24</span> <span class="m">00</span>:06 aurinstall
 drwxr-xr-x  <span class="m">2</span> daniel daniel      <span class="m">4096</span> Nov  <span class="m">8</span>  <span class="m">2014</span> bin
@@ -177,8 +176,7 @@ drwxr-xr-x  <span class="m">4</span> daniel daniel      <span class="m">4096</sp
 drwxr-xr-x  <span class="m">2</span> daniel daniel      <span class="m">4096</span> Apr  <span class="m">1</span>  <span class="m">2014</span> Public
 drwxr-xr-x  <span class="m">6</span> daniel daniel      <span class="m">4096</span> Jul <span class="m">30</span> <span class="m">11</span>:04 python-systemd
 drwxr-xr-x  <span class="m">2</span> daniel daniel      <span class="m">4096</span> Apr  <span class="m">1</span>  <span class="m">2014</span> Videos
-</pre></div>
-
+</code></pre></div>
 
 <p>Things to remember about zsh parameter expansion, like bash <code>#</code> means from the
 beginning of the line, and <code>%</code> means from the end of the line.  But, you can
@@ -187,7 +185,7 @@ contrived example.  First we use <code>#</code> and <code>%</code> to do replace
 the array to find out what groups are available, then we assign the array to the
 <code>names</code> variable, and use <code>${array1:|array2}</code> to get all variables in array1
 that aren't in array2.</p>
-<div class="highlight"><pre><span></span>└─╼ print -l <span class="si">${${${</span><span class="p">(M)</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="p">:#drwx*</span><span class="si">}</span><span class="p">#* * * </span><span class="si">}</span><span class="p">%% *</span><span class="si">}</span>
+<div class="highlight"><pre><span></span><code>└─╼ print -l <span class="si">${${${</span><span class="p">(M)</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="p">:#drwx*</span><span class="si">}</span><span class="p">#* * * </span><span class="si">}</span><span class="p">%% *</span><span class="si">}</span>
 daniel
 daniel
 daniel
@@ -200,15 +198,14 @@ daniel
 daniel
 daniel
 daniel
-┌─ daniel at hailey in ~
+┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ <span class="nv">names</span><span class="o">=(</span><span class="si">${${${</span><span class="p">(M)</span><span class="si">${</span><span class="p">(f)</span><span class="s2">&quot;</span><span class="k">$(</span>ls -l<span class="k">)</span><span class="s2">&quot;</span><span class="si">}</span><span class="p">:#drwx*</span><span class="si">}</span><span class="p">#* * * </span><span class="si">}</span><span class="p">%% *</span><span class="si">}</span><span class="o">)</span>
-┌─ daniel at hailey in ~
+┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ <span class="nv">groups</span><span class="o">=(</span>daniel<span class="o">)</span>
-┌─ daniel at hailey in ~
+┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ <span class="nb">echo</span> <span class="si">${</span><span class="nv">names</span><span class="p">:|groups</span><span class="si">}</span>
 users
-</pre></div>
-
+</code></pre></div>
 
 <h2>Globbing</h2>
 <p><a href="http://zsh.sourceforge.net/Doc/Release/Expansion.html#Filename-Generation">Filename Expansion</a></p>
@@ -216,7 +213,7 @@ users
 filenames.  One of my favorite examples is to just find filenames that are only
 directories.  Which can also be expanded using the information from before to
 find all files that aren't directories.</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ tree
 .
 ├── dir1
@@ -227,85 +224,82 @@ find all files that aren't directories.</p>
 ├── file2
 └── file3
 <span class="m">3</span> directories, <span class="m">4</span> files
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ print -- *<span class="o">(</span>/<span class="o">)</span>
 dir1 dir2 dir3
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ print -- *<span class="o">(</span>/F<span class="o">)</span> <span class="c1"># expand to only Full directories...</span>
 dir2
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ <span class="nv">dirs</span><span class="o">=(</span>*<span class="o">(</span>/<span class="o">))</span>
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ <span class="nv">everything</span><span class="o">=(</span>*<span class="o">)</span>
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ print <span class="si">${</span><span class="nv">everything</span><span class="p">:|dirs</span><span class="si">}</span>
 file1 file2 file3
 └─╼ print *<span class="o">(</span>.<span class="o">)</span>      <span class="c1"># or just match plain files</span>
 file1 file2 file3
-</pre></div>
-
+</code></pre></div>
 
 <p>Another nice one is being able to recursively glob for files.</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
-└─╼ tree
-.
-├── dir1
-│   ├── dir1
-│   │   └── file3
-│   ├── dir2
-│   │   ├── dir1
-│   │   ├── dir2
-│   │   └── dir3
-│   │       ├── file1
-│   │       └── file2
-│   └── dir3
-├── dir2
-├── dir3
-├── file1
-├── file2
-└── file3
+<div class="highlight"><pre><span></span><code>┌─<span class="w"> </span><span class="nv">daniel</span><span class="w"> </span><span class="nv">at</span><span class="w"> </span><span class="nv">hailey</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="o">~/</span><span class="nv">example</span><span class="w"></span>
+└─╼<span class="w"> </span><span class="nv">tree</span><span class="w"></span>
+.<span class="w"></span>
+├──<span class="w"> </span><span class="nv">dir1</span><span class="w"></span>
+│<span class="w">   </span>├──<span class="w"> </span><span class="nv">dir1</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span><span class="nv">file3</span><span class="w"></span>
+│<span class="w">   </span>├──<span class="w"> </span><span class="nv">dir2</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span><span class="nv">dir1</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span><span class="nv">dir2</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span><span class="nv">dir3</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">       </span>├──<span class="w"> </span><span class="nv">file1</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">       </span>└──<span class="w"> </span><span class="nv">file2</span><span class="w"></span>
+│<span class="w">   </span>└──<span class="w"> </span><span class="nv">dir3</span><span class="w"></span>
+├──<span class="w"> </span><span class="nv">dir2</span><span class="w"></span>
+├──<span class="w"> </span><span class="nv">dir3</span><span class="w"></span>
+├──<span class="w"> </span><span class="nv">file1</span><span class="w"></span>
+├──<span class="w"> </span><span class="nv">file2</span><span class="w"></span>
+└──<span class="w"> </span><span class="nv">file3</span><span class="w"></span>
 
-9 directories, 6 files
-─ daniel at hailey in ~/example
-└─╼ for file in **/*(.); do mv $file{,.sh}; done
-┌─ daniel at hailey in ~/example
-└─╼ tree
-.
-├── dir1
-│   ├── dir1
-│   │   └── file3.sh
-│   ├── dir2
-│   │   ├── dir1
-│   │   ├── dir2
-│   │   └── dir3
-│   │       ├── file1.sh
-│   │       └── file2.sh
-│   └── dir3
-├── dir2
-├── dir3
-├── file1.sh
-├── file2.sh
-└── file3.sh
+<span class="mi">9</span><span class="w"> </span><span class="nv">directories</span>,<span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="nv">files</span><span class="w"></span>
+─<span class="w"> </span><span class="nv">daniel</span><span class="w"> </span><span class="nv">at</span><span class="w"> </span><span class="nv">hailey</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="o">~/</span><span class="nv">example</span><span class="w"></span>
+└─╼<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">file</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="o">**/*</span><span class="ss">(</span>.<span class="ss">)</span><span class="c1">; do mv $file{,.sh}; done</span><span class="w"></span>
+┌─<span class="w"> </span><span class="nv">daniel</span><span class="w"> </span><span class="nv">at</span><span class="w"> </span><span class="nv">hailey</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="o">~/</span><span class="nv">example</span><span class="w"></span>
+└─╼<span class="w"> </span><span class="nv">tree</span><span class="w"></span>
+.<span class="w"></span>
+├──<span class="w"> </span><span class="nv">dir1</span><span class="w"></span>
+│<span class="w">   </span>├──<span class="w"> </span><span class="nv">dir1</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span><span class="nv">file3</span>.<span class="nv">sh</span><span class="w"></span>
+│<span class="w">   </span>├──<span class="w"> </span><span class="nv">dir2</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span><span class="nv">dir1</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span><span class="nv">dir2</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span><span class="nv">dir3</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">       </span>├──<span class="w"> </span><span class="nv">file1</span>.<span class="nv">sh</span><span class="w"></span>
+│<span class="w">   </span>│<span class="w">       </span>└──<span class="w"> </span><span class="nv">file2</span>.<span class="nv">sh</span><span class="w"></span>
+│<span class="w">   </span>└──<span class="w"> </span><span class="nv">dir3</span><span class="w"></span>
+├──<span class="w"> </span><span class="nv">dir2</span><span class="w"></span>
+├──<span class="w"> </span><span class="nv">dir3</span><span class="w"></span>
+├──<span class="w"> </span><span class="nv">file1</span>.<span class="nv">sh</span><span class="w"></span>
+├──<span class="w"> </span><span class="nv">file2</span>.<span class="nv">sh</span><span class="w"></span>
+└──<span class="w"> </span><span class="nv">file3</span>.<span class="nv">sh</span><span class="w"></span>
 
-9 directories, 6 files
-</pre></div>
-
+<span class="mi">9</span><span class="w"> </span><span class="nv">directories</span>,<span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="nv">files</span><span class="w"></span>
+</code></pre></div>
 
 <p>and maybe you want to remove suffixes from each file that is found in the glob</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ print -- **/file*.sh<span class="o">(</span>:r<span class="o">)</span>
 dir1/dir1/file3 dir1/dir2/dir3/file1 dir1/dir2/dir3/file2 file1 file2 file3
-</pre></div>
-
+</code></pre></div>
 
 <p>or maybe you only want to show the files, with the removed path, like using
 basename.</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ rename .sh .zip *.sh
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ ls
 dir1  dir2  dir3  file1.zip  file2.zip  file3.zip
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ tree
 .
 ├── dir1
@@ -323,29 +317,27 @@ dir1  dir2  dir3  file1.zip  file2.zip  file3.zip
 ├── file1.zip
 ├── file2.zip
 └── file3.zip
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ print -- **/*<span class="o">(</span>.:t<span class="o">)</span>
 file1.sh file1.zip file2.sh file2.zip file3.sh file3.zip
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ print -- **/*<span class="o">(</span>.:h<span class="o">)</span>      <span class="c1"># or head</span>
 . . . dir1/dir1 dir1/dir2/dir3 dir1/dir2/dir3
-</pre></div>
-
+</code></pre></div>
 
 <p>The <code>:h</code> modifier is great for moving into directories with files you just
 opened or referenced on the commandline. (<code>!$</code> works just like in bash, it grabs
 the last argument of the previous line)</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~/example
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ ls dir1/dir2/dir3/file2.sh -l
 -rw-r--r-- <span class="m">1</span> daniel daniel <span class="m">0</span> Sep  <span class="m">8</span> <span class="m">14</span>:56 dir1/dir2/dir3/file2.sh
-┌─ daniel at hailey in ~/example
+┌─ daniel at hailey <span class="k">in</span> ~/example
 └─╼ <span class="nb">cd</span> !:1:h        <span class="c1"># index 1 of the previous line array, grab the head</span>
 <span class="nb">cd</span> dir1/dir2/dir3
-┌─ daniel at hailey in ~/example/dir1/dir2/dir3
+┌─ daniel at hailey <span class="k">in</span> ~/example/dir1/dir2/dir3
 └─╼ <span class="nb">pwd</span>
 /home/daniel/example/dir1/dir2/dir3
-</pre></div>
-
+</code></pre></div>
 
 <p>You can do the above with <code>!:1</code> in bash, but you would need to put it in a
 subshell and run it through <code>dirname</code> first... <code>cd $(dirname !:1)</code></p>
@@ -354,56 +346,50 @@ covered.</p>
 <h2>Aliases!</h2>
 <p>Alaises in zsh are for the most part similar to bash.  You have your regular
 command replacement, but you also have extra stuff like global aliases.</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ <span class="nb">alias</span> -g <span class="nv">AWK</span><span class="o">=</span><span class="s2">&quot;|awk&quot;</span>
-┌─ daniel at hailey in ~
+┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ ip a AWK <span class="s1">&#39;/^\w/&#39;</span>
 <span class="m">1</span>: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class="m">65536</span> qdisc noqueue state UNKNOWN group default
 <span class="m">2</span>: enp2s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class="m">1500</span> qdisc fq_codel state UP group default qlen <span class="m">1000</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>This comes in handy from time to time when you want to do something like</p>
-<div class="highlight"><pre><span></span><span class="nb">alias</span> -g <span class="nv">NULL</span><span class="o">=</span><span class="s2">&quot;2&gt;&amp;1 &gt;/dev/null&quot;</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="nb">alias</span> -g <span class="nv">NULL</span><span class="o">=</span><span class="s2">&quot;2&gt;&amp;1 &gt;/dev/null&quot;</span>
+</code></pre></div>
 
 <p>and redirect everything to dev null just by appending the word <code>NULL</code> to the end
 of the line.</p>
 <h2>Commands and fpath!</h2>
 <p>Anyone that has ever done bash scripting before has to have run into doing this.</p>
-<div class="highlight"><pre><span></span><span class="k">if</span> ! which git <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> &gt;/dev/null<span class="p">;</span> <span class="k">then</span>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> ! which git <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> &gt;/dev/null<span class="p">;</span> <span class="k">then</span>
     yum install -y git
 <span class="k">fi</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>In zsh, you get an array with all of the commands in it.</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ <span class="nb">echo</span> <span class="si">${</span><span class="nv">commands</span><span class="p">[pacman]</span><span class="si">}</span>
 /usr/bin/pacman
 f <span class="o">[[</span> -n <span class="si">${</span><span class="nv">commands</span><span class="p">[pacman]</span><span class="si">}</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> yes<span class="p">;</span> <span class="k">else</span> <span class="nb">echo</span> no<span class="p">;</span> <span class="k">fi</span>
 yes
-</pre></div>
-
+</code></pre></div>
 
 <p>You also have a new variable <code>$path</code> that is an array for your <code>$PATH</code> variable,
 so that you can manage it using +=.</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ <span class="nb">echo</span> <span class="nv">$path</span><span class="o">[</span>@<span class="o">]</span>
 /home/daniel/bin /usr/local/sbin /usr/local/bin /usr/bin
-</pre></div>
-
+</code></pre></div>
 
 <p>And a new variable called <code>$fpath</code> which is the location of all the zsh function
 stuff.  The first thing that is really in the function path is your completion
 files, and it defines the inheritance.</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ print -l -- <span class="si">${</span><span class="p">^fpath</span><span class="si">}</span>/**/_pacman<span class="o">(</span>N<span class="o">)</span>
 /home/daniel/.config/zsh/completion/_pacman
 /usr/share/zsh/site-functions/_pacman
-</pre></div>
-
+</code></pre></div>
 
 <p>You can use this to maintain your own completion files outside of the system
 locations, but have them automatically loaded.  To enable completion, you have
@@ -414,27 +400,25 @@ that I use to manage <code>dtach</code> sessions, since the only thing I used to
 tmux or screen was the dtach feature and I use a tiling window manager, and tach
 will put the socket files in my <code>$XDG_RUNTIME_DIR</code>.  Then it is just loaded as a
 function as if it was defined like <code>tach() {...;}</code> in a zsh script.</p>
-<div class="highlight"><pre><span></span>┌─ daniel at hailey in ~
+<div class="highlight"><pre><span></span><code>┌─ daniel at hailey <span class="k">in</span> ~
 └─╼ which tach
 tach <span class="o">()</span> <span class="o">{</span>
         <span class="c1"># undefined</span>
             <span class="nb">builtin</span> autoload -X
 <span class="o">}</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>To load and enable completion, you do basically the same thing, load the
 compinit function, and run it.</p>
-<div class="highlight"><pre><span></span>autoload -U compinit <span class="o">&amp;&amp;</span> compinit
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>autoload -U compinit <span class="o">&amp;&amp;</span> compinit
+</code></pre></div>
 
 <p>And zsh will look for compdef options at the top of files in your fpath to
 specify tab completions.</p>
 <p>The other big things that are specified in <code>fpath</code> are the different prompts.
 First you have to autoload them, then you can choose from one of the default
 prompts, or preview them.</p>
-<div class="highlight"><pre><span></span>hailey% autoload compinit promptinit <span class="o">&amp;&amp;</span> compinit <span class="o">&amp;&amp;</span> promptinit
+<div class="highlight"><pre><span></span><code>hailey% autoload compinit promptinit <span class="o">&amp;&amp;</span> compinit <span class="o">&amp;&amp;</span> promptinit
 hailey% prompt
 Usage: prompt &lt;options&gt;
 Options:
@@ -452,8 +436,7 @@ hailey% prompt redhat
 daniel@hailey ~ % prompt -l
 Currently available prompt themes:
 adam1 adam2 bart bigfade clint elite2 elite fade fire off oliver pws redhat suse walters zefram
-</pre></div>
-
+</code></pre></div>
 
 <p>This makes it easy for other people to share the same setup too, if that is what
 you want to do, and you can just set up different prompts and switch between
@@ -468,31 +451,29 @@ set to go.)</p>
 <p>This is where zsh gets fun.  Instead of having a bunch of variables to configure
 in your environment, zsh uses zstyles to configure things. The best example I
 have is in my prompt.</p>
-<div class="highlight"><pre><span></span>zstyle &#39;:vcs_info:*&#39; enable bzr git hg svn                      # enable different source control plugins
-zstyle &#39;:vcs_info:*&#39; check-for-changes true                     # check for changes when in a vcs directory
-zstyle &#39;:vcs_info:*&#39; stagedstr &#39;%F{g}●%f&#39;                       # if we have an staged, uncommitted file, put a green dot
-zstyle &#39;:vcs_info:*&#39; unstagedstr &#39;%F{y}!%f&#39;                     # if there are unstaged files, that are tracked, put a yellow !
-zstyle &#39;:vcs_info:*&#39; formats &#39;on %F{m}%b%c%u%m%F{n}&#39;            # display the branch and bold it in magento
-zstyle &#39;:vcs_info:*&#39; actionformats &quot;%b%c%u|%F{c}%a%f&quot;           # display the branch/commit during an action (bisect, etc)
-zstyle &#39;:vcs_info:(sv[nk]|bzr):*&#39; branchformat &#39;%b|%F{c}%r%f&#39;   # different branch information for svn and bzr
-zstyle &#39;:vcs_info:git*+set-message:*&#39; hooks git-status          # I do not remember
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">zstyle</span><span class="w"> </span><span class="s1">&#39;:vcs_info:*&#39;</span><span class="w"> </span><span class="n">enable</span><span class="w"> </span><span class="n">bzr</span><span class="w"> </span><span class="n">git</span><span class="w"> </span><span class="n">hg</span><span class="w"> </span><span class="n">svn</span><span class="w">                      </span><span class="err">#</span><span class="w"> </span><span class="n">enable</span><span class="w"> </span><span class="n">different</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="n">control</span><span class="w"> </span><span class="n">plugins</span><span class="w"></span>
+<span class="n">zstyle</span><span class="w"> </span><span class="s1">&#39;:vcs_info:*&#39;</span><span class="w"> </span><span class="k">check</span><span class="o">-</span><span class="k">for</span><span class="o">-</span><span class="n">changes</span><span class="w"> </span><span class="k">true</span><span class="w">                     </span><span class="err">#</span><span class="w"> </span><span class="k">check</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">changes</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">vcs</span><span class="w"> </span><span class="n">directory</span><span class="w"></span>
+<span class="n">zstyle</span><span class="w"> </span><span class="s1">&#39;:vcs_info:*&#39;</span><span class="w"> </span><span class="n">stagedstr</span><span class="w"> </span><span class="s1">&#39;%F{g}●%f&#39;</span><span class="w">                       </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">we</span><span class="w"> </span><span class="n">have</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">staged</span><span class="p">,</span><span class="w"> </span><span class="n">uncommitted</span><span class="w"> </span><span class="k">file</span><span class="p">,</span><span class="w"> </span><span class="n">put</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">green</span><span class="w"> </span><span class="n">dot</span><span class="w"></span>
+<span class="n">zstyle</span><span class="w"> </span><span class="s1">&#39;:vcs_info:*&#39;</span><span class="w"> </span><span class="n">unstagedstr</span><span class="w"> </span><span class="s1">&#39;%F{y}!%f&#39;</span><span class="w">                     </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">unstaged</span><span class="w"> </span><span class="n">files</span><span class="p">,</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">tracked</span><span class="p">,</span><span class="w"> </span><span class="n">put</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">yellow</span><span class="w"> </span><span class="err">!</span><span class="w"></span>
+<span class="n">zstyle</span><span class="w"> </span><span class="s1">&#39;:vcs_info:*&#39;</span><span class="w"> </span><span class="n">formats</span><span class="w"> </span><span class="s1">&#39;on %F{m}%b%c%u%m%F{n}&#39;</span><span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">display</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">branch</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">bold</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">magento</span><span class="w"></span>
+<span class="n">zstyle</span><span class="w"> </span><span class="s1">&#39;:vcs_info:*&#39;</span><span class="w"> </span><span class="n">actionformats</span><span class="w"> </span><span class="ss">&quot;%b%c%u|%F{c}%a%f&quot;</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="n">display</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">branch</span><span class="o">/</span><span class="k">commit</span><span class="w"> </span><span class="n">during</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="k">action</span><span class="w"> </span><span class="p">(</span><span class="n">bisect</span><span class="p">,</span><span class="w"> </span><span class="n">etc</span><span class="p">)</span><span class="w"></span>
+<span class="n">zstyle</span><span class="w"> </span><span class="s1">&#39;:vcs_info:(sv[nk]|bzr):*&#39;</span><span class="w"> </span><span class="n">branchformat</span><span class="w"> </span><span class="s1">&#39;%b|%F{c}%r%f&#39;</span><span class="w">   </span><span class="err">#</span><span class="w"> </span><span class="n">different</span><span class="w"> </span><span class="n">branch</span><span class="w"> </span><span class="n">information</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">svn</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">bzr</span><span class="w"></span>
+<span class="n">zstyle</span><span class="w"> </span><span class="s1">&#39;:vcs_info:git*+set-message:*&#39;</span><span class="w"> </span><span class="n">hooks</span><span class="w"> </span><span class="n">git</span><span class="o">-</span><span class="n">status</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">do</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">remember</span><span class="w"></span>
+</code></pre></div>
 
 <p>Also for this to work, you have to include the <code>vcs_info</code> function as part of
 your zsh precmd.</p>
-<div class="highlight"><pre><span></span># Example 1
-autoload -Uz vcs_info
-precmd(){ vcs_info }
+<div class="highlight"><pre><span></span><code><span class="c1"># Example 1</span><span class="w"></span>
+<span class="n">autoload</span><span class="w"> </span><span class="o">-</span><span class="n">Uz</span><span class="w"> </span><span class="n">vcs_info</span><span class="w"></span>
+<span class="n">precmd</span><span class="p">(){</span><span class="w"> </span><span class="n">vcs_info</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-# Example 2
-prompt_gtmanfred_precmd(){
-    vcs_info
-}
-autoload -Uz add-zsh-hook vcs_info
-add-zsh-hook precmd prompt_gtmanfred_precmd
-</pre></div>
-
+<span class="c1"># Example 2</span><span class="w"></span>
+<span class="n">prompt_gtmanfred_precmd</span><span class="p">(){</span><span class="w"></span>
+<span class="w">    </span><span class="n">vcs_info</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="n">autoload</span><span class="w"> </span><span class="o">-</span><span class="n">Uz</span><span class="w"> </span><span class="n">add</span><span class="o">-</span><span class="n">zsh</span><span class="o">-</span><span class="n">hook</span><span class="w"> </span><span class="n">vcs_info</span><span class="w"></span>
+<span class="n">add</span><span class="o">-</span><span class="n">zsh</span><span class="o">-</span><span class="n">hook</span><span class="w"> </span><span class="n">precmd</span><span class="w"> </span><span class="n">prompt_gtmanfred_precmd</span><span class="w"></span>
+</code></pre></div>
 
 <p>Then you just need to put your vcs_info variables into your prompt <code>${vcs_info_msg_0_}</code></p>
 <p>More info about vcs_info can be found <a href="http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Version-Control-Information">here</a></p>

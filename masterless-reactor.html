@@ -80,8 +80,8 @@
         <ul class="list">
           <li><a href="https://blog.gtmanfred.com/pages/about.html#about">About</a></li>
 
-          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
           <li><a href="talks/pytest" target="_blank">pytest talk</a></li>
+          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
         </ul>
       </nav>
 
@@ -151,15 +151,14 @@
 <h1>Configuration</h1>
 <p>My configurations are located <a href="https://github.com/gtmanfred/blog-sls">here</a> but I will highlight some of the specifics here.</p>
 <p>First, we want to make the minion a masterless minion, and to never query the master for anything.  So to <code>/etc/salt/minion.d/local.conf</code> add</p>
-<div class="highlight"><pre><span></span><span class="n">local</span><span class="o">:</span> <span class="n">True</span>
-<span class="n">file_client</span><span class="o">:</span> <span class="n">local</span>
-<span class="n">master_type</span><span class="o">:</span> <span class="n">disable</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">local</span><span class="o">:</span><span class="w"> </span><span class="n">True</span><span class="w"></span>
+<span class="n">file_client</span><span class="o">:</span><span class="w"> </span><span class="n">local</span><span class="w"></span>
+<span class="n">master_type</span><span class="o">:</span><span class="w"> </span><span class="n">disable</span><span class="w"></span>
+</code></pre></div>
 
 <p>Any one of the settings could be used, I like to use all three just to make certain.</p>
 <p>Second, we need to setup the ssl keys so that we can have a secure connection.  To do this, you can run the following command to create a generic ssl certificate, if you want to have verification in there, you can make a nice one for the domain and everything, but we just want to have the traffice encrypted, so use <code>salt-call --local tls.create_self_signed_cert</code>.  Now that we have an ssl certificate pair, we can setup the webhook engine.  I put the following in <code>/etc/salt/minion.d/engines.conf</code>.</p>
-<div class="highlight"><pre><span></span>engines:
+<div class="highlight"><pre><span></span><code>engines:
   - webhook:
       address: None
       port: 5000
@@ -170,8 +169,7 @@
 reactor:
   - &#39;salt/engines/hook/update/blog/gtmanfred.com&#39;:
     - salt://reactor/blog.gtmanfred.com.sls
-</pre></div>
-
+</code></pre></div>
 
 <p>This will enable the webhook on all ips on port 5000 with the listed ssl certificate.  It will also enable the reactor to be able to act upon the one tag in the event stream, which we will get to later.</p>
 <p>Now we need to setup the github webhook so we can see the events in the event stream.  Go to your blog's github repository, and go to the settings.  Then select webhooks, and create a new one.</p>
@@ -179,23 +177,21 @@ reactor:
 <p>For the "Payload URL" you are going to set https and then the ip address/domain and port to access, followed by the uri which should match what your are going to trigger on for the reactor.  As you can see in the picture above, I have <code>/update/blog/gtmanfred.com</code> as my URI, and this matches what follows the prefix <code>salt/engines/hook</code> in the reactor config above.  Be sure to add a secret! And don't forget it! We will be verifying that in a later step.  Then customize which events you would like to trigger on and save. I am going to rebuild the blog on each push, so I am only sending push events.</p>
 <p>BE SURE TO DISABLE SSL VERIFICATION IF YOU DON'T USE A SIGNED KEY!</p>
 <p>Before you forget that secret key, we should save it somewhere.  I use sdb in salt so that I can save my states and reactors in public github, but hide the secret key in sdb.  Create <code>/etc/salt/minion.d/sdb.conf</code> with the following.</p>
-<div class="highlight"><pre><span></span><span class="n">secrets</span><span class="o">:</span>
-  <span class="n">driver</span><span class="o">:</span> <span class="n">sqlite3</span>
-  <span class="n">database</span><span class="o">:</span> <span class="sr">/var/lib/s</span><span class="n">db</span><span class="o">.</span><span class="na">sqlite</span>
-  <span class="n">table</span><span class="o">:</span> <span class="n">sdb</span>
-  <span class="n">create_table</span><span class="o">:</span> <span class="n">True</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">secrets</span><span class="o">:</span><span class="w"></span>
+<span class="w">  </span><span class="n">driver</span><span class="o">:</span><span class="w"> </span><span class="n">sqlite3</span><span class="w"></span>
+<span class="w">  </span><span class="n">database</span><span class="o">:</span><span class="w"> </span><span class="sr">/var/lib/s</span><span class="n">db</span><span class="o">.</span><span class="na">sqlite</span><span class="w"></span>
+<span class="w">  </span><span class="n">table</span><span class="o">:</span><span class="w"> </span><span class="n">sdb</span><span class="w"></span>
+<span class="w">  </span><span class="n">create_table</span><span class="o">:</span><span class="w"> </span><span class="n">True</span><span class="w"></span>
+</code></pre></div>
 
 <p>Now run <code>salt-call --local sdb.set sdb://secrets/github_secret &lt;secretkey&gt;</code> to save the key.</p>
 <p>Now the last step, creating the reactor file in the salt fileserver.  Mine is in /srv/salt/reactor/blog.gtmanfred.com.sls, so I just have to reference it with salt://reactor/blog.gtmanfred.com.sls (and can also use the reactor files from gitfs).</p>
-<div class="highlight"><pre><span></span>{%- if salt.hashutil.github_signature(data[&#39;body&#39;], salt.sdb.get(&#39;sdb://secrets/github_secret&#39;), data[&#39;headers&#39;][&#39;X-Hub-Signature&#39;]) %}
-highstate_run:
-  caller.state.apply:
-    - args: []
-{%- endif %}
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>{<span class="o">%-</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">salt</span>.<span class="nv">hashutil</span>.<span class="nv">github_signature</span><span class="ss">(</span><span class="nv">data</span>[<span class="s1">&#39;body&#39;</span>],<span class="w"> </span><span class="nv">salt</span>.<span class="nv">sdb</span>.<span class="nv">get</span><span class="ss">(</span><span class="s1">&#39;sdb://secrets/github_secret&#39;</span><span class="ss">)</span>,<span class="w"> </span><span class="nv">data</span>[<span class="s1">&#39;headers&#39;</span>][<span class="s1">&#39;X-Hub-Signature&#39;</span>]<span class="ss">)</span><span class="w"> </span><span class="o">%</span>}<span class="w"></span>
+<span class="nv">highstate_run</span>:<span class="w"></span>
+<span class="w">  </span><span class="nv">caller</span>.<span class="nv">state</span>.<span class="nv">apply</span>:<span class="w"></span>
+<span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="nv">args</span>:<span class="w"> </span>[]<span class="w"></span>
+{<span class="o">%-</span><span class="w"> </span><span class="k">endif</span><span class="w"> </span><span class="o">%</span>}<span class="w"></span>
+</code></pre></div>
 
 <p>Lets walk through this.  We are going to take the <code>data['body']</code> from the github post, and our secret, and the <code>X-Hub-Signature</code> and run it through the github_signature function to verify if the signature is the result of signing the body with your secret key.  If True comes back, we can be sure this came from github, and then our minion runs a highstate on itself.  If it is False, nothing is rendered and no event is run.</p>
   </div>

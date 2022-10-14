@@ -1,18 +1,20 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>Examples &#8212; Plugins: Using importlib 1 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Time to build an application" href="60-self-describing-api.html" />
@@ -40,18 +42,18 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="examples">
-<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="importing-programatically">
-<h2>Importing Programatically<a class="headerlink" href="#importing-programatically" title="Permalink to this headline">¶</a></h2>
+  <section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h1>
+<section id="importing-programatically">
+<h2>Importing Programatically<a class="headerlink" href="#importing-programatically" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib</span>
 
 <span class="n">itertools</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s1">&#39;itertools&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="checking-if-a-module-is-importable">
-<h2>Checking if a module is importable<a class="headerlink" href="#checking-if-a-module-is-importable" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="checking-if-a-module-is-importable">
+<h2>Checking if a module is importable<a class="headerlink" href="#checking-if-a-module-is-importable" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib.util</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
@@ -59,20 +61,20 @@
 <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;itertools&#39;</span>
 
 <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{name!r} already in sys.modules&quot;</span><span class="p">)</span>
-<span class="k">elif</span> <span class="p">(</span><span class="n">spec</span> <span class="p">:</span><span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> already in sys.modules&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="p">(</span><span class="n">spec</span> <span class="o">:=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># If you chose to perform the actual import ...</span>
     <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
     <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{name!r} has been imported&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> has been imported&quot;</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;can&#39;t find the {name!r} module&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;can&#39;t find the </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> module&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="import-a-source-file-directly">
-<h2>Import a source file directly<a class="headerlink" href="#import-a-source-file-directly" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="import-a-source-file-directly">
+<h2>Import a source file directly<a class="headerlink" href="#import-a-source-file-directly" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib.util</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
@@ -87,13 +89,13 @@
 <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="approximate-importlib-import-module">
-<h2>Approximate <code class="docutils literal notranslate"><span class="pre">importlib.import_module</span></code><a class="headerlink" href="#approximate-importlib-import-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="approximate-importlib-import-module">
+<h2>Approximate <code class="docutils literal notranslate"><span class="pre">importlib.import_module</span></code><a class="headerlink" href="#approximate-importlib-import-module" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib.util</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="k">def</span> <span class="nf">import_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">import_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An approximate implementation of import.&quot;&quot;&quot;</span>
     <span class="n">absolute_name</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">resolve_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">package</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
@@ -101,28 +103,34 @@
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="k">pass</span>
 
-    <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">absolute_name</span><span class="p">:</span>
         <span class="n">parent_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">child_name</span> <span class="o">=</span> <span class="n">absolute_name</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
         <span class="n">parent_module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">parent_name</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">parent_module</span><span class="o">.</span><span class="n">__spec__</span><span class="o">.</span><span class="n">submodule_search_locations</span>
     <span class="k">for</span> <span class="n">finder</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">meta_path</span><span class="p">:</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">absolute_name</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">break</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;No module named {absolute_name!r}&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;No module named </span><span class="si">{</span><span class="n">absolute_name</span><span class="si">!r}</span><span class="s1">&#39;</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">absolute_name</span><span class="p">)</span>
     <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">absolute_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
     <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="n">parent_module</span><span class="p">,</span> <span class="n">child_name</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">module</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+<section id="other-examples">
+<h2>Other Examples<a class="headerlink" href="#other-examples" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/abarker/strip-hints/blob/master/src/strip_hints/import_hooks_py3.py">strip-hints</a></p></li>
+</ul>
+</section>
+</section>
 
 
           </div>
@@ -141,7 +149,7 @@
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Summary</span></p>
+<p class="caption" role="heading"><span class="caption-text">Summary</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="10-introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="20-importlib.html">What is in Importlib</a></li>
@@ -152,6 +160,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#checking-if-a-module-is-importable">Checking if a module is importable</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#import-a-source-file-directly">Import a source file directly</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#approximate-importlib-import-module">Approximate <code class="docutils literal notranslate"><span class="pre">importlib.import_module</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-examples">Other Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="60-self-describing-api.html">Time to build an application</a></li>
@@ -171,12 +180,12 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -194,7 +203,7 @@
       &copy;2019, Daniel Wallace.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

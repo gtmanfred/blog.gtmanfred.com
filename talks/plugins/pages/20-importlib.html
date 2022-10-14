@@ -1,18 +1,20 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>What is in Importlib &#8212; Plugins: Using importlib 1 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="The Import System" href="30-import-system.html" />
@@ -40,16 +42,16 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="what-is-in-importlib">
-<h1>What is in Importlib<a class="headerlink" href="#what-is-in-importlib" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+  <section id="what-is-in-importlib">
+<h1>What is in Importlib<a class="headerlink" href="#what-is-in-importlib" title="Permalink to this heading">¶</a></h1>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference external" href="https://docs.python.org/3/library/importlib.html">Docs</a></p>
-</div>
-<div class="section" id="what-do-i-need-to-know-to-get-started">
-<h2>What do I need to know to get started<a class="headerlink" href="#what-do-i-need-to-know-to-get-started" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="basic-functions">
-<h3>Basic functions<a class="headerlink" href="#basic-functions" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="what-do-i-need-to-know-to-get-started">
+<h2>What do I need to know to get started<a class="headerlink" href="#what-do-i-need-to-know-to-get-started" title="Permalink to this heading">¶</a></h2>
+<section id="basic-functions">
+<h3>Basic functions<a class="headerlink" href="#basic-functions" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">importlib.__import__(name,</span> <span class="pre">globals=None,</span> <span class="pre">locals=None,</span> <span class="pre">fromlist=(),</span> <span class="pre">level=0)</span></code></dt><dd><p>Reference implementation of the built-in <code class="docutils literal notranslate"><span class="pre">__import__</span></code></p>
 </dd>
@@ -77,9 +79,9 @@ exit an intepreter.</p>
 </dl>
 </dd>
 </dl>
-</div>
-<div class="section" id="word-to-know">
-<h3>Word to know<a class="headerlink" href="#word-to-know" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="words-to-know">
+<h3>Words to know<a class="headerlink" href="#words-to-know" title="Permalink to this heading">¶</a></h3>
 <p>spec</p>
 <blockquote>
 <div><p>A specification for a module’s import-system-related state.  This
@@ -95,9 +97,14 @@ includes stuff such as:</p>
 </div></blockquote>
 <p>Reference implementation <cite>importlib.machinery.ModuleSpec</cite></p>
 </div></blockquote>
-</div>
-</div>
-</div>
+<p>module</p>
+<blockquote>
+<div><p>A usable object that has been imported into the python namespace.
+A spec loader is used to instantiate (exec) a module object.</p>
+</div></blockquote>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -116,14 +123,14 @@ includes stuff such as:</p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Summary</span></p>
+<p class="caption" role="heading"><span class="caption-text">Summary</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="10-introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">What is in Importlib</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-do-i-need-to-know-to-get-started">What do I need to know to get started</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#basic-functions">Basic functions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#word-to-know">Word to know</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#words-to-know">Words to know</a></li>
 </ul>
 </li>
 </ul>
@@ -148,12 +155,12 @@ includes stuff such as:</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -171,7 +178,7 @@ includes stuff such as:</p>
       &copy;2019, Daniel Wallace.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

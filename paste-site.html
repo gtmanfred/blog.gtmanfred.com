@@ -77,8 +77,8 @@
         <ul class="list">
           <li><a href="https://blog.gtmanfred.com/pages/about.html#about">About</a></li>
 
-          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
           <li><a href="talks/pytest" target="_blank">pytest talk</a></li>
+          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
         </ul>
       </nav>
 
@@ -139,176 +139,168 @@
     <h1>Where to get everything</h1>
 <h3>Edit: perl-cpanplus-dist-arch</h3>
 <p>I now have the perl modules installed using cpanplus</p>
-<div class="highlight"><pre><span></span>pacman -Syu perl-cpanplus-dist-arch
+<div class="highlight"><pre><span></span><code>pacman -Syu perl-cpanplus-dist-arch
 setupdistarch
 cpanp i HTML::FromANSI
-</pre></div>
-
+</code></pre></div>
 
 <p>This will package them so that they are owned and maintained by pacman.</p>
-<div class="highlight"><pre><span></span>└─╼ pacman -Si perl-html-fromansi                                        
-Repository     : gtmanfred
-Name           : perl-html-fromansi
-Version        : 2.03-1
-Description    : converts ANSI text sequences to corresponding HTML codes
-Architecture   : any
-URL            : http://search.cpan.org/~NUFFIN/HTML-FromANSI-2.03/
-Licenses       : GPL  PerlArtistic
-Groups         : None
-Provides       : None
-Depends On     : perl&amp;gt;=5.10.0
-Optional Deps  : None
-Conflicts With : None
-Replaces       : None
-Download Size  :  12.35 KiB
-Installed Size :  63.00 KiB
-Packager       : Daniel Wallace &amp;lt;danielwallace at gtmanfred dot com&amp;gt;
-Build Date     : Fri 09 Aug 2013 09:24:04 PM CDT
-Validated By   : MD5 Sum  SHA256 Sum  Signature
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">└─╼</span><span class="w"> </span><span class="n">pacman</span><span class="w"> </span><span class="o">-</span><span class="n">Si</span><span class="w"> </span><span class="n">perl</span><span class="o">-</span><span class="n">html</span><span class="o">-</span><span class="n">fromansi</span><span class="w">                                        </span>
+<span class="n">Repository</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="n">gtmanfred</span><span class="w"></span>
+<span class="n">Name</span><span class="w">           </span><span class="p">:</span><span class="w"> </span><span class="n">perl</span><span class="o">-</span><span class="n">html</span><span class="o">-</span><span class="n">fromansi</span><span class="w"></span>
+<span class="n">Version</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="mf">2.03</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="n">Description</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="n">converts</span><span class="w"> </span><span class="n">ANSI</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="n">sequences</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">corresponding</span><span class="w"> </span><span class="n">HTML</span><span class="w"> </span><span class="n">codes</span><span class="w"></span>
+<span class="n">Architecture</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="n">any</span><span class="w"></span>
+<span class="n">URL</span><span class="w">            </span><span class="p">:</span><span class="w"> </span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">search</span><span class="o">.</span><span class="n">cpan</span><span class="o">.</span><span class="n">org</span><span class="o">/~</span><span class="n">NUFFIN</span><span class="o">/</span><span class="n">HTML</span><span class="o">-</span><span class="n">FromANSI</span><span class="o">-</span><span class="mf">2.03</span><span class="o">/</span><span class="w"></span>
+<span class="n">Licenses</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="n">GPL</span><span class="w">  </span><span class="n">PerlArtistic</span><span class="w"></span>
+<span class="n">Groups</span><span class="w">         </span><span class="p">:</span><span class="w"> </span><span class="n">None</span><span class="w"></span>
+<span class="n">Provides</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="n">None</span><span class="w"></span>
+<span class="n">Depends</span><span class="w"> </span><span class="n">On</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="n">perl</span><span class="o">&gt;=</span><span class="mf">5.10</span><span class="o">.</span><span class="mi">0</span><span class="w"></span>
+<span class="n">Optional</span><span class="w"> </span><span class="n">Deps</span><span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="n">None</span><span class="w"></span>
+<span class="n">Conflicts</span><span class="w"> </span><span class="n">With</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">None</span><span class="w"></span>
+<span class="n">Replaces</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="n">None</span><span class="w"></span>
+<span class="n">Download</span><span class="w"> </span><span class="n">Size</span><span class="w">  </span><span class="p">:</span><span class="w">  </span><span class="mf">12.35</span><span class="w"> </span><span class="n">KiB</span><span class="w"></span>
+<span class="n">Installed</span><span class="w"> </span><span class="n">Size</span><span class="w"> </span><span class="p">:</span><span class="w">  </span><span class="mf">63.00</span><span class="w"> </span><span class="n">KiB</span><span class="w"></span>
+<span class="n">Packager</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="n">Daniel</span><span class="w"> </span><span class="n">Wallace</span><span class="w"> </span><span class="o">&lt;</span><span class="n">danielwallace</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">gtmanfred</span><span class="w"> </span><span class="n">dot</span><span class="w"> </span><span class="n">com</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">Build</span><span class="w"> </span><span class="n">Date</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="n">Fri</span><span class="w"> </span><span class="mi">09</span><span class="w"> </span><span class="n">Aug</span><span class="w"> </span><span class="mi">2013</span><span class="w"> </span><span class="mi">09</span><span class="p">:</span><span class="mi">24</span><span class="p">:</span><span class="mi">04</span><span class="w"> </span><span class="n">PM</span><span class="w"> </span><span class="n">CDT</span><span class="w"></span>
+<span class="n">Validated</span><span class="w"> </span><span class="n">By</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="n">MD5</span><span class="w"> </span><span class="n">Sum</span><span class="w">  </span><span class="n">SHA256</span><span class="w"> </span><span class="n">Sum</span><span class="w">  </span><span class="n">Signature</span><span class="w"></span>
+</code></pre></div>
 
 <p><a href="http://git.server-speed.net/users/flo/filebin/">Filebin</a> is pretty simple, all you need to do
 is git clone it into your document root.</p>
-<div class="highlight"><pre><span></span>git clone git://git.server-speed.net/users/flo/filebin/ /srv/http/paste.gtmanfred.com
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>git clone git://git.server-speed.net/users/flo/filebin/ /srv/http/paste.gtmanfred.com
+</code></pre></div>
 
 <p>Anything else need to be said? Oh right, I had problems with the cpan dependencies and what
 not for HTML::FromANSI.  I ended up just installing them into my users ~/.cpan directory, then
 just moving them to /usr/share/parl5/site_perl instead of packaging them because I didn't see
 them in the Arch Linux repositories.</p>
-<div class="highlight"><pre><span></span>perl-text-markdown
+<div class="highlight"><pre><span></span><code>perl-text-markdown
 php-memcache
 qrencode
 python2-pygments
-</pre></div>
-
+</code></pre></div>
 
 <p>And then a database, I chose to use mariadb because I have been using MySQL so much at work, i
 want some practice with it outside of work as well.</p>
 <h1>Setting up the config files</h1>
 <p>So I just followed the instructions in
 <a href="http://git.server-speed.net/users/flo/filebin/tree/INSTALL">INSTALl</a> for the most part.</p>
-<div class="highlight"><pre><span></span>cd /srv/http/paste.gtmanfred.com
+<div class="highlight"><pre><span></span><code>cd /srv/http/paste.gtmanfred.com
 cp -av application/config/example/* application/config
 cp -av data/local/examples/contact-info.php data/local/
-</pre></div>
-
+</code></pre></div>
 
 <p>Next you need to setup the databases for mariadb or w/e databse you are going to use.</p>
-<div class="highlight"><pre><span></span>mysql -u root
-MariaDB [(none)]&amp;gt; create database pastes;
+<div class="highlight"><pre><span></span><code>mysql -u root
+MariaDB [(none)]&gt; create database pastes;
 Query OK, 1 row affected (0.02 sec)
 
-MariaDB [(none)]&amp;gt; create user &#39;pastes&#39;@&#39;localhost&#39; identified by &#39;&amp;lt;password&amp;gt;&#39;;
+MariaDB [(none)]&gt; create user &#39;pastes&#39;@&#39;localhost&#39; identified by &#39;&lt;password&gt;&#39;;
 Query OK, 0 rows affected (0.10 sec)
 
-MariaDB [(none)]&amp;gt; Grant all privileges on pastes.* to &#39;pastes&#39;@&#39;localhost&#39;;
+MariaDB [(none)]&gt; Grant all privileges on pastes.* to &#39;pastes&#39;@&#39;localhost&#39;;
 Query OK, 0 rows affected (0.04 sec)
-</pre></div>
-
+</code></pre></div>
 
 <p>After this point, I started setting up the config-local.php like was described in
 <a href="http://git.server-speed.net/users/flo/filebin/tree/INSTALL">INSTALL</a></p>
-<div class="highlight"><pre><span></span>╘═😸 tail -c +0 config-local.php database.php
-==&amp;gt; config-local.php &amp;lt;==
-&amp;lt;?php  if ( ! defined(&#39;BASEPATH&#39;)) exit(&#39;No direct script access allowed&#39;);
+<div class="highlight"><pre><span></span><code><span class="err">╘═😸</span><span class="w"> </span><span class="n">tail</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="o">+</span><span class="mi">0</span><span class="w"> </span><span class="n">config</span><span class="o">-</span><span class="n">local</span><span class="o">.</span><span class="n">php</span><span class="w"> </span><span class="n">database</span><span class="o">.</span><span class="n">php</span><span class="w"></span>
+<span class="o">==&gt;</span><span class="w"> </span><span class="n">config</span><span class="o">-</span><span class="n">local</span><span class="o">.</span><span class="n">php</span><span class="w"> </span><span class="o">&lt;==</span><span class="w"></span>
+<span class="o">&lt;</span><span class="err">?</span><span class="n">php</span><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="n">defined</span><span class="p">(</span><span class="s1">&#39;BASEPATH&#39;</span><span class="p">))</span><span class="w"> </span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;No direct script access allowed&#39;</span><span class="p">);</span><span class="w"></span>
 
-/*
- * Use this file to override any settings from config.php
- */
+<span class="o">/*</span><span class="w"></span>
+<span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Use</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">override</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="n">settings</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">php</span><span class="w"></span>
+<span class="w"> </span><span class="o">*/</span><span class="w"></span>
 
-// set this to a 32char random string
-$config[&#39;encryption_key&#39;] = &#39;&amp;lt;insert any random string&amp;gt;&#39;;
+<span class="o">//</span><span class="w"> </span><span class="n">set</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="mi">32</span><span class="nb">char</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="o">$</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;encryption_key&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;insert any random string&gt;&#39;</span><span class="p">;</span><span class="w"></span>
 
-// shouldn&#39;t be served by the webserver
-$config[&#39;upload_path&#39;] = FCPATH.&#39;data/uploads&#39;;
+<span class="o">//</span><span class="w"> </span><span class="n">shouldn</span><span class="s1">&#39;t be served by the webserver</span>
+<span class="o">$</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;upload_path&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FCPATH</span><span class="o">.</span><span class="s1">&#39;data/uploads&#39;</span><span class="p">;</span><span class="w"></span>
 
-// don&#39;t show index.php in the url
-$config[&#39;index_page&#39;] = &#39;&#39;;
-
-
-==&amp;gt; database.php &amp;lt;==
-&amp;lt;?php  if ( ! defined(&#39;BASEPATH&#39;)) exit(&#39;No direct script access allowed&#39;);
-/*
-| -------------------------------------------------------------------
-| DATABASE CONNECTIVITY SETTINGS
-| -------------------------------------------------------------------
-| This file will contain the settings needed to access your database.
-|
-| For complete instructions please consult the &#39;Database Connection&#39;
-| page of the User Guide.
-|
-| -------------------------------------------------------------------
-| EXPLANATION OF VARIABLES
-| -------------------------------------------------------------------
-|
-|   [&#39;hostname&#39;] The hostname of your database server.
-|   [&#39;username&#39;] The username used to connect to the database
-|   [&#39;password&#39;] The password used to connect to the database
-|   [&#39;database&#39;] The name of the database you want to connect to
-|   [&#39;dbdriver&#39;] The database type. ie: mysql.  Currently supported:
-                 mysql, mysqli, postgre, odbc, mssql, sqlite, oci8
-|   [&#39;dbprefix&#39;] You can add an optional prefix, which will be added
-|                to the table name when using the  Active Record class
-|   [&#39;pconnect&#39;] TRUE/FALSE - Whether to use a persistent connection
-|   [&#39;db_debug&#39;] TRUE/FALSE - Whether database errors should be displayed.
-|   [&#39;cache_on&#39;] TRUE/FALSE - Enables/disables query caching
-|   [&#39;cachedir&#39;] The path to the folder where cache files should be stored
-|   [&#39;char_set&#39;] The character set used in communicating with the database
-|   [&#39;dbcollat&#39;] The character collation used in communicating with the database
-|                NOTE: For MySQL and MySQLi databases, this setting is only used
-|                as a backup if your server is running PHP &amp;lt; 5.2.3 or MySQL &amp;lt; 5.0.7
-|                (and in table creation queries made with DB Forge).
-|                There is an incompatibility in PHP with mysql_real_escape_string() which
-|                can make your site vulnerable to SQL injection if you are using a
-|                multi-byte character set and are running versions lower than these.
-|                Sites using Latin-1 or UTF-8 database character set and collation are unaffected.
-|   [&#39;swap_pre&#39;] A default table prefix that should be swapped with the dbprefix
-|   [&#39;autoinit&#39;] Whether or not to automatically initialize the database.
-|   [&#39;stricton&#39;] TRUE/FALSE - forces &#39;Strict Mode&#39; connections
-|                           - good for ensuring strict SQL while developing
-|
-| The $active_group variable lets you choose which connection group to
-| make active.  By default there is only one group (the &#39;default&#39; group).
-|
-| The $active_record variables lets you determine whether or not to load
-| the active record class
-*/
-
-$active_group = &#39;default&#39;;
-$active_record = TRUE;
-
-$db[&#39;default&#39;][&#39;hostname&#39;] = &quot;localhost&quot;;
-$db[&#39;default&#39;][&#39;username&#39;] = &quot;pastes&quot;;
-$db[&#39;default&#39;][&#39;password&#39;] = &quot;&amp;lt;password&amp;gt;&quot;;
-$db[&#39;default&#39;][&#39;database&#39;] = &quot;pastes&quot;;
-$db[&#39;default&#39;][&#39;dbdriver&#39;] = &quot;mysqli&quot;;
-$db[&#39;default&#39;][&#39;dbprefix&#39;] = &quot;&quot;;
-$db[&#39;default&#39;][&#39;pconnect&#39;] = TRUE;
-$db[&#39;default&#39;][&#39;db_debug&#39;] = TRUE;
-$db[&#39;default&#39;][&#39;cache_on&#39;] = FALSE;
-$db[&#39;default&#39;][&#39;cachedir&#39;] = &quot;&quot;;
-$db[&#39;default&#39;][&#39;char_set&#39;] = &quot;utf8&quot;;
-$db[&#39;default&#39;][&#39;dbcollat&#39;] = &quot;utf8_bin&quot;;
-$db[&#39;default&#39;][&#39;swap_pre&#39;] = &#39;&#39;;
-$db[&#39;default&#39;][&#39;autoinit&#39;] = TRUE;
-$db[&#39;default&#39;][&#39;stricton&#39;] = FALSE;
+<span class="o">//</span><span class="w"> </span><span class="n">don</span><span class="s1">&#39;t show index.php in the url</span>
+<span class="o">$</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;index_page&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">;</span><span class="w"></span>
 
 
-/* End of file database.php */
-/* Location: ./application/config/database.php */
-</pre></div>
+<span class="o">==&gt;</span><span class="w"> </span><span class="n">database</span><span class="o">.</span><span class="n">php</span><span class="w"> </span><span class="o">&lt;==</span><span class="w"></span>
+<span class="o">&lt;</span><span class="err">?</span><span class="n">php</span><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="n">defined</span><span class="p">(</span><span class="s1">&#39;BASEPATH&#39;</span><span class="p">))</span><span class="w"> </span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;No direct script access allowed&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="o">/*</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="o">-------------------------------------------------------------------</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="n">DATABASE</span><span class="w"> </span><span class="n">CONNECTIVITY</span><span class="w"> </span><span class="n">SETTINGS</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="o">-------------------------------------------------------------------</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="n">This</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">contain</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">settings</span><span class="w"> </span><span class="n">needed</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">database</span><span class="o">.</span><span class="w"></span>
+<span class="o">|</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="n">For</span><span class="w"> </span><span class="n">complete</span><span class="w"> </span><span class="n">instructions</span><span class="w"> </span><span class="n">please</span><span class="w"> </span><span class="n">consult</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="s1">&#39;Database Connection&#39;</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="n">page</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="n">Guide</span><span class="o">.</span><span class="w"></span>
+<span class="o">|</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="o">-------------------------------------------------------------------</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="n">EXPLANATION</span><span class="w"> </span><span class="n">OF</span><span class="w"> </span><span class="n">VARIABLES</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="o">-------------------------------------------------------------------</span><span class="w"></span>
+<span class="o">|</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;hostname&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">hostname</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">database</span><span class="w"> </span><span class="n">server</span><span class="o">.</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">username</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">connect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">database</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">password</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">connect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">database</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">database</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">want</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">connect</span><span class="w"> </span><span class="n">to</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;dbdriver&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">database</span><span class="w"> </span><span class="n">type</span><span class="o">.</span><span class="w"> </span><span class="n">ie</span><span class="p">:</span><span class="w"> </span><span class="n">mysql</span><span class="o">.</span><span class="w">  </span><span class="n">Currently</span><span class="w"> </span><span class="n">supported</span><span class="p">:</span><span class="w"></span>
+<span class="w">                 </span><span class="n">mysql</span><span class="p">,</span><span class="w"> </span><span class="n">mysqli</span><span class="p">,</span><span class="w"> </span><span class="n">postgre</span><span class="p">,</span><span class="w"> </span><span class="n">odbc</span><span class="p">,</span><span class="w"> </span><span class="n">mssql</span><span class="p">,</span><span class="w"> </span><span class="n">sqlite</span><span class="p">,</span><span class="w"> </span><span class="n">oci8</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;dbprefix&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">You</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">add</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">optional</span><span class="w"> </span><span class="n">prefix</span><span class="p">,</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">added</span><span class="w"></span>
+<span class="o">|</span><span class="w">                </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">using</span><span class="w"> </span><span class="n">the</span><span class="w">  </span><span class="n">Active</span><span class="w"> </span><span class="n">Record</span><span class="w"> </span><span class="k">class</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;pconnect&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">TRUE</span><span class="o">/</span><span class="n">FALSE</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Whether</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">persistent</span><span class="w"> </span><span class="n">connection</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;db_debug&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">TRUE</span><span class="o">/</span><span class="n">FALSE</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Whether</span><span class="w"> </span><span class="n">database</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">displayed</span><span class="o">.</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;cache_on&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">TRUE</span><span class="o">/</span><span class="n">FALSE</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Enables</span><span class="o">/</span><span class="n">disables</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="n">caching</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;cachedir&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">folder</span><span class="w"> </span><span class="n">where</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">files</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">stored</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;char_set&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">character</span><span class="w"> </span><span class="n">set</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">communicating</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">database</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;dbcollat&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">character</span><span class="w"> </span><span class="n">collation</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">communicating</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">database</span><span class="w"></span>
+<span class="o">|</span><span class="w">                </span><span class="n">NOTE</span><span class="p">:</span><span class="w"> </span><span class="n">For</span><span class="w"> </span><span class="n">MySQL</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">MySQLi</span><span class="w"> </span><span class="n">databases</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">setting</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">only</span><span class="w"> </span><span class="n">used</span><span class="w"></span>
+<span class="o">|</span><span class="w">                </span><span class="k">as</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">backup</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="n">PHP</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">5.2</span><span class="o">.</span><span class="mi">3</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">MySQL</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">5.0</span><span class="o">.</span><span class="mi">7</span><span class="w"></span>
+<span class="o">|</span><span class="w">                </span><span class="p">(</span><span class="ow">and</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="n">creation</span><span class="w"> </span><span class="n">queries</span><span class="w"> </span><span class="n">made</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">DB</span><span class="w"> </span><span class="n">Forge</span><span class="p">)</span><span class="o">.</span><span class="w"></span>
+<span class="o">|</span><span class="w">                </span><span class="n">There</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">incompatibility</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">PHP</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">mysql_real_escape_string</span><span class="p">()</span><span class="w"> </span><span class="n">which</span><span class="w"></span>
+<span class="o">|</span><span class="w">                </span><span class="n">can</span><span class="w"> </span><span class="n">make</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">site</span><span class="w"> </span><span class="n">vulnerable</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">SQL</span><span class="w"> </span><span class="n">injection</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">using</span><span class="w"> </span><span class="n">a</span><span class="w"></span>
+<span class="o">|</span><span class="w">                </span><span class="n">multi</span><span class="o">-</span><span class="n">byte</span><span class="w"> </span><span class="n">character</span><span class="w"> </span><span class="n">set</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="n">versions</span><span class="w"> </span><span class="n">lower</span><span class="w"> </span><span class="n">than</span><span class="w"> </span><span class="n">these</span><span class="o">.</span><span class="w"></span>
+<span class="o">|</span><span class="w">                </span><span class="n">Sites</span><span class="w"> </span><span class="n">using</span><span class="w"> </span><span class="n">Latin</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">UTF</span><span class="o">-</span><span class="mi">8</span><span class="w"> </span><span class="n">database</span><span class="w"> </span><span class="n">character</span><span class="w"> </span><span class="n">set</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">collation</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">unaffected</span><span class="o">.</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;swap_pre&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="n">prefix</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">swapped</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">dbprefix</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;autoinit&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">Whether</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">automatically</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">database</span><span class="o">.</span><span class="w"></span>
+<span class="o">|</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;stricton&#39;</span><span class="p">]</span><span class="w"> </span><span class="n">TRUE</span><span class="o">/</span><span class="n">FALSE</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">forces</span><span class="w"> </span><span class="s1">&#39;Strict Mode&#39;</span><span class="w"> </span><span class="n">connections</span><span class="w"></span>
+<span class="o">|</span><span class="w">                           </span><span class="o">-</span><span class="w"> </span><span class="n">good</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">ensuring</span><span class="w"> </span><span class="n">strict</span><span class="w"> </span><span class="n">SQL</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="n">developing</span><span class="w"></span>
+<span class="o">|</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="o">$</span><span class="n">active_group</span><span class="w"> </span><span class="n">variable</span><span class="w"> </span><span class="n">lets</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">choose</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="n">connection</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="n">to</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="n">make</span><span class="w"> </span><span class="n">active</span><span class="o">.</span><span class="w">  </span><span class="n">By</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">only</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="p">(</span><span class="n">the</span><span class="w"> </span><span class="s1">&#39;default&#39;</span><span class="w"> </span><span class="n">group</span><span class="p">)</span><span class="o">.</span><span class="w"></span>
+<span class="o">|</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="o">$</span><span class="n">active_record</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="n">lets</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">determine</span><span class="w"> </span><span class="n">whether</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="nb">load</span><span class="w"></span>
+<span class="o">|</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">active</span><span class="w"> </span><span class="n">record</span><span class="w"> </span><span class="k">class</span><span class="w"></span>
+<span class="o">*/</span><span class="w"></span>
 
+<span class="o">$</span><span class="n">active_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;default&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">active_record</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TRUE</span><span class="p">;</span><span class="w"></span>
+
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;hostname&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;localhost&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;username&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pastes&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;password&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;password&gt;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;database&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pastes&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;dbdriver&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;mysqli&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;dbprefix&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;pconnect&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TRUE</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;db_debug&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TRUE</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;cache_on&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FALSE</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;cachedir&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;char_set&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;utf8&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;dbcollat&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;utf8_bin&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;swap_pre&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;autoinit&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TRUE</span><span class="p">;</span><span class="w"></span>
+<span class="o">$</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;stricton&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FALSE</span><span class="p">;</span><span class="w"></span>
+
+
+<span class="o">/*</span><span class="w"> </span><span class="n">End</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">database</span><span class="o">.</span><span class="n">php</span><span class="w"> </span><span class="o">*/</span><span class="w"></span>
+<span class="o">/*</span><span class="w"> </span><span class="n">Location</span><span class="p">:</span><span class="w"> </span><span class="o">./</span><span class="n">application</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="n">database</span><span class="o">.</span><span class="n">php</span><span class="w"> </span><span class="o">*/</span><span class="w"></span>
+</code></pre></div>
 
 <h1>Creating your first user</h1>
 <p>Go to http://<domain>/user/hash_password and you can create a password hash for your first
 user. Then just add them to the mysql database, at this point your tables should have been
 generated.</p>
-<div class="highlight"><pre><span></span>insert into users (username,password,email,referer) values (&#39;username&#39;, &#39;above hash password&#39;, &#39;email&#39;, 0);
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>insert into users (username,password,email,referer) values (&#39;username&#39;, &#39;above hash password&#39;, &#39;email&#39;, 0);
+</code></pre></div>
 
 <p>You should now have everything you need to login, but only on the website. I was unable to get
 nginx to pass on the HTTP_AUTHORIZATION header to uwsgi.  Then apikeys were implemented this
@@ -320,74 +312,73 @@ you want to get rid of the index.php from the url, you need to make sure to set
 uwsgi config files.  Remember I am using Uwsgi, but you should be able to mimic this easily
 with fcgiwrap.  Also, I am using the uwsgi@.service and uwsgi@.socket from the Arch Linux
 package.</p>
-<div class="highlight"><pre><span></span><span class="err">└─╼</span> <span class="nt">tail</span> <span class="nt">-c</span> <span class="o">+</span><span class="nt">0</span> <span class="o">/</span><span class="nt">etc</span><span class="o">/</span><span class="nt">nginx</span><span class="o">/</span><span class="nt">conf</span><span class="o">/</span><span class="nt">paste</span><span class="p">.</span><span class="nc">gtmanfred</span><span class="p">.</span><span class="nc">com</span><span class="p">.</span><span class="nc">conf</span> <span class="o">/</span><span class="nt">etc</span><span class="o">/</span><span class="nt">uwsgi</span><span class="o">/</span><span class="nt">paste</span><span class="p">.</span><span class="nc">ini</span>
-<span class="o">==&amp;</span><span class="nt">gt</span><span class="o">;</span> <span class="o">/</span><span class="nt">etc</span><span class="o">/</span><span class="nt">nginx</span><span class="o">/</span><span class="nt">conf</span><span class="o">/</span><span class="nt">paste</span><span class="p">.</span><span class="nc">gtmanfred</span><span class="p">.</span><span class="nc">com</span><span class="p">.</span><span class="nc">conf</span> <span class="o">&amp;</span><span class="nt">lt</span><span class="o">;==</span>
-<span class="nt">server</span> <span class="p">{</span>
-    <span class="err">listen</span> <span class="n">fd</span><span class="p">:</span><span class="mi">3</span><span class="p">;</span>
-    <span class="err">server_name</span> <span class="err">paste.gtmanfred.com</span><span class="p">;</span>
-    <span class="err">root</span> <span class="err">/srv/http/paste.gtmanfred.com</span><span class="p">;</span>
-    <span class="err">index</span> <span class="err">index.php</span><span class="p">;</span>
-    <span class="err">error_log</span> <span class="err">/var/log/nginx/paste.gtmanfred.com-error_log</span><span class="p">;</span>
-    <span class="err">rewrite_log</span> <span class="err">on</span><span class="p">;</span>
-    <span class="err">location</span> <span class="err">/</span> <span class="err">{</span>
-        <span class="err">try_files</span> <span class="err">$uri</span> <span class="err">$uri/</span> <span class="err">@ee</span><span class="p">;</span>
-    <span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="err">└─╼</span><span class="w"> </span><span class="n">tail</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="o">+</span><span class="mi">0</span><span class="w"> </span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">paste</span><span class="o">.</span><span class="n">gtmanfred</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">conf</span><span class="w"> </span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">uwsgi</span><span class="o">/</span><span class="n">paste</span><span class="o">.</span><span class="n">ini</span><span class="w"></span>
+<span class="o">==&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">paste</span><span class="o">.</span><span class="n">gtmanfred</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">conf</span><span class="w"> </span><span class="o">&lt;==</span><span class="w"></span>
+<span class="n">server</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">listen</span><span class="w"> </span><span class="n">fd</span><span class="p">:</span><span class="mi">3</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">server_name</span><span class="w"> </span><span class="n">paste</span><span class="o">.</span><span class="n">gtmanfred</span><span class="o">.</span><span class="n">com</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">root</span><span class="w"> </span><span class="o">/</span><span class="n">srv</span><span class="o">/</span><span class="n">http</span><span class="o">/</span><span class="n">paste</span><span class="o">.</span><span class="n">gtmanfred</span><span class="o">.</span><span class="n">com</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">index</span><span class="w"> </span><span class="n">index</span><span class="o">.</span><span class="n">php</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">error_log</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">paste</span><span class="o">.</span><span class="n">gtmanfred</span><span class="o">.</span><span class="n">com</span><span class="o">-</span><span class="n">error_log</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">rewrite_log</span><span class="w"> </span><span class="n">on</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">location</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">try_files</span><span class="w"> </span><span class="o">$</span><span class="n">uri</span><span class="w"> </span><span class="o">$</span><span class="n">uri</span><span class="o">/</span><span class="w"> </span><span class="err">@</span><span class="n">ee</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="nt">location</span> <span class="p">@</span><span class="k">ee</span> <span class="p">{</span>
-        <span class="nt">rewrite</span> <span class="o">^(.*)</span> <span class="o">/</span><span class="nt">index</span><span class="p">.</span><span class="nc">php</span><span class="o">?$</span><span class="nt">1</span> <span class="nt">last</span><span class="o">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">location</span><span class="w"> </span><span class="err">@</span><span class="n">ee</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">rewrite</span><span class="w"> </span><span class="o">^</span><span class="p">(</span><span class="o">.*</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="n">index</span><span class="o">.</span><span class="n">php</span><span class="err">?</span><span class="o">$</span><span class="mi">1</span><span class="w"> </span><span class="n">last</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="nt">location</span> <span class="o">~</span> <span class="err">\</span><span class="p">.</span><span class="nc">php</span><span class="o">$</span> <span class="p">{</span>
-        <span class="err">include</span> <span class="err">uwsgi_params</span><span class="p">;</span>
-        <span class="err">uwsgi_modifier1</span> <span class="err">14</span><span class="p">;</span>
-        <span class="err">uwsgi_pass</span> <span class="n">localhost</span><span class="p">:</span><span class="mi">8090</span><span class="p">;</span>
-        <span class="err">uwsgi_pass_request_headers</span> <span class="err">on</span><span class="p">;</span>
-        <span class="err">uwsgi_pass_header</span> <span class="err">HTTP_AUTHENTICATION</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">location</span><span class="w"> </span><span class="o">~</span><span class="w"> </span>\<span class="o">.</span><span class="n">php</span><span class="o">$</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">include</span><span class="w"> </span><span class="n">uwsgi_params</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">uwsgi_modifier1</span><span class="w"> </span><span class="mi">14</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">uwsgi_pass</span><span class="w"> </span><span class="n">localhost</span><span class="p">:</span><span class="mi">8090</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">uwsgi_pass_request_headers</span><span class="w"> </span><span class="n">on</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">uwsgi_pass_header</span><span class="w"> </span><span class="n">HTTP_AUTHENTICATION</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="err">}</span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="o">==&amp;</span><span class="nt">gt</span><span class="o">;</span> <span class="o">/</span><span class="nt">etc</span><span class="o">/</span><span class="nt">uwsgi</span><span class="o">/</span><span class="nt">paste</span><span class="p">.</span><span class="nc">ini</span> <span class="o">&amp;</span><span class="nt">lt</span><span class="o">;==</span>
+<span class="o">==&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">uwsgi</span><span class="o">/</span><span class="n">paste</span><span class="o">.</span><span class="n">ini</span><span class="w"> </span><span class="o">&lt;==</span><span class="w"></span>
 
-<span class="cp">[</span><span class="nx">uwsgi</span><span class="cp">]</span>
-<span class="o">;</span> <span class="nt">load</span> <span class="nt">plugins</span>
-<span class="nt">plugins</span> <span class="o">=</span> <span class="nt">php</span>
+<span class="p">[</span><span class="n">uwsgi</span><span class="p">]</span><span class="w"></span>
+<span class="p">;</span><span class="w"> </span><span class="nb">load</span><span class="w"> </span><span class="n">plugins</span><span class="w"></span>
+<span class="n">plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">php</span><span class="w"></span>
 
-<span class="nt">gid</span><span class="o">=</span><span class="nt">users</span>
-<span class="nt">uid</span><span class="o">=</span><span class="nt">git</span>
-
-
-<span class="o">;</span> <span class="nt">our</span> <span class="nt">working</span> <span class="nt">dir</span>
-<span class="nt">project_dir</span> <span class="o">=</span> <span class="o">/</span><span class="nt">srv</span><span class="o">/</span><span class="nt">http</span><span class="o">/</span><span class="nt">paste</span><span class="p">.</span><span class="nc">gtmanfred</span><span class="p">.</span><span class="nc">com</span>
-
-<span class="o">;</span> <span class="nt">chdir</span> <span class="nt">to</span> <span class="nt">it</span> <span class="o">(</span><span class="nt">just</span> <span class="nt">for</span> <span class="nt">fun</span><span class="o">)</span>
-<span class="nt">chdir</span> <span class="o">=</span> <span class="o">%(</span><span class="nt">project_dir</span><span class="o">)</span>
+<span class="n">gid</span><span class="o">=</span><span class="n">users</span><span class="w"></span>
+<span class="n">uid</span><span class="o">=</span><span class="n">git</span><span class="w"></span>
 
 
-<span class="o">;</span> <span class="nt">reload</span> <span class="nt">whenever</span> <span class="nt">this</span> <span class="nt">config</span> <span class="nt">file</span> <span class="nt">changes</span>
-<span class="o">;</span> <span class="o">%</span><span class="nt">p</span> <span class="nt">is</span> <span class="nt">the</span> <span class="nt">full</span> <span class="nt">path</span> <span class="nt">of</span> <span class="nt">the</span> <span class="nt">current</span> <span class="nt">config</span> <span class="nt">file</span>
-<span class="nt">touch-reload</span> <span class="o">=</span> <span class="o">%</span><span class="nt">p</span>
+<span class="p">;</span><span class="w"> </span><span class="n">our</span><span class="w"> </span><span class="n">working</span><span class="w"> </span><span class="n">dir</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">/</span><span class="n">srv</span><span class="o">/</span><span class="n">http</span><span class="o">/</span><span class="n">paste</span><span class="o">.</span><span class="n">gtmanfred</span><span class="o">.</span><span class="n">com</span><span class="w"></span>
 
-<span class="o">;</span> <span class="nt">run</span> <span class="nt">with</span> <span class="nt">at</span> <span class="nt">least</span> <span class="nt">2</span> <span class="nt">processes</span> <span class="nt">but</span> <span class="nt">increase</span> <span class="nt">upto</span> <span class="nt">8</span> <span class="nt">when</span> <span class="nt">needed</span>
-<span class="nt">master</span> <span class="o">=</span> <span class="nt">true</span>
-<span class="nt">processes</span> <span class="o">=</span> <span class="nt">8</span>
-<span class="nt">cheaper</span> <span class="o">=</span> <span class="nt">2</span>
+<span class="p">;</span><span class="w"> </span><span class="n">chdir</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="p">(</span><span class="n">just</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">fun</span><span class="p">)</span><span class="w"></span>
+<span class="n">chdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">%</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span><span class="w"></span>
 
-<span class="nt">logto</span> <span class="o">=</span> <span class="o">/</span><span class="nt">var</span><span class="o">/</span><span class="nt">log</span><span class="o">/</span><span class="nt">filebin</span><span class="o">/</span><span class="nt">php</span>
-<span class="o">;</span><span class="nt">rotate</span> <span class="nt">logs</span> <span class="nt">when</span> <span class="nt">filesize</span> <span class="nt">is</span> <span class="nt">higher</span> <span class="nt">than</span> <span class="nt">20</span> <span class="nt">megs</span>
-<span class="nt">log-maxsize</span> <span class="o">=</span> <span class="nt">20971520</span>
 
-<span class="o">;</span> <span class="nt">map</span> <span class="nt">php</span> <span class="nt">modifier</span> <span class="nt">as</span> <span class="nt">the</span> <span class="nt">default</span>
-<span class="nt">static-skip-ext</span> <span class="o">=</span> <span class="p">.</span><span class="nc">php</span>
-<span class="nt">php-allowed-ext</span> <span class="o">=</span> <span class="p">.</span><span class="nc">php</span>
-<span class="nt">php-allowed-ext</span> <span class="o">=</span> <span class="p">.</span><span class="nc">inc</span>
-<span class="nt">php-index</span> <span class="o">=</span> <span class="nt">index</span><span class="p">.</span><span class="nc">php</span>
+<span class="p">;</span><span class="w"> </span><span class="n">reload</span><span class="w"> </span><span class="n">whenever</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">changes</span><span class="w"></span>
+<span class="p">;</span><span class="w"> </span><span class="o">%</span><span class="n">p</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">full</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="n">file</span><span class="w"></span>
+<span class="n">touch</span><span class="o">-</span><span class="n">reload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">%</span><span class="n">p</span><span class="w"></span>
 
-<span class="o">;</span> <span class="nt">show</span> <span class="nt">config</span> <span class="nt">tree</span> <span class="nt">on</span> <span class="nt">startup</span><span class="o">,</span> <span class="nt">just</span> <span class="nt">to</span> <span class="nt">see</span>
-<span class="o">;</span> <span class="nt">how</span> <span class="nt">cool</span> <span class="nt">is</span> <span class="nt">1</span><span class="p">.</span><span class="nc">1</span> <span class="nt">config</span> <span class="nt">logic</span>
-<span class="nt">show-config</span> <span class="o">=</span> <span class="nt">true</span>
-</pre></div>
+<span class="p">;</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">least</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="n">processes</span><span class="w"> </span><span class="n">but</span><span class="w"> </span><span class="n">increase</span><span class="w"> </span><span class="n">upto</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">needed</span><span class="w"></span>
+<span class="k">master</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">true</span><span class="w"></span>
+<span class="n">processes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="w"></span>
+<span class="n">cheaper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
 
+<span class="n">logto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">filebin</span><span class="o">/</span><span class="n">php</span><span class="w"></span>
+<span class="p">;</span><span class="n">rotate</span><span class="w"> </span><span class="n">logs</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">filesize</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">higher</span><span class="w"> </span><span class="n">than</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="n">megs</span><span class="w"></span>
+<span class="nb">log</span><span class="o">-</span><span class="n">maxsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20971520</span><span class="w"></span>
+
+<span class="p">;</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="n">php</span><span class="w"> </span><span class="n">modifier</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">default</span><span class="w"></span>
+<span class="k">static</span><span class="o">-</span><span class="n">skip</span><span class="o">-</span><span class="n">ext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">.</span><span class="n">php</span><span class="w"></span>
+<span class="n">php</span><span class="o">-</span><span class="n">allowed</span><span class="o">-</span><span class="n">ext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">.</span><span class="n">php</span><span class="w"></span>
+<span class="n">php</span><span class="o">-</span><span class="n">allowed</span><span class="o">-</span><span class="n">ext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">.</span><span class="n">inc</span><span class="w"></span>
+<span class="n">php</span><span class="o">-</span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">index</span><span class="o">.</span><span class="n">php</span><span class="w"></span>
+
+<span class="p">;</span><span class="w"> </span><span class="n">show</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="n">tree</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">startup</span><span class="p">,</span><span class="w"> </span><span class="n">just</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">see</span><span class="w"></span>
+<span class="p">;</span><span class="w"> </span><span class="n">how</span><span class="w"> </span><span class="n">cool</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="mf">1.1</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="n">logic</span><span class="w"></span>
+<span class="n">show</span><span class="o">-</span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">true</span><span class="w"></span>
+</code></pre></div>
 
 <p>Then I just have to enable and start uwsgi@paste.socket and reload nginx.</p>
 <h1>fb-client</h1>

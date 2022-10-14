@@ -77,8 +77,8 @@
         <ul class="list">
           <li><a href="https://blog.gtmanfred.com/pages/about.html#about">About</a></li>
 
-          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
           <li><a href="talks/pytest" target="_blank">pytest talk</a></li>
+          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
         </ul>
       </nav>
 
@@ -150,7 +150,7 @@
 <p>Another thing you could do if you were so inclined, would be to copy the module you are going to be modifying to <code>/srv/salt/_modules</code> or whatever <a href="https://docs.saltstack.com/en/latest/ref/file_server/dynamic-modules.html">dynamic directory</a> where it belongs.  You will then need to run <code>salt-call saltutil.sync_all</code> to sync modules to the minion or <code>salt-run saltutil.sync_all</code> for the master.</p>
 <h1>Writing a ... template</h1>
 <p>The first thing that I do any time I make a new file for a salt module is to add the following template.</p>
-<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">:depends: none</span>
 <span class="sd">&#39;&#39;&#39;</span>
@@ -162,9 +162,8 @@
 
 
 <span class="k">def</span> <span class="nf">__virtual__</span><span class="p">():</span>
-    <span class="k">return</span> <span class="bp">True</span>
-</pre></div>
-
+    <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div>
 
 <p>Here are the things that are going on above.</p>
 <ol>
@@ -177,7 +176,7 @@
 <h1>Execution Modules</h1>
 <p>Now lets move to <a href="https://docs.saltstack.com/en/latest/ref/modules/">writing a module</a>.  I am going to demo with a contrived example of a redis module, and then go over every line.</p>
 <p>Here is a simplified <code>salt/modules/redismod.py</code> file.</p>
-<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">Redis module for interactive with basic redis commands.</span>
 
@@ -200,9 +199,9 @@
 <span class="c1"># Import python libraries</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">redis</span>
-    <span class="n">HAS_REDIS</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">HAS_REDIS</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">HAS_REDIS</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">HAS_REDIS</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="n">__virtualname__</span> <span class="o">=</span> <span class="s1">&#39;redis&#39;</span>
 
@@ -213,10 +212,10 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">HAS_REDIS</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">__virtualname__</span>
-    <span class="k">return</span> <span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="s1">&#39;The redis execution module failed to load: redis python module is not available&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;The redis execution module failed to load: redis python module is not available&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_connect</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_connect</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Return redis client instance</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -234,7 +233,7 @@
     <span class="k">return</span> <span class="n">__context__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get Redis key value</span>
 
@@ -249,7 +248,7 @@
     <span class="k">return</span> <span class="n">server</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Set Redis key value</span>
 
@@ -264,7 +263,7 @@
     <span class="k">return</span> <span class="n">server</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Delete Redis key value</span>
 
@@ -277,8 +276,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">server</span> <span class="o">=</span> <span class="n">_connect</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">server</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>There, that is a moderately simple example where we can talk about every thing going on.</p>
 <ol>
@@ -316,7 +314,7 @@
 <h1>State Modules</h1>
 <p>Now lets move on to <a href="https://docs.saltstack.com/en/latest/ref/states/writing.html">writing state modules</a>.  State modules are where all the idempotence, configuration, and statefullness comes in.  I am going to use the above module in order to make sure that certain keys are present or absent in the redis server.</p>
 <p>Here is my simplified <code>salt/states/redismod.py</code></p>
-<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">Management of  Redis servers</span>
 <span class="sd">============================</span>
@@ -352,10 +350,10 @@
 <span class="k">def</span> <span class="nf">__virtual__</span><span class="p">():</span>
     <span class="k">if</span> <span class="s1">&#39;redis.set&#39;</span> <span class="ow">in</span> <span class="n">__salt__</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">__virtualname__</span>
-    <span class="k">return</span> <span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="s1">&#39;The redis execution module failed to load: redis python module is not available&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;The redis execution module failed to load: redis python module is not available&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Ensure key and value pair exists</span>
 
@@ -379,24 +377,24 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
            <span class="s1">&#39;changes&#39;</span><span class="p">:</span> <span class="p">{},</span>
-           <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-           <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to set key {key} to value {value}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)}</span>
+           <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+           <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to set key </span><span class="si">{key}</span><span class="s1"> to value </span><span class="si">{value}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)}</span>
 
     <span class="n">connection</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="n">host</span><span class="p">,</span> <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="s1">&#39;database&#39;</span><span class="p">:</span> <span class="n">database</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">}</span>
     <span class="n">current</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.get&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} is already value correct&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key </span><span class="si">{key}</span><span class="s1"> is already value correct&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span>
 
-    <span class="k">if</span> <span class="n">__opts__</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">__opts__</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;old&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">current</span><span class="p">},</span>
             <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span>
         <span class="p">}</span>
         <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;pchanges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} will be updated.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key </span><span class="si">{key}</span><span class="s1"> will be updated.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span>
 
     <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.set&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">)</span>
@@ -404,8 +402,8 @@
     <span class="n">current</span><span class="p">,</span> <span class="n">old</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.get&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">),</span> <span class="n">current</span>
 
     <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} was updated.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key </span><span class="si">{key}</span><span class="s1"> was updated.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;old&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">old</span><span class="p">},</span>
             <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">current</span><span class="p">},</span>
@@ -415,7 +413,7 @@
     <span class="k">return</span> <span class="n">ret</span>
 
 
-<span class="k">def</span> <span class="nf">absent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">absent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Ensure key is not set.</span>
 
@@ -436,33 +434,33 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
            <span class="s1">&#39;changes&#39;</span><span class="p">:</span> <span class="p">{},</span>
-           <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-           <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to delete key {key}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)}</span>
+           <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+           <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to delete key </span><span class="si">{key}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)}</span>
 
     <span class="n">connection</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="n">host</span><span class="p">,</span> <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="s1">&#39;database&#39;</span><span class="p">:</span> <span class="n">database</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">}</span>
     <span class="n">current</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.get&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} is already absent&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key </span><span class="si">{key}</span><span class="s1"> is already absent&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span>
 
-    <span class="k">if</span> <span class="n">__opts__</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">__opts__</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;old&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">current</span><span class="p">},</span>
-            <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="bp">None</span><span class="p">},</span>
+            <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
         <span class="p">}</span>
         <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;pchanges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} will be deleted.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key </span><span class="si">{key}</span><span class="s1"> will be deleted.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span>
 
     <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.delete&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">)</span>
 
     <span class="n">current</span><span class="p">,</span> <span class="n">old</span> <span class="o">=</span> <span class="n">__salt__</span><span class="p">[</span><span class="s1">&#39;redis.get&#39;</span><span class="p">](</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">connection</span><span class="p">),</span> <span class="n">current</span>
 
-    <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key {key} was deleted.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Key </span><span class="si">{key}</span><span class="s1"> was deleted.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;changes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;old&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">old</span><span class="p">},</span>
             <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">current</span><span class="p">},</span>
@@ -470,8 +468,7 @@
         <span class="k">return</span> <span class="n">ret</span>
 
     <span class="k">return</span> <span class="n">ret</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>And lets review, this will mostly be the same as the execution module with one major difference that we use the execution module in the state.</p>
 <ol>
@@ -500,38 +497,34 @@
 <h1>Running pylint on your changes</h1>
 <p>We run pylint on every change, so it is a good thing to know about because you can start adjusting yourself to write more inline with what pylint wants.  The only big thing that I will say you should know is that our line limit is actually 119 instead of 80.</p>
 <p>Now, to run pylint, you are going to need a few things.  You should install all the dependencies for salt, and you should install the stuff for dev_python27.txt.  But then you also need to update to the newest version of SaltPylint and SaltTesting.</p>
-<div class="highlight"><pre><span></span>pip install -r requirements/dev_python27.txt -r requirements/raet.txt -r requirements/zeromq.txt
+<div class="highlight"><pre><span></span><code>pip install -r requirements/dev_python27.txt -r requirements/raet.txt -r requirements/zeromq.txt
 pip install --upgrade SaltPyLint SaltTesting
-</pre></div>
-
+</code></pre></div>
 
 <p>And then you can run pylint on your code before submitting a PR.</p>
-<div class="highlight"><pre><span></span>pylint --rcfile<span class="o">=</span>.testing.pylintrc --disable<span class="o">=</span>W1307,E1322 salt/
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>pylint --rcfile<span class="o">=</span>.testing.pylintrc --disable<span class="o">=</span>W1307,E1322 salt/
+</code></pre></div>
 
 <h1>Getting the docs working</h1>
 <p>Unfortunately, if you write a new module, sphinx is unable to discover than and just import the docstrings for you, so we will need to create a few files to reference the ones above.</p>
 <p>First, we autoload the docstrings for the actual doc file.</p>
 <p><code>doc/ref/modules/all/salt.modules.redismod.rst</code></p>
-<div class="highlight"><pre><span></span>==================
+<div class="highlight"><pre><span></span><code>==================
 salt.modules.redis
 ==================
 
 .. automodule:: salt.modules.redismod
     :members:
-</pre></div>
-
+</code></pre></div>
 
 <p><code>doc/ref/states/all/salt.states.redismod.rst</code></p>
-<div class="highlight"><pre><span></span>==================
+<div class="highlight"><pre><span></span><code>==================
 salt.states.redis
 ==================
 
 .. automodule:: salt.states.redismod
     :members:
-</pre></div>
-
+</code></pre></div>
 
 <p>Then they will get compiled, then we have to add the following references to the correct index files and just add <code>redis</code> to <code>doc/ref/modules/all/index.rst</code> and <code>doc/ref/states/all/index.rst</code> so that they will be visible in the index pages for all execution modules and all state modules.</p>
 <h1>Creating a pull request</h1>

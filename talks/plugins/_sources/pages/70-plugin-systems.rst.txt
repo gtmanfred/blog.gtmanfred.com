@@ -5,6 +5,23 @@ Plugin Systems
 Now that we can load modules and attach them to our application singletons we
 just need to be able to figure out where those handlers/tasks are.
 
+Werkzeug
+========
+
+.. code-block:: python
+
+    from flask import Flask
+    from werkzeug.utils import find_modules, import_string
+
+    app = Flask()
+
+    for module in find_modules('app.handlers', recursive=True):
+        version = module.rsplit('.', 2)[-2]
+        blueprint = import_string(import_name=f'{module}:blueprint', silent=True)
+        if blueprint is not None:
+            app.register_blueprint(blueprint)
+
+
 ``pkg_resources`` entry points
 ==============================
 
@@ -32,6 +49,8 @@ They point to modules that will be loaded.
 Once you have an entry point to iterate over, instead of having to hard code a
 path, just use the path of your entry point.
 
+Before python 3.8
+
 .. code-block:: python
 
     import pkg_resources
@@ -44,6 +63,23 @@ path, just use the path of your entry point.
         else:
             path = directory.__file__
         ...
+
+
+After python 3.8
+
+.. code-block:: python
+
+   from importlib.metadata import entry_points
+
+   for entry in entry_points(group='test.loader', name='test.dirs'):
+        directory = entry.load()
+        if not directory.__file__:
+            # namespace package
+            path = directory.__path__._path[0]
+        else:
+            path = directory.__file__
+        ...
+
 
 ``stevedore``
 =============
@@ -62,8 +98,9 @@ do some fun stuff with importlib.
 =======
 
 SaltStack is also manages a new opensource loader system with a hub, which is
-really interesting.  It is called pop_
+really interesting.  It is called pop_.
 
 .. _stevedore: https://docs.openstack.org/stevedore/latest/
 .. _SaltStack: https://github.com/saltstack/salt/tree/develop/salt/loader.py
 .. _Ansible: https://github.com/ansible/ansible/blob/devel/lib/ansible/executor/module_common.py
+.. _pop: https://pypi.org/project/pop/

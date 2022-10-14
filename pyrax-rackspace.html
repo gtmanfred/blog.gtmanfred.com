@@ -79,8 +79,8 @@
         <ul class="list">
           <li><a href="https://blog.gtmanfred.com/pages/about.html#about">About</a></li>
 
-          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
           <li><a href="talks/pytest" target="_blank">pytest talk</a></li>
+          <li><a href="talks/plugins" target="_blank">plugins talk</a></li>
         </ul>
       </nav>
 
@@ -151,7 +151,7 @@ available to all of the different cloud modules/runner/state/salt-cloud.</p>
 with the novaclient driver.  Starting with salt.utils.openstack.pyrax, 
 __init__.py should look something like this</p>
 <h2>salt/utils/openstack/pyrax/__init__.py</h2>
-<div class="highlight"><pre><span></span>    <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">with_statement</span><span class="p">,</span> <span class="n">generators</span>
+<div class="highlight"><pre><span></span><code>    <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">with_statement</span><span class="p">,</span> <span class="n">generators</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">pyrax</span>
@@ -160,11 +160,10 @@ __init__.py should look something like this</p>
         <span class="kn">from</span> <span class="nn">salt.utils.openstack.pyrax.authentication</span> <span class="kn">import</span> <span class="n">Auth</span>
 
         <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;Auth&#39;</span> <span class="p">]</span>
-        <span class="n">HAS_PYRAX</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">HAS_PYRAX</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="n">HAS_PYRAX</span> <span class="o">=</span> <span class="bp">False</span>
-</pre></div>
-
+        <span class="n">HAS_PYRAX</span> <span class="o">=</span> <span class="kc">False</span>
+</code></pre></div>
 
 <p>This will keep everything imported when we just import
 salt.utils.openstack.pyrax but if pyrax is not installed, it doesn't try to 
