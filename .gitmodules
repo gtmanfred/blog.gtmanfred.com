@@ -1,9 +1,9 @@
 [submodule "plugins"]
 	path = plugins
-	url = git://github.com/getpelican/pelican-plugins.git
+	url = https://github.com/getpelican/pelican-plugins.git
 [submodule "themes/bootstrap3"]
 	path = themes/bootstrap3
-	url = git://github.com/gtmanfred/bootstrap3
+	url = https://github.com/gtmanfred/bootstrap3
 [submodule "themes/flex"]
 	path = themes/flex
-	url = git://github.com/alexandrevicenzi/Flex
+	url = https://github.com/alexandrevicenzi/Flex
