@@ -1,5 +1,5 @@
 pelican:
-	pipenv run pelican content -vvv -o output -s pelicanconf.py
+	pelican content -vvv -o output -s pelicanconf.py
 
 sphinx:
 	make -C talks build

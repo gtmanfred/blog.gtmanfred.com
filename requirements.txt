@@ -1,2 +1,5 @@
 pelican
 Markdown
+beautifulsoup4
+jinja2
+sphinx
