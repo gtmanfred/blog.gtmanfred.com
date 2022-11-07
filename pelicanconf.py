@@ -56,6 +56,7 @@ SOCIAL = (
     ('twitter', 'https://twitter.com/gtmanfred'),
     ('reddit', 'https://reddit.com/u/gtmanfred'),
     ('rss', '/feeds/all.atom.xml'),
+    ('mastodon', 'https://dice.camp/@gtmanfred'),
 )
 
 LINKS = []
