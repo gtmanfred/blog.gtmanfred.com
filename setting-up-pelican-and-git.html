@@ -206,8 +206,8 @@ git init
 
 <p>After this you will want to go ahead and copy over your pelicanconf.py from the ~/blog
 directory on the remote device to your local git repository.  Now git add it.</p>
-<div class="highlight"><pre><span></span><code><span class="n">git</span><span class="w"> </span><span class="n">add</span><span class="w"> </span><span class="n">pelicanconf</span><span class="p">.</span><span class="n">py</span><span class="w"></span>
-<span class="n">git</span><span class="w"> </span><span class="n">commit</span><span class="w"> </span><span class="o">-</span><span class="n">m</span><span class="w"> </span><span class="s">&quot;First Commit -&gt; Starting new blog!&quot;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="n">git</span><span class="w"> </span><span class="n">add</span><span class="w"> </span><span class="n">pelicanconf</span><span class="p">.</span><span class="n">py</span>
+<span class="n">git</span><span class="w"> </span><span class="n">commit</span><span class="w"> </span><span class="o">-</span><span class="n">m</span><span class="w"> </span><span class="s">&quot;First Commit -&gt; Starting new blog!&quot;</span>
 </code></pre></div>
 
 <p>Now we need to go back to the pelican user on your remote machine with the pelican
@@ -221,10 +221,10 @@ git init --bare
 <p>Now we can go ahead and setup out githook that is going to do all the work for us.  Copy the
 following into ~/bloggit/hooks/post-update.</p>
 <div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env bash</span>
-<span class="nb">source</span> ~/blogenv/bin/activate
-<span class="nv">GIT_WORK_TREE</span><span class="o">=</span>/home/pelican/blog git checkout -f
-<span class="nb">pushd</span> ~/blog
-make publish
+<span class="nb">source</span><span class="w"> </span>~/blogenv/bin/activate
+<span class="nv">GIT_WORK_TREE</span><span class="o">=</span>/home/pelican/blog<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>-f
+<span class="nb">pushd</span><span class="w"> </span>~/blog
+make<span class="w"> </span>publish
 <span class="nb">popd</span>
 </code></pre></div>
 
@@ -237,22 +237,22 @@ messy and and one extra line isn't a big deal.</p>
 your git repository, make a contents directory and write a blog post.  Here is an example if
 you don't want to spend the time right now.</p>
 <p><a href="https://github.com/getpelican/pelican/blob/master/docs/getting_started.rst#file-metadata">From the pelican documentation</a></p>
-<div class="highlight"><pre><span></span><code><span class="n">Title</span><span class="o">:</span><span class="w"> </span><span class="n">My</span><span class="w"> </span><span class="kd">super</span><span class="w"> </span><span class="n">title</span><span class="w"></span>
-<span class="n">Date</span><span class="o">:</span><span class="w"> </span><span class="mi">2010</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">03</span><span class="w"> </span><span class="mi">10</span><span class="o">:</span><span class="mi">20</span><span class="w"></span>
-<span class="n">Category</span><span class="o">:</span><span class="w"> </span><span class="n">Python</span><span class="w"></span>
-<span class="n">Tags</span><span class="o">:</span><span class="w"> </span><span class="n">pelican</span><span class="o">,</span><span class="w"> </span><span class="n">publishing</span><span class="w"></span>
-<span class="n">Slug</span><span class="o">:</span><span class="w"> </span><span class="n">my</span><span class="o">-</span><span class="kd">super</span><span class="o">-</span><span class="n">post</span><span class="w"></span>
-<span class="n">Author</span><span class="o">:</span><span class="w"> </span><span class="n">Alexis</span><span class="w"> </span><span class="n">Metaireau</span><span class="w"></span>
-<span class="n">Summary</span><span class="o">:</span><span class="w"> </span><span class="n">Short</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">feeds</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="n">Title</span><span class="o">:</span><span class="w"> </span><span class="n">My</span><span class="w"> </span><span class="kd">super</span><span class="w"> </span><span class="n">title</span>
+<span class="n">Date</span><span class="o">:</span><span class="w"> </span><span class="mi">2010</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">03</span><span class="w"> </span><span class="mi">10</span><span class="o">:</span><span class="mi">20</span>
+<span class="n">Category</span><span class="o">:</span><span class="w"> </span><span class="n">Python</span>
+<span class="n">Tags</span><span class="o">:</span><span class="w"> </span><span class="n">pelican</span><span class="o">,</span><span class="w"> </span><span class="n">publishing</span>
+<span class="n">Slug</span><span class="o">:</span><span class="w"> </span><span class="n">my</span><span class="o">-</span><span class="kd">super</span><span class="o">-</span><span class="n">post</span>
+<span class="n">Author</span><span class="o">:</span><span class="w"> </span><span class="n">Alexis</span><span class="w"> </span><span class="n">Metaireau</span>
+<span class="n">Summary</span><span class="o">:</span><span class="w"> </span><span class="n">Short</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">feeds</span>
 
-<span class="n">This</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">my</span><span class="w"> </span><span class="kd">super</span><span class="w"> </span><span class="n">blog</span><span class="w"> </span><span class="n">post</span><span class="o">.</span><span class="w"></span>
+<span class="n">This</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">my</span><span class="w"> </span><span class="kd">super</span><span class="w"> </span><span class="n">blog</span><span class="w"> </span><span class="n">post</span><span class="o">.</span>
 </code></pre></div>
 
 <p>Place this in a file ending with .md for your git repository.  We now need to setup the remote
 git repository and push to it.</p>
-<div class="highlight"><pre><span></span><code><span class="n">git</span><span class="w"> </span><span class="n">remote</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="n">website</span><span class="w"> </span><span class="n">pelican</span><span class="nv">@blog</span><span class="p">.</span><span class="n">gtmanfred</span><span class="p">.</span><span class="nl">com</span><span class="p">:</span><span class="n">bloggit</span><span class="w"></span>
-<span class="n">git</span><span class="w"> </span><span class="n">remote</span><span class="w"> </span><span class="k">update</span><span class="w"></span>
-<span class="n">git</span><span class="w"> </span><span class="n">push</span><span class="w"> </span><span class="o">-</span><span class="n">u</span><span class="w"> </span><span class="n">website</span><span class="w"> </span><span class="n">master</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="n">git</span><span class="w"> </span><span class="n">remote</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="n">website</span><span class="w"> </span><span class="n">pelican</span><span class="nv">@blog</span><span class="p">.</span><span class="n">gtmanfred</span><span class="p">.</span><span class="nl">com</span><span class="p">:</span><span class="n">bloggit</span>
+<span class="n">git</span><span class="w"> </span><span class="n">remote</span><span class="w"> </span><span class="k">update</span>
+<span class="n">git</span><span class="w"> </span><span class="n">push</span><span class="w"> </span><span class="o">-</span><span class="n">u</span><span class="w"> </span><span class="n">website</span><span class="w"> </span><span class="n">master</span>
 </code></pre></div>
 
 <p>This should generate the blog posts and you should be able to use the same nginx.conf server
@@ -262,9 +262,9 @@ from above.</p>
 beacuse I am peculiar.  The Makefile for pelican recognizes the environment variable OUTPUTDIR
 for where you want output set to... so I set it to /srv/http/blog.gtmanfred.com.</p>
 <div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env bash</span>
-<span class="nb">source</span> ~/blogenv/bin/activate
-<span class="nv">GIT_WORK_TREE</span><span class="o">=</span>/home/pelican/blog git checkout -f
-make -C ~/blog <span class="nv">OUTPUTDIR</span><span class="o">=</span>/srv/http/blog.gtmanfred.com/ publish
+<span class="nb">source</span><span class="w"> </span>~/blogenv/bin/activate
+<span class="nv">GIT_WORK_TREE</span><span class="o">=</span>/home/pelican/blog<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>-f
+make<span class="w"> </span>-C<span class="w"> </span>~/blog<span class="w"> </span><span class="nv">OUTPUTDIR</span><span class="o">=</span>/srv/http/blog.gtmanfred.com/<span class="w"> </span>publish
 </code></pre></div>
 
 <p>Again, be sure to <code>chmod +x</code> the hook.</p>

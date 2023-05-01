@@ -212,7 +212,7 @@
 
 
 <span class="k">def</span> <span class="nf">__virtual__</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Only load this module if redis python module is installed</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">HAS_REDIS</span><span class="p">:</span>
@@ -221,7 +221,7 @@
 
 
 <span class="k">def</span> <span class="nf">_connect</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Return redis client instance</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="p">:</span>
@@ -239,7 +239,7 @@
 
 
 <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get Redis key value</span>
 
 <span class="sd">    CLI Example:</span>
@@ -254,7 +254,7 @@
 
 
 <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Set Redis key value</span>
 
 <span class="sd">    CLI Example:</span>
@@ -269,7 +269,7 @@
 
 
 <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Delete Redis key value</span>
 
 <span class="sd">    CLI Example:</span>
@@ -359,7 +359,7 @@
 
 
 <span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Ensure key and value pair exists</span>
 
 <span class="sd">    name</span>
@@ -419,7 +419,7 @@
 
 
 <span class="k">def</span> <span class="nf">absent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Ensure key is not set.</span>
 
 <span class="sd">    name</span>
@@ -502,12 +502,12 @@
 <h1>Running pylint on your changes</h1>
 <p>We run pylint on every change, so it is a good thing to know about because you can start adjusting yourself to write more inline with what pylint wants.  The only big thing that I will say you should know is that our line limit is actually 119 instead of 80.</p>
 <p>Now, to run pylint, you are going to need a few things.  You should install all the dependencies for salt, and you should install the stuff for dev_python27.txt.  But then you also need to update to the newest version of SaltPylint and SaltTesting.</p>
-<div class="highlight"><pre><span></span><code>pip install -r requirements/dev_python27.txt -r requirements/raet.txt -r requirements/zeromq.txt
-pip install --upgrade SaltPyLint SaltTesting
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/dev_python27.txt<span class="w"> </span>-r<span class="w"> </span>requirements/raet.txt<span class="w"> </span>-r<span class="w"> </span>requirements/zeromq.txt
+pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>SaltPyLint<span class="w"> </span>SaltTesting
 </code></pre></div>
 
 <p>And then you can run pylint on your code before submitting a PR.</p>
-<div class="highlight"><pre><span></span><code>pylint --rcfile<span class="o">=</span>.testing.pylintrc --disable<span class="o">=</span>W1307,E1322 salt/
+<div class="highlight"><pre><span></span><code>pylint<span class="w"> </span>--rcfile<span class="o">=</span>.testing.pylintrc<span class="w"> </span>--disable<span class="o">=</span>W1307,E1322<span class="w"> </span>salt/
 </code></pre></div>
 
 <h1>Getting the docs working</h1>
